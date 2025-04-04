@@ -6,7 +6,7 @@ We are creating a nice collection of common mistakes when implementing MPC proto
 
 ### Commitments are not Bound to the Opening Party
 
-I.e. missing identity information on the sender and session id to ensure that rushing adversaries cannot commitments and opening information from other parties.
+I.e. missing identity information on the sender and session id to ensure that rushing adversaries cannot copy commitments and opening information from other parties.
 
 ### Zero Knowledge Proofs not Bound to the Protocol Execution
 
