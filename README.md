@@ -19,8 +19,9 @@ i.e. a broadcast channel cannot be instantiated by simply sending the message to
 **Examples:**
 - Blind schnorr signatures and ROS.
 
-### Allowing input secrets to lie in an extension
+### Improper input checks
 
-This issue arises when the share space is an extension of the secret space.
-For example, the secret space is `F_2` but the share space is `F_{2^k}` (this is the case for binary Shamir's secret-sharing).
-It is important to check that a received share is actually a share of an `F_2` element.
+It is often the case that the "secret space" differs from the "share space".
+This is for example the case when using Shamir's secret sharing over a small field such as `F_2`, or a ring such as `Z_2^64`.
+This is (arguably) also the case for protocols that rely on statistical hiding.
+If the input mechanism of the secure protocol does not validate an input, it might lead to incorrect computations and/or breaches of privacy.
