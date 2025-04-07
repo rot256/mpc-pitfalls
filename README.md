@@ -45,7 +45,6 @@ When used in custom protocols it is strongly recommended to ensure the following
 
 
 ### Pitfalls: Hash functions
-Ensure the following:
 - If a Merkle-Damgård construction is used (e.g. SHA2), not validating that the application is not vulnerable to extension attacks.
 - When a hash function is used in multiple places in a protocol, not adding a unique constant-length domain separator. 
 - When a list is hashed where each element has variable length, not hashing each element independently, and then hashing the digests together. 
