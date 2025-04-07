@@ -55,3 +55,10 @@ When used in custom protocols it is strongly recommended to ensure the following
 ### Pitfalls: Fiat-Shamir
 - The witness domain is not large enough to not allow for computational brute-forcing, i.e. has less than 128 bits of entropy.
 - Randomness used does not contain at least 128 bits of entropy.
+
+### Improper input checks
+
+It is often the case that the "secret space" differs from the "share space".
+This is for example the case when using Shamir's secret sharing over a small field such as `F_2`, or a ring such as `Z_2^64`.
+This is (arguably) also the case for protocols that rely on statistical hiding.
+If the input mechanism of the secure protocol does not validate an input, it might lead to incorrect computations and/or breaches of privacy.
