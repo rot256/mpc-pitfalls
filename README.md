@@ -17,6 +17,13 @@ i.e. not embedding the unique context for the protocol _and_ given execution _an
 **Examples:**
 - Blind schnorr signatures and ROS.
 
+### Pitfall: Sequentially Secure Protocol used Concurrently
+
+**Examples:**
+- Concurrent SPDZ MAC check without appropriate synchronization. To be secure in the presence of multi-threading, the whole MAC check subprotocol needs to be treated as critical section, including the possible abort.
+
+Note that the term "concurrent" is overloaded: It can refer to concurrency in a distributed system (standard in the MPC literature, including UC), or concurrency in the sense of multi-threading/cooperative multi-tasking etc (not covered by standard security models). A multi-threaded MPC implementation might need concurrent security in both meanings of the word.
+
 ### Pitfalls: UC protocols
 - Point-to-Point Channels lack Encryption and Authentication.
 - Sessions IDs and sub-session IDs are not used for each message to prevent mix-and-match attacks.
