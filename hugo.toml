@@ -1,4 +1,3 @@
-baseURL = "https://rot256.github.io/mpc-pitfalls/"
 title = "Common MPC Pitfalls"
 languageCode = "en-us"
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
