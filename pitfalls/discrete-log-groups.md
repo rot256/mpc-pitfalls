@@ -1,5 +1,5 @@
 ---
-title: "Discrete log groups"
+title: "Discrete Log Groups"
 class: "Cryptographic Primitive"
 order: 7
 ---

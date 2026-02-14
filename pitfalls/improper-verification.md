@@ -1,5 +1,5 @@
 ---
-title: "Improper verification of received messages"
+title: "Improper Verification of Received Messages"
 class: "Protocol"
 order: 1
 ---

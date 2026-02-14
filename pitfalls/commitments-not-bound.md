@@ -1,5 +1,5 @@
 ---
-title: "Commitments are not Bound to the Opening Party"
+title: "Commitments Are Not Bound to the Opening Party"
 class: "Protocol"
 order: 2
 ---

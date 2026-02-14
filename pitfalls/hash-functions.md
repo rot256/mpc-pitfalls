@@ -1,5 +1,5 @@
 ---
-title: "Hash functions"
+title: "Hash Functions"
 class: "Cryptographic Primitive"
 order: 9
 ---

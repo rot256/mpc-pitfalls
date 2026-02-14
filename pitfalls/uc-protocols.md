@@ -1,5 +1,5 @@
 ---
-title: "UC protocols"
+title: "UC Protocols"
 class: "Protocol"
 order: 5
 ---

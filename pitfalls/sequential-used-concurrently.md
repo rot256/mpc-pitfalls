@@ -1,5 +1,5 @@
 ---
-title: "Sequentially Secure Protocol used Concurrently"
+title: "Sequentially Secure Protocol Used Concurrently"
 class: "Protocol"
 order: 4
 ---

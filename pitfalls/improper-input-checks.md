@@ -1,5 +1,5 @@
 ---
-title: "Improper input checks"
+title: "Improper Input Checks"
 class: "Protocol"
 order: 12
 ---

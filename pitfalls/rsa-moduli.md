@@ -1,5 +1,5 @@
 ---
-title: "RSA-style moduli"
+title: "RSA-Style Moduli"
 class: "Cryptographic Primitive"
 order: 6
 ---

@@ -1,5 +1,5 @@
 ---
-title: "Zero Knowledge Proofs not Bound to the Protocol Execution"
+title: "Zero Knowledge Proofs Not Bound to the Protocol Execution"
 class: "Protocol"
 order: 3
 ---

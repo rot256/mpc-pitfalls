@@ -1,5 +1,5 @@
 ---
-title: "Elliptic curve groups"
+title: "Elliptic Curve Groups"
 class: "Cryptographic Primitive"
 order: 8
 ---
