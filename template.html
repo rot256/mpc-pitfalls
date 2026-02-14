@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Common MPC Pitfalls</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ]
+        });"></script>
+</head>
+<body>
+    <header>
+        <h1>Common Multi-Party Computation Pitfalls</h1>
+        <p>A collection of common mistakes when implementing MPC protocols, to help developers implement MPC securely.</p>
+    </header>
+
+    <nav>
+        <h2>Table of Contents</h2>
+        <ol>
+        {% for pitfall in pitfalls %}
+            <li><a href="#{{ pitfall.slug }}">{{ pitfall.title }}</a></li>
+        {% endfor %}
+        </ol>
+    </nav>
+
+    <main>
+    {% for pitfall in pitfalls %}
+        <section class="pitfall" id="{{ pitfall.slug }}">
+            <h2>{{ pitfall.title }}</h2>
+            {{ pitfall.body }}
+        </section>
+    {% endfor %}
+    </main>
+
+    <footer>
+        <a href="https://github.com/rot256/mpc-pitfalls">Discuss &amp; Contribute on GitHub</a>
+    </footer>
+</body>
+</html>

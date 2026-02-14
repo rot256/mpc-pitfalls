@@ -1,0 +1,11 @@
+[project]
+name = "mpc-pitfalls-site"
+version = "0.1.0"
+description = "Build script for the MPC Pitfalls single-page website"
+requires-python = ">=3.10"
+dependencies = [
+    "pyyaml",
+    "jinja2",
+    "markdown",
+    "python-frontmatter",
+]

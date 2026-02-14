@@ -1,0 +1,147 @@
+:root {
+    --text: #2d2d2d;
+    --bg: #fafafa;
+    --accent: #1a4a6e;
+    --border: #ddd;
+    --code-bg: #f0f0f0;
+    --max-width: 760px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.7;
+    font-size: 17px;
+}
+
+header {
+    border-bottom: 2px solid var(--accent);
+    padding: 2.5rem 1.5rem 1.5rem;
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+nav {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 1.5rem 1.5rem;
+}
+
+nav h2 {
+    font-size: 1.1rem;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+}
+
+nav ol {
+    padding-left: 1.5rem;
+}
+
+nav ol li {
+    margin-bottom: 0.3rem;
+    font-size: 0.93rem;
+}
+
+nav ol li a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+nav ol li a:hover {
+    text-decoration: underline;
+}
+
+main {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem 3rem;
+}
+
+.pitfall {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.pitfall h2 {
+    font-size: 1.3rem;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+}
+
+.pitfall h3, .pitfall h4 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+}
+
+.pitfall p {
+    margin-bottom: 0.75rem;
+}
+
+.pitfall ul, .pitfall ol {
+    margin-bottom: 0.75rem;
+    padding-left: 1.5rem;
+}
+
+.pitfall li {
+    margin-bottom: 0.5rem;
+}
+
+.pitfall a {
+    color: var(--accent);
+}
+
+.pitfall code {
+    background: var(--code-bg);
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+footer {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 1.5rem;
+    border-top: 2px solid var(--accent);
+    text-align: center;
+    font-size: 0.85rem;
+    color: #777;
+}
+
+footer a {
+    color: var(--accent);
+}
+
+strong {
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    body {
+        font-size: 15px;
+    }
+
+    header, nav, main, footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
