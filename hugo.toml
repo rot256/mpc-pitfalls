@@ -1,0 +1,19 @@
+baseURL = "https://rot256.github.io/mpc-pitfalls/"
+title = "Common MPC Pitfalls"
+languageCode = "en-us"
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
+
+[outputs]
+home = ["HTML"]
+page = []
+section = []
+
+[markup.goldmark.renderer]
+unsafe = true
+
+[markup.goldmark.extensions.passthrough]
+enable = true
+
+[markup.goldmark.extensions.passthrough.delimiters]
+block = [['$$', '$$']]
+inline = [['$', '$']]

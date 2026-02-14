@@ -1,5 +1,3 @@
-dist/
-.venv/
-__pycache__/
-*.pyc
-uv.lock
+public/
+resources/
+.hugo_build.lock
