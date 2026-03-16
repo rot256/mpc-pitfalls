@@ -7,6 +7,10 @@ home = ["HTML"]
 page = []
 section = []
 
+[markup.highlight]
+lineNos = true
+lineNumbersInTable = false
+
 [markup.goldmark.renderer]
 unsafe = true
 
