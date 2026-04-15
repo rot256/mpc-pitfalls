@@ -53,27 +53,83 @@ the **ROS problem** (Random inhomogeneous Systems of linear equations over Solva
 polynomial-time algorithm that solves ROS over 256-bit elliptic curve groups using
 approximately $\ell = 192$ concurrent sessions in a matter of seconds.
 
-The adversary opens $\ell$ concurrent signing sessions with the signer. In each session $i$,
-the signer commits to a nonce $R_i = k_i \cdot G$ and waits for the blinded challenge $c_i$.
-The adversary chooses all $\ell$ challenges jointly so that they satisfy a linear relation
-modulo the group order:
+The following pseudocode shows the vulnerable two-round blind Schnorr signer, which accepts
+challenges from the requester without any session binding:
+
+```python
+# Vulnerable blind Schnorr signer — no binding between nonce and challenge
+class BlindSchnorrSigner:
+    def round1(self) -> Point:
+        self.k = random_scalar()          # fresh nonce per session
+        self.R = self.k * G               # nonce commitment
+        return self.R                     # sent to requester
+
+    def round2(self, c: Scalar) -> Scalar:
+        # c arrives from the requester with no proof it was derived from
+        # this specific R or from any particular message.
+        # A malicious requester can choose c freely — including as a
+        # linear combination of challenges from other concurrent sessions.
+        s = self.k + c * self.sk          # partial response
+        return s
+```
+
+The requester accumulates $\ell$ sessions. In each session $i$ it receives $R_i$ from the
+signer, then chooses all $\ell$ challenges *jointly* so that they satisfy the ROS relation:
 $$
-\sum_{i=1}^{\ell} \rho_i \cdot c_i = c^*
+\sum_{i=1}^{\ell} \rho_i \cdot c_i = c^* \pmod{q}
 $$
-for some target challenge $c^*$ and known coefficients $\rho_i$. After collecting $\ell$
-responses $s_i = k_i + c_i \cdot \mathsf{sk}$, the adversary combines them to produce a
-valid response $s^* = \sum \rho_i \cdot s_i$ for the forged session, yielding $\ell + 1$
-signatures after only $\ell$ interactions.
+for a target challenge $c^*$ and known coefficients $\rho_i$. After collecting $\ell$
+responses $s_i = k_i + c_i \cdot \mathsf{sk}$, the adversary combines them:
+$$
+s^* = \sum_{i=1}^{\ell} \rho_i \cdot s_i
+  = \sum \rho_i k_i + \left(\sum \rho_i c_i\right) \mathsf{sk}
+  = R^* + c^* \cdot \mathsf{sk}
+$$
+yielding a valid signature $(R^*, s^*)$ on a message the signer never individually signed —
+$\ell + 1$ signatures after only $\ell$ interactions.
 
 This vulnerability was a primary motivation for redesigning threshold Schnorr signing.
 [Drijvers et al.](https://eprint.iacr.org/2018/417.pdf) showed that early multi-party
-signing protocols relying on a similar structure—where each party contributes a partial
-nonce and the partial signatures are aggregated—are broken by a related concurrent attack.
-This directly affected the original design of FROST prior to round 2 of the IETF
-standardization process. The [FROST RFC](https://github.com/cfrg/draft-irtf-cfrg-frost)
-addresses this structurally via a *binding factor*: each participant's response is bound to
-the specific message and the full commitment list for that signing round, making it
-impossible to combine responses across concurrent sessions.
+signing protocols relying on a similar structure — where each party contributes a partial
+nonce and the partial signatures are aggregated without session binding — are broken by the
+same concurrent attack. This directly affected the original design of FROST prior to round 2
+of the IETF standardization process.
+
+**Remediation.** There are two complementary approaches.
+
+The first is **structural**: bind each challenge to the specific session's nonce and message
+so that the adversary cannot freely choose it after observing all nonces. FROST achieves this
+by computing a per-participant binding factor before any response is produced:
+
+```python
+# Fixed: FROST-style binding factor prevents cross-session combination
+class FROSTSigner:
+    def round1(self) -> Point:
+        self.k = random_scalar()
+        self.R = self.k * G
+        return self.R
+
+    def round2(self, msg: bytes, commitments_list: list[Point],
+               participant_index: int) -> Scalar:
+        # Binding factor ties this response to the exact (msg, commitment_list, index)
+        # tuple. A response from a different session has a different rho and cannot
+        # be linearly combined with this one.
+        rho = H(msg, commitments_list, participant_index)   # binding factor
+        R_agg = sum(rho_j * R_j for rho_j, R_j in zip(rhos, commitments_list))
+        c = H(R_agg, msg)                                  # Fiat-Shamir challenge
+
+        s = self.k + rho * c * self.sk    # response bound to this session only
+        return s
+```
+
+The [FROST RFC 9591](https://datatracker.ietf.org/doc/html/rfc9591) (published June 2024)
+standardizes this construction. The second approach, suitable when the protocol cannot be
+changed, is to **limit concurrency at the application layer**: the signer must complete or
+abort an existing session before starting a new one, preventing the adversary from
+accumulating the $\ell \approx 192$ concurrent sessions required to solve ROS. MuSig2
+([Nick et al., CRYPTO 2021](https://eprint.iacr.org/2020/1261)) takes a middle path: it
+uses two aggregated nonces per session whose specific linear combination is provably secure
+under concurrent execution without sequentialization.
 
 ### Example 2: MP-SPDZ MAC Check Under Multi-Threading
 
@@ -101,7 +157,8 @@ Two concrete bugs were found and patched in MP-SPDZ.
 
 The `SubProcessor<T>::POpen()` function opens secret values. The MAC verification call
 `check()` was only triggered by an explicit output-gate condition (`inst.get_n()`), so in
-multi-threaded programs the opened values were never MAC-checked before use:
+multi-threaded programs the opened values were never MAC-checked before use
+([source](https://github.com/data61/MP-SPDZ/commit/5e714b2)):
 
 ```cpp
 // FILE: Processor/Processor.hpp (vulnerable, prior to fix)
@@ -116,7 +173,7 @@ if (inst.get_n())
 // even if multiple threads are concurrently opening values
 ```
 
-The fix extends both conditions to also fire when threads are active:
+The fix extends both conditions to also fire when threads are active ([source](https://github.com/data61/MP-SPDZ/blob/5e714b2/Processor/Processor.hpp)):
 
 ```cpp
 // FILE: Processor/Processor.hpp (fixed)
@@ -135,7 +192,7 @@ if (inst.get_n() or BaseMachine::s().nthreads > 0)
 Inside `Tools/Subroutines.cpp`, the coordinator was signaled as finished *before* the
 commitment-opening validation loop ran. A second thread waiting on the coordinator could
 therefore observe the "finished" state and proceed with values that had not yet been
-verified:
+verified ([source](https://github.com/data61/MP-SPDZ/commit/b86f29b)):
 
 ```cpp
 // FILE: Tools/Subroutines.cpp (vulnerable)
@@ -148,7 +205,7 @@ for (int i = 0; i < P.num_players(); i++)
         throw invalid_commitment();
 ```
 
-The fix moves the signal to after the validation loop:
+The fix moves the signal to after the validation loop ([source](https://github.com/data61/MP-SPDZ/blob/b86f29b/Tools/Subroutines.cpp)):
 
 ```cpp
 // FILE: Tools/Subroutines.cpp (fixed)
@@ -169,10 +226,27 @@ values are correctly authenticated. By carefully timing two concurrent MAC check
 the adversary extracts information about the global MAC key $\alpha$ through the
 unauthenticated intermediate state, then uses this to forge MACs on arbitrary output values.
 
+**Remediation.** The MAC check sub-protocol must be treated as an **atomic critical section**
+across all threads. This means:
+
+1. **Mutual exclusion on the MAC check itself.** A mutex or semaphore must prevent two threads
+   from executing overlapping instances of the MAC check (including the possible abort path).
+   In MP-SPDZ, this is now enforced via the coordinator signal ordering fix in commit
+   [`b86f29b`](https://github.com/data61/MP-SPDZ/commit/b86f29b): `coordinator.finished()`
+   is called only *after* the full commitment-opening validation loop completes.
+
+2. **Unconditional MAC verification on `POpen`.** The `check()` call must fire whenever
+   values are opened, regardless of whether the opened values reach an output gate. Commit
+   [`5e714b2`](https://github.com/data61/MP-SPDZ/commit/5e714b2) extends the condition from
+   `inst.get_n()` to `inst.get_n() or BaseMachine::s().nthreads > 0`, closing the gap where
+   multi-threaded programs could open and use values that had never been MAC-checked.
+
+3. **Design-level isolation.** Where possible, avoid sharing secret state across threads
+   entirely. The Fresco framework is not affected by either bug because it does not support
+   cross-thread secret transfer by design — a useful reference point for new implementations.
+
 ### Commits Timeline
 
-| Date | Repository | Commit | Description |
-|------|-----------|--------|-------------|
 | Date | Repository | Artifact | Description |
 |------|-----------|----------|-------------|
 | Nov 2018 | — | [eprint 2018/417](https://eprint.iacr.org/2018/417) | Drijvers et al. publish concurrent attack on two-round multi-signatures, breaking early threshold Schnorr designs |
@@ -184,3 +258,40 @@ unauthenticated intermediate state, then uses this to forge MACs on arbitrary ou
 | Jul 21, 2023 | [data61/MP-SPDZ](https://github.com/data61/MP-SPDZ) | [`b86f29b`](https://github.com/data61/MP-SPDZ/commit/b86f29b) | Security bug: race condition in `Commit_And_Open_`; `coordinator.finished()` called before commitment validation loop |
 | Aug 14, 2023 | [data61/MP-SPDZ](https://github.com/data61/MP-SPDZ) | v0.3.7 release | Both July 2023 fixes shipped; all commits after `e08a6ad` are patched |
 | May 2025 | [data61/MP-SPDZ](https://github.com/data61/MP-SPDZ) · [KULeuven-COSIC/SCALE-MAMBA](https://github.com/KULeuven-COSIC/SCALE-MAMBA) | [IEEE S&P 2025](https://eprint.iacr.org/2025/789) | *Rushing at SPDZ* formally describes MAC key leakage attack; both frameworks confirmed vulnerable |
+
+### Real-World Impact
+
+**FROST before IETF round 2 (2020–2021).** The original FROST paper
+([Komlo & Goldberg, SAC 2020](https://eprint.iacr.org/2020/852)) was published alongside the
+finding by Drijvers et al. that its predecessor designs were broken under concurrent signing.
+Before the binding-factor mechanism was introduced in the IETF draft, several early
+open-source FROST implementations (including reference implementations for the Zcash and
+Privacy Pass ecosystems) were based on the earlier nonce-aggregation design. While no
+on-chain exploit has been confirmed, the Zcash Foundation and the CFRG working group both
+treated the concurrent-security gap as a blocking issue, requiring the protocol to be
+redesigned before any threshold wallet deployed it in production. The binding factor became
+mandatory in [draft-irtf-cfrg-frost-08](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-frost-08)
+and was eventually standardized in [RFC 9591](https://datatracker.ietf.org/doc/html/rfc9591)
+(June 2024).
+
+**MuSig1 (2018–2020).** The original MuSig multi-signature scheme
+([Maxwell et al., 2018](https://eprint.iacr.org/2018/068)) suffered from the same
+Drijvers et al. concurrent attack. Because MuSig1 was primarily a research proposal at the
+time the attack was published, no known production deployment used the vulnerable two-round
+variant. The attack prompted the design of **MuSig2**
+([Nick et al., CRYPTO 2021](https://eprint.iacr.org/2020/1261)), which achieves concurrent
+security by introducing a second aggregated nonce per session, making it the basis for all
+subsequent Bitcoin Schnorr multi-signature deployments (e.g., in Lightning Network channel
+management and BIP-327).
+
+**MP-SPDZ / SCALE-MAMBA (2022–2025).** Both frameworks are used in academic research
+prototypes and in commercial MPC-as-a-service deployments for privacy-preserving analytics
+and secure collaborative computation. MP-SPDZ shipped patches in v0.3.3 (August 2022) and
+v0.3.7 (August 2023) addressing the two threading bugs. SCALE-MAMBA, by contrast, has no
+public patch commit and distributes updates via a quarterly private release cycle — meaning
+any deployment using a SCALE-MAMBA build prior to the private fix remains vulnerable with no
+public indicator of when or whether the fix was applied. The *Rushing at SPDZ* paper (IEEE
+S&P 2025) confirmed that the attack is practical: in their proof-of-concept a malicious client
+running a modified binary fully controls the output of a concurrent thread's computation,
+breaking the malicious-security guarantee that SPDZ is specifically designed to provide.
+
