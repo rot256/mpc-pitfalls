@@ -232,10 +232,10 @@ func NewProof(Session []byte, ec elliptic.Curve, N0, NCap, s, t, N0p, N0q *big.I
 
 ### Real-World Impact
 
-**IoFinnet / Kudelski Security disclosure — $70B at risk (December 2022).** The
+**IoFinnet / Kudelski Security disclosure — \$70B at risk (December 2022).** The
 [IoFinnet security disclosure](https://medium.com/@iofinnet/security-disclosure-for-ecdsa-and-eddsa-threshold-signature-schemes-4e969af7155b)
 described CVE-2022-47930 and CVE-2022-47931 as affecting all deployments of `tss-lib`
-before v2.0.0. IoFinnet and Kudelski Security estimated that over $70 billion in
+before v2.0.0. IoFinnet and Kudelski Security estimated that over \$70 billion in
 cryptoassets were protected by threshold wallets built on the affected library at the time
 of disclosure. The replay attack vector (CVE-2022-47930) enables a malicious insider — a
 party participating in a legitimate signing ceremony — to authenticate as another party in
