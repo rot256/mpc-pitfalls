@@ -47,8 +47,7 @@ A malicious party could supply arbitrary $h_1$, $h_2$, $\tilde{N}$ values, compr
 # DRAFT RSA-Style Moduli
 
 RSA-style moduli, integers $N = pq$, appear in MPC primarily through **Paillier encryption**, which
-underlies multiplicative-to-additive (MtA) conversion in threshold ECDSA protocols such as GG18 and
-GG20. In these protocols every participant publishes a Paillier public key $N_i$ during distributed
+underlies multiplicative-to-additive (MtA) conversion in threshold ECDSA protocols such as GG18 and GG20. In these protocols every participant publishes a Paillier public key $N_i$ during distributed
 key generation (DKG), and other parties use $N_i$ to encrypt their secret shares and run
 zero-knowledge range proofs against them. The security guarantees of the whole protocol rest on two
 assumptions about each modulus:
@@ -78,7 +77,7 @@ which ensures that an adversary cannot choose $h_1$ or $h_2$ with a special stru
 2 or 4) that would allow them to forge range proofs later.
 
 In `bnb-chain/tss-lib` before v1.2.0, round 2 of ECDSA keygen stored these parameters directly
-from the incoming message without verifying any such proof:
+from the incoming message without verifying any such proof ([source](https://github.com/bnb-chain/tss-lib/pull/89)):
 
 ```go
 // FILE: ecdsa/keygen/round_2.go — bnb-chain/tss-lib < v1.2.0 (vulnerable)
@@ -103,7 +102,7 @@ uses the resulting proofs to claim an arbitrary witness.
 
 **Remediation.** PR [#89](https://github.com/bnb-chain/tss-lib/pull/89) (merged March 5, 2020,
 released in v1.2.0) added a `DlnProofVerifier` that runs two concurrent DLN proof checks
-before accepting any party's parameters:
+before accepting any party's parameters ([source](https://github.com/bnb-chain/tss-lib/blob/7b7c17e90504d5dad94b938e84fec690bb1ec311/ecdsa/keygen/round_2.go)):
 
 ```go
 // FILE: ecdsa/keygen/round_2.go — bnb-chain/tss-lib >= v1.2.0 (fixed)
@@ -134,7 +133,7 @@ A separate audit finding (Kudelski Security, October 2019, issue
 [#67](https://github.com/bnb-chain/tss-lib/issues/67)) identified that the helper function
 `GetRandomGeneratorOfTheQuadraticResidue()` internally assumes its inputs are **safe primes**
 ($p = 2p' + 1$), but the primes supplied by `GenerateNTildei()` came from Go's standard
-`rsa.GenerateMultiPrimeKey()`, which generates ordinary RSA primes with no special structure:
+`rsa.GenerateMultiPrimeKey()`, which generates ordinary RSA primes with no special structure ([source](https://github.com/bnb-chain/tss-lib/issues/67)):
 
 ```go
 // FILE: ecdsa/keygen/round_1.go — vulnerable (pre-fix)
@@ -187,7 +186,7 @@ soundness of Paillier, which breaks when $N$ has small factors.
 4. After 16 signing sessions (one per $p_i$), $A$ applies the Chinese Remainder Theorem to
    reconstruct $x_B$ completely, obtaining $B$'s secret key share.
 
-The following code snippet illustrates what should have been checked on receipt:
+The following code snippet illustrates what should have been checked on receipt ([source](https://github.com/bnb-chain/tss-lib/blob/master/ecdsa/signing/round_1.go)):
 
 ```go
 // FILE: ecdsa/signing/round_1.go — bnb-chain/tss-lib <= v1.3.5 (vulnerable)
@@ -205,7 +204,7 @@ ZK proofs from [CGGMP21](https://eprint.iacr.org/2021/060) to the DKG phase:
 - **Paillier-Blum Modulus proof** — a ZK proof that $N = pq$ for primes $p \equiv q \equiv 3 \pmod 4$.
 - **No-Small-Factor proof** — a ZK proof that both factors satisfy $p, q > 2^{256}$.
 
-Any party that cannot supply both proofs is rejected before their Paillier key is stored:
+Any party that cannot supply both proofs is rejected before their Paillier key is stored ([source](https://github.com/bnb-chain/tss-lib/blob/master/ecdsa/keygen/round_2.go)):
 
 ```go
 // FILE: ecdsa/keygen/round_2.go — bnb-chain/tss-lib v2.0.0 (fixed)
@@ -228,7 +227,7 @@ hash computation. Three distinct attack vectors were identified; the two most di
 relevant to RSA moduli are **α-shuffle** and **c-split**.
 
 **α-shuffle.** The DLN proof in several implementations concatenated the challenge inputs
-without a length delimiter:
+without a length delimiter ([source](https://github.com/bnb-chain/tss-lib/blob/master/crypto/dlnproof/proof.go)):
 
 ```go
 // FILE: crypto/dlnproof/proof.go — bnb-chain/tss-lib (vulnerable encoding)
@@ -315,3 +314,25 @@ factor: its beta parameter (the range bound used in range proofs) was only 256 b
 than the ~2048 bits required for security. This reduced the number of signing sessions
 needed for full key extraction from 16 to approximately 1, making the attack practical
 against any counter-party with a single co-signing session.
+
+### Recommendations
+
+When RSA-style moduli are used in custom MPC protocols, implementations should enforce the
+following properties:
+
+- $p$ and $q$ are **safe primes** ($p = 2p'+1$, $q = 2q'+1$ for primes $p', q'$), ensuring
+  the multiplicative group has the structure required by the surrounding ZK proofs.
+- $p$ and $q$ are **strong primes** with a large gap $|p - q| \ge 2^{1020}$, preventing
+  square-root and Fermat factorization attacks.
+- The Paillier modulus $N$ is accompanied by a **Paillier-Blum Modulus proof** and a
+  **No-Small-Factor proof** (both from [CGGMP21](https://eprint.iacr.org/2021/060)),
+  verifiable by every party before the modulus is stored.
+- Auxiliary parameters $h_1, h_2$ are accompanied by **DLN proofs** establishing that
+  they generate the same large subgroup of $\mathbb{Z}_{\tilde{N}}^*$, that $h_1 \ne h_2$,
+  and that neither has order 2 or 4.
+- The private exponent satisfies $d > N^{1/4}$ (Wiener bound); implementations that
+  derive $d$ as part of a threshold protocol should validate this before use.
+- If the modulus is used for **signatures**, PSS padding should be applied.
+- If the modulus is used for **encryption**, OAEP padding should be applied.
+
+
