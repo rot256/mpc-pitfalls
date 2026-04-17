@@ -26,10 +26,29 @@ pitfall.
 
 ### Example: Schnorr Proof of Knowledge Without Session Binding (CVE-2022-47930)
 
-The Schnorr PoK in `bnb-chain/tss-lib` lets party $P_i$ prove knowledge of its secret key
-share $x_i$ by sending $(R = g^k, s = k + c \cdot x_i)$ where $c$ is a Fiat-Shamir
-challenge. In v1.x the challenge is derived solely from the public key
-and the commitment:
+**What can go wrong.** An MPC protocol typically requires each party to prove knowledge of
+some secret (a share of a signing key, the discrete log of a public point they just sent,
+a factor of a modulus) using a Fiat-Shamir non-interactive zero-knowledge proof. For the
+proof to be meaningful in a real deployment where many sessions run over time, the
+challenge hash must bind not only to the statement being proved but to the specific
+execution: which session, which prover, which round. If the challenge hash includes only
+the statement and the prover's first-round commitment, then the same proof bytes remain
+valid in every other session that reuses the same public statement. The proof becomes a
+transferable token rather than evidence of knowledge *now*.
+
+**Security implication.** An adversary who observes a legitimate proof from an honest
+prover in one ceremony can replay it in a later ceremony to authenticate as that prover
+without ever learning the secret. In a threshold-signing deployment this defeats the
+keygen-time check that is supposed to prevent rogue-key attacks: the attacker can insert
+their own public-key-share contributions while presenting a copy of the honest party's old
+proof as "proof" that they know the matching secret. The practical outcome is the ability
+to impersonate an honest participant across sessions, which in a threshold wallet can
+escalate to unilateral key control once enough replayed authentications accumulate.
+
+**Concrete instance.** The Schnorr PoK in `bnb-chain/tss-lib` lets party $P_i$ prove
+knowledge of its secret key share $x_i$ by sending $(R = g^k, s = k + c \cdot x_i)$ where
+$c$ is a Fiat-Shamir challenge. In v1.x the challenge is derived solely from the public
+key and the commitment:
 
 ```go
 // FILE: crypto/schnorr/schnorr_proof.go — bnb-chain/tss-lib v1.3.5 (vulnerable)
