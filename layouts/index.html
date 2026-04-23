@@ -22,21 +22,48 @@
     </header>
 
     {{ $pitfalls := sort (where .Site.RegularPages "Section" "pitfalls") ".Params.order" }}
+    {{ $classes := slice }}
+    {{ range $pitfalls }}
+        {{ $c := .Params.class }}
+        {{ if not (in $classes $c) }}
+            {{ $classes = $classes | append $c }}
+        {{ end }}
+    {{ end }}
 
     <nav>
         <h2>Table of Contents</h2>
-        <ol>
-        {{ range $pitfalls }}
-            <li><a href="#{{ .Title | anchorize }}">{{ .Title }}</a></li>
+        <ul class="toc">
+        {{ range $c := $classes }}
+            <li class="toc-category">
+                <a class="toc-category-link" href="#category-{{ $c | anchorize }}">{{ $c }}</a>
+                <ol>
+                {{ range (where $pitfalls "Params.class" $c) }}
+                    {{ $page := . }}
+                    {{ $hasH3 := false }}
+                    {{ range $page.Fragments.HeadingsMap }}
+                        {{ if eq .Level 3 }}{{ $hasH3 = true }}{{ end }}
+                    {{ end }}
+                    {{ if $hasH3 }}
+                        {{ partial "mini-pitfall-list.html" $page.Fragments.Headings }}
+                    {{ else }}
+                        <li><a href="#{{ $page.Title | anchorize }}">{{ $page.Title }}</a></li>
+                    {{ end }}
+                {{ end }}
+                </ol>
+            </li>
         {{ end }}
-        </ol>
+        </ul>
     </nav>
 
     <main>
-    {{ range $pitfalls }}
-        <section class="pitfall" id="{{ .Title | anchorize }}">
-            <h2>{{ .Title }}</h2>
-            {{ .Content }}
+    {{ range $c := $classes }}
+        <section class="category" id="category-{{ $c | anchorize }}">
+            <h2 class="category-heading">{{ $c }}</h2>
+            {{ range (where $pitfalls "Params.class" $c) }}
+                <section class="pitfall" id="{{ .Title | anchorize }}">
+                    {{ .Content }}
+                </section>
+            {{ end }}
         </section>
     {{ end }}
     </main>

@@ -76,21 +76,96 @@ main {
 }
 
 .pitfall {
-    margin-top: 2.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-}
-
-.pitfall h2 {
-    font-size: 1.3rem;
-    color: var(--accent);
-    margin-bottom: 0.75rem;
+    /* .pitfall is now just a grouping container for one file's content —
+       no title, no card border; visual separation lives at the mini-pitfall (h3) level. */
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
 }
 
 .pitfall h3, .pitfall h4 {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
     color: var(--accent);
+}
+
+/* Mini-pitfall: a direct-child h3 inside a pitfall acts as its own sub-pitfall,
+   visually separated from the next one by a dashed rule. */
+.pitfall > h3 {
+    margin-top: 2.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px dashed var(--border);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.pitfall > h3:first-of-type {
+    margin-top: 1.25rem;
+    padding-top: 0;
+    border-top: none;
+}
+
+/* Status flags rendered just under a mini-pitfall heading */
+.pitfall-flags {
+    margin-top: -0.25rem;
+    margin-bottom: 0.9rem;
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+}
+
+.pitfall-flags .flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    font-weight: 800 !important;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    border: 2px solid;
+    line-height: 1.5;
+}
+
+.pitfall-flags .flag::before {
+    content: "\01F6A9"; /* 🚩 red flag */
+    font-size: 0.95em;
+    font-weight: normal;
+    line-height: 1;
+}
+
+.pitfall-flags .flag-tbd {
+    color: #d00000 !important;
+    background: #ffe0e0;
+    border-color: #d00000;
+    border-style: solid;
+}
+
+.pitfall-flags .flag-shared {
+    color: #d00000 !important;
+    background: #ffe0e0;
+    border-color: #d00000;
+    border-style: dashed;
+}
+
+.pitfall-flags .flag-related {
+    color: #d00000 !important;
+    background: #ffe0e0;
+    border-color: #d00000;
+    border-style: dotted;
+}
+
+.pitfall-flags .flag a {
+    color: #d00000 !important;
+    text-decoration: underline;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 800;
+}
+
+.pitfall-flags .flag a:hover {
+    color: #ff0000 !important;
 }
 
 .pitfall p {
@@ -191,6 +266,54 @@ main {
 .chroma .gs { font-weight:bold }
 .chroma .l { color:#ae81ff }
 .chroma .err { color:#960050 }
+
+.category {
+    margin-top: 3rem;
+}
+
+.category-heading {
+    font-size: 1.5rem;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.category > .pitfall:first-of-type {
+    margin-top: 1rem;
+    padding-top: 0;
+    border-top: none;
+}
+
+nav .toc {
+    list-style: none;
+    padding-left: 0;
+}
+
+nav .toc-category {
+    margin-bottom: 1rem;
+}
+
+nav .toc-category-link {
+    display: block;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    font-size: 0.88rem;
+    letter-spacing: 0.03em;
+}
+
+nav .toc-category-link:hover {
+    text-decoration: underline;
+}
+
+nav .toc-category > ol {
+    padding-left: 1.5rem;
+}
 
 footer {
     max-width: var(--max-width);

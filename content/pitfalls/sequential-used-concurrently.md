@@ -1,60 +1,63 @@
 ---
 title: "Sequentially Secure Protocol Used Concurrently"
-class: "Protocol"
-order: 4
+class: "Sequentially Secure Protocol Used Concurrently"
+order: 7
 ---
 
-**Examples:**
+Many MPC protocols are proven secure only in the
+[*stand-alone setting*](https://eprint.iacr.org/1998/018): the protocol may run as a
+sub-protocol with arbitrary messages before and after, but no other messages may be
+sent in parallel during its execution. Running a stand-alone-proven protocol
+concurrently breaks that proof, and the gap has concrete, exploitable consequences.
+(The adjacent *UC Setup Assumptions Not Realized* category above covers a different
+composition concern: the deployment failing to provide the channels and session setup
+a UC proof assumed.)
 
-- Blind schnorr signatures and ROS.
-- Concurrent SPDZ MAC check without appropriate synchronization. To be secure in the presence of multi-threading, the whole MAC check subprotocol needs to be treated as critical section, including the possible abort.
+The word "concurrent" is overloaded. **Protocol-level concurrency** means multiple
+instances of the protocol run simultaneously, potentially sharing state or letting an
+adversary coordinate responses across sessions. **Implementation-level concurrency**
+means a single protocol instance executes across multiple threads or cooperative tasks,
+introducing race conditions that the protocol's security model does not cover. A
+multi-threaded MPC implementation may need to be secure in both senses at once.
 
-Note that the term "concurrent" is overloaded: It can refer to concurrency in a distributed system (standard in the MPC literature, including UC), or concurrency in the sense of multi-threading/cooperative multi-tasking etc (not covered by standard security models). A multi-threaded MPC implementation might need concurrent security in both meanings of the word.
+### Blind Schnorr signatures used concurrently (ROS attack)
 
+**What can go wrong.** The blind Schnorr signature scheme is provably one-more
+unforgeable in a *single* session but not under concurrent signing. A signer that
+participates in $\ell$ concurrent sessions exposes all nonce commitments $R_i$ to the
+requester before it ever commits to the challenges $c_i$. If the requester can choose
+all $\ell$ challenges *after* seeing all $R_i$, it can set them to satisfy a linear
+relation (the ROS relation) that lets it combine the $\ell$ partial responses into an
+$(\ell + 1)$-th, unrequested signature. The same structural gap broke early threshold
+Schnorr designs in which each party contributes a partial nonce and the partial
+signatures are aggregated without session binding.
 
-# DRAFT
-By the **modular composition theorem** [Can00], if an MPC protocol is run as part of a larger
-system it still behaves as if an incorruptible trusted party carried out the computation, a
-powerful guarantee that enables larger protocols to be constructed from secure sub-protocols.
-However, this guarantee holds only in the *stand-alone setting*: the MPC protocol may run as
-a sub-protocol with arbitrary messages sent before and after, but no other messages may be
-sent in parallel *during* its execution.
+**Security implication.** [Benhamouda et al.](https://link.springer.com/article/10.1007/s00145-021-09417-3)
+gave a polynomial-time algorithm for ROS that solves the problem over 256-bit
+elliptic-curve groups using approximately $\ell = 192$ concurrent sessions in a matter
+of seconds. After collecting responses from those sessions the adversary produces one
+extra signature — breaking one-more unforgeability. In threshold-signing deployments
+this translates directly to unauthorised signatures on attacker-chosen messages: keys
+that were supposed to require threshold cooperation can be used to sign arbitrary
+payloads.
 
-In practice, MPC protocols often run at the same time as other instances of the same
-protocol, other MPC protocols, and other (potentially insecure) protocols. A protocol proven
-secure under the stand-alone definition may **not** remain secure in this setting. The
-standard solution is **Universal Composability (UC)** [Can01]: any UC-secure protocol is
-guaranteed to behave like an ideal execution regardless of what runs concurrently alongside
-it. However, many deployed MPC protocols are only proven secure in the stand-alone model,
-and this gap has concrete exploitable consequences.
+**How to avoid.** Two complementary approaches.
 
-The term "concurrent" is overloaded in this context. It can mean:
+*Structural.* Bind each challenge to the session's specific nonce commitment and
+message so the adversary cannot freely choose challenges after observing the nonces.
+FROST achieves this with a per-participant binding factor, standardized in
+[RFC 9591](https://datatracker.ietf.org/doc/html/rfc9591) (June 2024). MuSig2
+([Nick et al., CRYPTO 2021](https://eprint.iacr.org/2020/1261)) uses two aggregated
+nonces per session whose specific linear combination is provably secure under
+concurrent execution.
 
-- **Protocol-level concurrency**: Multiple instances of a protocol run simultaneously,
-  potentially sharing state or allowing an adversary to coordinate responses across sessions.
-- **Implementation-level concurrency**: A single protocol instance is executed across
-  multiple threads or cooperative tasks in software, introducing race conditions not covered
-  by the protocol's security model.
+*Application-layer serialisation.* If the protocol itself cannot be changed, the signer
+must complete or abort one session before starting another, preventing the
+$\ell \approx 192$ sessions required to solve ROS from being open simultaneously.
 
-A multi-threaded MPC implementation may therefore need to be secure in *both* senses at once.
-
-### Example 1: Blind Schnorr Signatures
-
-The blind Schnorr signature scheme lets a requester obtain a valid Schnorr signature on a
-blinded message without revealing the message to the signer. In a single session the scheme
-is unforgeable: the signer cannot link a signature back to a particular signing request, and
-the requester cannot produce a second signature it did not request.
-
-However, when a signer participates in **multiple concurrent sessions**, a malicious requester
-can coordinate across sessions to produce an *additional* signature beyond the number of
-interactions—breaking *one-more unforgeability*. This follows from an efficient algorithm for
-the **ROS problem** (Random inhomogeneous Systems of linear equations over Solvable groups):
-[Benhamouda et al.](https://link.springer.com/article/10.1007/s00145-021-09417-3) gave a
-polynomial-time algorithm that solves ROS over 256-bit elliptic curve groups using
-approximately $\ell = 192$ concurrent sessions in a matter of seconds.
-
-The following pseudocode shows the vulnerable two-round blind Schnorr signer, which accepts
-challenges from the requester without any session binding:
+**Example: Drijvers et al. concurrent attack on two-round multi-signatures.** The
+vulnerable two-round blind Schnorr signer accepts challenges from the requester without
+any session binding:
 
 ```python
 # Vulnerable blind Schnorr signer — no binding between nonce and challenge
@@ -74,32 +77,17 @@ class BlindSchnorrSigner:
 ```
 
 The requester accumulates $\ell$ sessions. In each session $i$ it receives $R_i$ from the
-signer, then chooses all $\ell$ challenges *jointly* so that they satisfy the ROS relation:
-$$
-\sum_{i=1}^{\ell} \rho_i \cdot c_i = c^* \pmod{q}
-$$
-for a target challenge $c^*$ and known coefficients $\rho_i$. After collecting $\ell$
-responses $s_i = k_i + c_i \cdot \mathsf{sk}$, the adversary combines them:
-$$
-s^* = \sum_{i=1}^{\ell} \rho_i \cdot s_i
-  = \sum \rho_i k_i + \left(\sum \rho_i c_i\right) \mathsf{sk}
-  = R^* + c^* \cdot \mathsf{sk}
-$$
-yielding a valid signature $(R^*, s^*)$ on a message the signer never individually signed —
-$\ell + 1$ signatures after only $\ell$ interactions.
-
-This vulnerability was a primary motivation for redesigning threshold Schnorr signing.
-[Drijvers et al.](https://eprint.iacr.org/2018/417.pdf) showed that early multi-party
-signing protocols relying on a similar structure — where each party contributes a partial
-nonce and the partial signatures are aggregated without session binding — are broken by the
-same concurrent attack. This directly affected the original design of FROST prior to round 2
-of the IETF standardization process.
-
-**Remediation.** There are two complementary approaches.
-
-The first is **structural**: bind each challenge to the specific session's nonce and message
-so that the adversary cannot freely choose it after observing all nonces. FROST achieves this
-by computing a per-participant binding factor before any response is produced:
+signer, then chooses all $\ell$ challenges *jointly* so they satisfy the ROS relation
+$\sum_{i=1}^{\ell} \rho_i \cdot c_i = c^* \pmod{q}$ for a target challenge $c^*$ and
+known coefficients $\rho_i$. After collecting $\ell$ responses $s_i = k_i + c_i \cdot
+\mathsf{sk}$, the adversary combines them:
+$$s^* = \sum_{i=1}^{\ell} \rho_i \cdot s_i = \sum \rho_i k_i + \left(\sum \rho_i c_i\right) \mathsf{sk} = R^* + c^* \cdot \mathsf{sk}$$
+yielding a valid signature $(R^*, s^*)$ on a message the signer never individually
+signed. [Drijvers et al.](https://eprint.iacr.org/2018/417.pdf) showed that early
+threshold Schnorr protocols — where each party contributes a partial nonce and the
+partial signatures are aggregated without session binding — break under the same attack.
+This directly affected the original design of FROST prior to round 2 of the IETF
+standardization process. The fix:
 
 ```python
 # Fixed: FROST-style binding factor prevents cross-session combination
@@ -122,27 +110,26 @@ class FROSTSigner:
         return s
 ```
 
-The [FROST RFC 9591](https://datatracker.ietf.org/doc/html/rfc9591) (published June 2024)
-standardizes this construction. The second approach, suitable when the protocol cannot be
-changed, is to **limit concurrency at the application layer**: the signer must complete or
-abort an existing session before starting a new one, preventing the adversary from
-accumulating the $\ell \approx 192$ concurrent sessions required to solve ROS. MuSig2
-([Nick et al., CRYPTO 2021](https://eprint.iacr.org/2020/1261)) takes a middle path: it
-uses two aggregated nonces per session whose specific linear combination is provably secure
-under concurrent execution without sequentialization.
+### SPDZ MAC check under multi-threading
 
-### Example 2: MP-SPDZ MAC Check Under Multi-Threading
+**What can go wrong.** SPDZ is proven secure in the UC model assuming a
+**single-threaded** execution environment. The MAC check sub-protocol verifies that
+values opened during the computation are correctly authenticated by the shared MAC key
+$\alpha$. The security proof assumes the MAC check runs atomically: all threads see
+consistent state from the start of verification until its completion (or abort). When
+an implementation splits the MAC check across threads — opening a value in one thread
+while another thread concurrently runs its own MAC check — the intermediate state the
+proof treated as private leaks between threads, and the verification that the proof
+treats as atomic is interleaved with other cryptographic operations.
 
-In SPDZ, parties hold additively secret-shared values together with BDOZ MACs, and a MAC
-check sub-protocol is used to verify that reconstructed values are correct before output.
-The MAC check protocol is secure when run sequentially—but the UC security model used to
-analyze SPDZ assumes a single-threaded execution environment.
-
-The paper [*Rushing at SPDZ: On the Practical Security of Malicious MPC Implementations*](https://eprint.iacr.org/2025/789)
-(IEEE S&P 2025) identified a MAC key leakage that can be exploited when two threads
-simultaneously run an instance of the MAC check. This allows a malicious party running a
-modified client to fully control the output of the computation in one thread, breaking output
-integrity. Three SPDZ implementations were analyzed:
+**Security implication.** The paper
+[*Rushing at SPDZ: On the Practical Security of Malicious MPC Implementations*](https://eprint.iacr.org/2025/789)
+(IEEE S&P 2025) shows a malicious party running a modified client exploits multi-thread
+interleaving to extract information about the global MAC key $\alpha$ from concurrent
+MAC check instances, then forges MACs on arbitrary output values. The result is full
+compromise of output integrity: the adversary can make the SPDZ computation output any
+value of its choosing, defeating the malicious-security guarantee that SPDZ is
+specifically designed to provide. Three SPDZ implementations were analyzed:
 
 | Repository | Vulnerable | Notes |
 |-----------|-----------|-------|
@@ -150,18 +137,29 @@ integrity. Three SPDZ implementations were analyzed:
 | [KULeuven-COSIC/SCALE-MAMBA](https://github.com/KULeuven-COSIC/SCALE-MAMBA) | Yes | No public patch commit; uses quarterly private release cycle |
 | [aicis/fresco](https://github.com/aicis/fresco) | No | Does not support cross-thread secret transfer by design |
 
-Two concrete bugs were found and patched in MP-SPDZ.
+**How to avoid.** Treat the MAC check sub-protocol as an **atomic critical section**
+across all threads. Three concrete rules:
 
-**Bug 1 — Missing MAC check in multi-threaded `POpen`**
-([commit `5e714b2`](https://github.com/data61/MP-SPDZ/commit/5e714b2), July 2023):
+1. *Mutual exclusion on the MAC check.* A mutex or semaphore prevents two threads from
+   executing overlapping MAC-check instances, including the possible abort path.
+2. *Unconditional verification on every open.* The MAC `check()` call must fire
+   whenever secret values are opened, regardless of whether the opened values reach an
+   output gate.
+3. *Design-level isolation.* Where possible, avoid sharing secret state across threads
+   entirely. Fresco's design-by-construction single-thread-per-session model is a
+   useful reference point.
 
-The `SubProcessor<T>::POpen()` function opens secret values. The MAC verification call
-`check()` was only triggered by an explicit output-gate condition (`inst.get_n()`), so in
-multi-threaded programs the opened values were never MAC-checked before use
-([source](https://github.com/data61/MP-SPDZ/commit/5e714b2)):
+**Example: MP-SPDZ `POpen` and `Commit_And_Open_` race conditions.** Two concrete bugs
+were found and patched in MP-SPDZ in July 2023.
+
+*Bug 1 — Missing MAC check in multi-threaded `POpen`*
+([commit `5e714b2`](https://github.com/data61/MP-SPDZ/commit/5e714b2)). The
+`SubProcessor<T>::POpen()` function opens secret values. The MAC verification call
+`check()` was only triggered by an explicit output-gate condition (`inst.get_n()`), so
+in multi-threaded programs the opened values were never MAC-checked before use:
 
 ```cpp
-// FILE: Processor/Processor.hpp (vulnerable, prior to fix)
+// FILE: Processor/Processor.hpp — MP-SPDZ (vulnerable, prior to fix)
 
 // Opening loop — MAC check only triggered by inst.get_n(), not by nthreads
 if (inst.get_n())
@@ -173,10 +171,10 @@ if (inst.get_n())
 // even if multiple threads are concurrently opening values
 ```
 
-The fix extends both conditions to also fire when threads are active ([source](https://github.com/data61/MP-SPDZ/blob/5e714b2/Processor/Processor.hpp)):
+The fix extends both conditions to also fire when threads are active:
 
 ```cpp
-// FILE: Processor/Processor.hpp (fixed)
+// FILE: Processor/Processor.hpp — MP-SPDZ (fixed)
 
 if (inst.get_n() or BaseMachine::s().nthreads > 0)
 {
@@ -186,16 +184,15 @@ if (inst.get_n() or BaseMachine::s().nthreads > 0)
 }
 ```
 
-**Bug 2 — Race condition in `Commit_And_Open_`**
-([commit `b86f29b`](https://github.com/data61/MP-SPDZ/commit/b86f29b)):
-
-Inside `Tools/Subroutines.cpp`, the coordinator was signaled as finished *before* the
-commitment-opening validation loop ran. A second thread waiting on the coordinator could
-therefore observe the "finished" state and proceed with values that had not yet been
-verified ([source](https://github.com/data61/MP-SPDZ/commit/b86f29b)):
+*Bug 2 — Race condition in `Commit_And_Open_`*
+([commit `b86f29b`](https://github.com/data61/MP-SPDZ/commit/b86f29b)). Inside
+`Tools/Subroutines.cpp`, the coordinator was signaled as finished *before* the
+commitment-opening validation loop ran. A second thread waiting on the coordinator
+could therefore observe the "finished" state and proceed with values that had not yet
+been verified:
 
 ```cpp
-// FILE: Tools/Subroutines.cpp (vulnerable)
+// FILE: Tools/Subroutines.cpp — MP-SPDZ (vulnerable)
 
 P.Broadcast_Receive(Open_data);
 coordinator.finished();                    // ← signals completion before verifying
@@ -205,10 +202,10 @@ for (int i = 0; i < P.num_players(); i++)
         throw invalid_commitment();
 ```
 
-The fix moves the signal to after the validation loop ([source](https://github.com/data61/MP-SPDZ/blob/b86f29b/Tools/Subroutines.cpp)):
+The fix moves the signal to after the validation loop:
 
 ```cpp
-// FILE: Tools/Subroutines.cpp (fixed)
+// FILE: Tools/Subroutines.cpp — MP-SPDZ (fixed)
 
 P.Broadcast_Receive(Open_data);
 for (int i = 0; i < P.num_players(); i++)
@@ -218,33 +215,14 @@ for (int i = 0; i < P.num_players(); i++)
 coordinator.finished();                    // ← now after verifying
 ```
 
-**Attack.**
-Because `coordinator.finished()` fires before the validation loop, a malicious party
-controlling Thread B can observe that Thread A's coordinator has finished and immediately
-proceed to use the opened values in its own MAC check instance, before A has confirmed those
-values are correctly authenticated. By carefully timing two concurrent MAC check instances,
-the adversary extracts information about the global MAC key $\alpha$ through the
-unauthenticated intermediate state, then uses this to forge MACs on arbitrary output values.
+The attack exploits the race by having a malicious party controlling Thread B observe
+that Thread A's coordinator has finished and immediately proceed to use the opened
+values in its own MAC check instance, before A has confirmed those values are
+authenticated. By carefully timing two concurrent MAC check instances the adversary
+extracts information about $\alpha$ through the unauthenticated intermediate state,
+then uses this to forge MACs on arbitrary output values.
 
-**Remediation.** The MAC check sub-protocol must be treated as an **atomic critical section**
-across all threads. This means:
-
-1. **Mutual exclusion on the MAC check itself.** A mutex or semaphore must prevent two threads
-   from executing overlapping instances of the MAC check (including the possible abort path).
-   In MP-SPDZ, this is now enforced via the coordinator signal ordering fix in commit
-   [`b86f29b`](https://github.com/data61/MP-SPDZ/commit/b86f29b): `coordinator.finished()`
-   is called only *after* the full commitment-opening validation loop completes.
-
-2. **Unconditional MAC verification on `POpen`.** The `check()` call must fire whenever
-   values are opened, regardless of whether the opened values reach an output gate. Commit
-   [`5e714b2`](https://github.com/data61/MP-SPDZ/commit/5e714b2) extends the condition from
-   `inst.get_n()` to `inst.get_n() or BaseMachine::s().nthreads > 0`, closing the gap where
-   multi-threaded programs could open and use values that had never been MAC-checked.
-
-3. **Design-level isolation.** Where possible, avoid sharing secret state across threads
-   entirely. The Fresco framework is not affected by either bug because it does not support
-   cross-thread secret transfer by design — a useful reference point for new implementations.
-
+<!--
 ### Commits Timeline
 
 | Date | Repository | Artifact | Description |
@@ -295,3 +273,4 @@ S&P 2025) confirmed that the attack is practical: in their proof-of-concept a ma
 running a modified binary fully controls the output of a concurrent thread's computation,
 breaking the malicious-security guarantee that SPDZ is specifically designed to provide.
 
+-->

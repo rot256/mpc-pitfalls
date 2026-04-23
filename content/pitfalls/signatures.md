@@ -1,61 +1,50 @@
 ---
 title: "Signatures"
-class: "Cryptographic Primitive"
-order: 10
+class: "Signatures"
+order: 8
 ---
 
-- Not prepending a unique constant-length domain separator to the message when signing keys are used in different contexts.
+Signature schemes in MPC protocols serve double duty: they authenticate protocol
+messages during execution and produce the output signatures that protect user funds.
+The two recurring implementation pitfalls are reusing the same signing key across
+incompatible protocol roles without a domain-separation tag, and reusing a threshold
+presignature (nonce commitment) across two distinct messages — both of which enable
+cross-context signature replay or outright key extraction.
 
----
+### Missing domain separator across signing contexts
 
-# DRAFT Signatures
+**What can go wrong.** When the same signing key is used in multiple protocol roles —
+signing round-1 commitments vs round-2 packages in a DKG, authenticating API requests
+vs producing blockchain transactions, tagging message types in a single protocol — each
+role must prepend a unique, constant-length domain-separation tag to the message
+*before* signing. If the tag is missing or identical across roles, a signature produced
+for one role is a structurally valid signature for the other: the same bytes verify
+against the same key in both contexts. Ed25519's `Sign(key, msg)` default has no context
+byte at all; RFC 8032's `Ed25519ctx` variant exists specifically to close this gap but
+is opt-in.
 
-Signature schemes in MPC protocols serve double duty: they authenticate protocol messages during execution and produce the output signatures that protect user funds. A recurring failure is using the same key — or the same proof context — across multiple incompatible protocol sessions without binding each to a unique session identifier. Without this binding, a ZK proof or partial signature produced in one session is structurally valid in any other, enabling cross-session replay attacks.
+**Security implication.** An adversary who obtains a signature in role $A$ presents the
+same bytes as if they had been produced for role $B$. In a FROST DKG with a shared
+Ed25519 key and no context strings, a malicious party replays a round-1 commitment
+signature as a round-2 package signature — the verifier accepts (context is empty, key
+is the same) and the replayed commitment corrupts the distributed key share computation.
+In multi-role deployments where one identity is used both to authenticate API messages
+and to sign blockchain transactions, an authenticated API message becomes replayable as
+a transaction signature.
 
-### Example 1: SSID Hardcoded to Zero Across All Sessions — CVE-2022-47930
+**How to avoid.** Assign a unique, version-bearing domain-separation tag to every
+protocol role that consumes signatures, and prepend it to the message before signing.
+For Ed25519 use [RFC 8032](https://www.rfc-editor.org/rfc/rfc8032)'s `Ed25519ctx` with a
+non-empty context per role; for Schnorr or generic hash-then-sign, hash
+`tag || message` rather than `message` alone. Rotate tags whenever the protocol version
+changes so signatures under the old version do not retroactively validate under a new
+role.
 
-CGGMP21 and GG18/GG20 protocols require every sub-protocol ZK proof to include a **session sub-ID** (`ssid`) in its Fiat-Shamir hash. In tss-lib v1.x, the `ssidNonce` used to derive the SSID was hardcoded to `0` in every signing, keygen, and resharing round. This made the SSID identical across all protocol executions: a Schnorr proof, range proof, or modulus proof generated in session $A$ was indistinguishable from one in session $B$.
-
-([source](https://github.com/bnb-chain/tss-lib/commit/fc38979249))
-
-```go
-// ecdsa/signing/round_1.go — bnb-chain/tss-lib v1.x (vulnerable, CVE-2022-47930)
-// ssidNonce hardcoded to 0 — every session produces the same SSID.
-// A ZK proof from session A is structurally valid in session B.
-round.temp.ssidNonce = new(big.Int).SetUint64(0)
-ssid, err := round.getSSID()
-// getSSID() hashes pubkey, party IDs, and ssidNonce.
-// With ssidNonce = 0 in every session, all SSIDs are identical.
-```
-
-The same hardcoded zero appeared in `ecdsa/keygen/round_1.go`, `ecdsa/resharing/round_1_old_step_1.go`, `eddsa/keygen/round_1.go`, and `eddsa/signing/round_1.go`.
-
-**Attack.** Party $P_i$ generates a Schnorr proof $\pi$ during keygen session $A$. In signing session $B$, an adversary replays $\pi$ as its own round-2 contribution. Because the SSID is $0$ in both sessions, the challenge hash is identical and the proof passes verification. This allows the adversary to avoid computing an honest partial signature, breaking output correctness. The same replay applies to range proofs (MtA) and modulus proofs.
-
-**Remediation.** Commit [`fc38979249`](https://github.com/bnb-chain/tss-lib/commit/fc38979249) derived the SSID from the message hash (for signing) or a caller-provided nonce:
-
-([source](https://github.com/bnb-chain/tss-lib/commit/fc38979249))
-
-```go
-// ecdsa/signing/round_1.go — bnb-chain/tss-lib v2.0.0 (fixed)
-if nonce := round.Params().SessionNonce(); nonce != nil {
-    round.temp.ssidNonce = new(big.Int).Set(nonce)
-} else {
-    round.temp.ssidNonce = new(big.Int).Set(round.temp.m) // message hash for signing
-}
-ssid, err := round.getSSID() // now unique per session
-```
-
-A complementary fix ([commit `b59ed365b0`](https://github.com/bnb-chain/tss-lib/commit/b59ed365b0)) switched all proof hashes to `SHA512_256i_TAGGED(Session, ...)`, adding the session tag as a domain separator directly inside the Fiat-Shamir hash.
-
-### Example 2: Ed25519 / Schnorr Context String Left Empty
-
-EdDSA (Ed25519) supports an optional context string in the hash. Many implementations leave the context empty by default. When the same Ed25519 key is used in two protocol roles without distinct context strings, signatures are interchangeable between roles.
-
-([source](https://www.rfc-editor.org/rfc/rfc8032))
+**Example: Ed25519 context string left empty.** The default Ed25519 signing primitive
+takes only `(key, message)` and produces a signature that carries no role information:
 
 ```go
-// INSECURE: context left empty — signatures are context-agnostic
+// INSECURE: context left empty — signatures are role-agnostic
 func signInsecure(privKey ed25519.PrivateKey, msg []byte) []byte {
     return ed25519.Sign(privKey, msg) // uses empty context
 }
@@ -68,30 +57,57 @@ const (
 
 func signWithContext(privKey ed25519.PrivateKey, ctx string, msg []byte) []byte {
     tagged := append([]byte(ctx), msg...)
-    return ed25519.Sign(privKey, tagged) // manually prefixed
+    return ed25519.Sign(privKey, tagged) // context prepended
 }
 ```
 
-**Attack.** In a FROST DKG where round-1 commitments and round-2 packages are signed with the same Ed25519 key and no context string, a malicious party replays a round-1 commitment signature as a round-2 package signature. The verifier accepts — context is empty, the key is the same — and the replayed commitment corrupts the distributed key share computation.
+In a FROST DKG where round-1 commitments and round-2 packages are both signed with the
+same Ed25519 key and no context string, a malicious party replays a round-1 commitment
+signature as a round-2 package signature. The verifier accepts (context is empty, key
+is the same) and the replayed commitment corrupts the distributed key share
+computation.
 
-**Remediation.** Assign a unique, version-bearing context string to every protocol role that requires signatures. Rotate context strings when the protocol version changes.
+### Threshold presignature reuse (nonce reuse)
 
-### Example 3: Threshold Presignature Reuse
+**What can go wrong.** In GG18/GG20/CGGMP21 threshold ECDSA, the nonce is generated
+distributively as a presignature $(k, R = k \cdot G)$ before the message is known. The
+ECDSA signing equation $s = k^{-1}(H(m) + r \cdot x) \bmod n$ is linear in the signing
+key $x$ once $k$ and $r = R_x$ are fixed. If the same presignature is used for two
+different messages $m_1 \ne m_2$, the pair $(r, s_1), (r, s_2)$ leaks $x$: any observer
+computes $k = (H(m_1) - H(m_2)) \cdot (s_1 - s_2)^{-1} \bmod n$ and then
+$x = (s_1 \cdot k - H(m_1)) \cdot r^{-1} \bmod n$. This is the threshold-setting
+analogue of the 2010 PlayStation 3 ECDSA break, where Sony reused a fixed nonce across
+game-code signatures and the master key fell out in closed form.
 
-In GG18/GG20 threshold ECDSA, the presignature $(k, R = k \cdot G)$ is computed in a distributed ceremony before the message is known. If the same presignature is used for two different messages $m_1$ and $m_2$, the private key $x$ is recoverable from both signatures:
+**Security implication.** A single signing party that records its presignature
+contribution can retry a signing ceremony twice with different messages, triggering
+presignature reuse and extracting the complete signing key $x$. In threshold
+deployments even a well-intentioned retry-on-abort path is exploitable: a malicious
+party aborts the first ceremony after observing the presignature, forces a retry with a
+different message using the same presignature, and walks away with the key. The
+Aumasson–Shlomovits
+[*Attacking Threshold Wallets*](https://eprint.iacr.org/2020/1052.pdf) paper
+catalogues presignature reuse as a first-class threshold-wallet threat.
 
-$$k = (H(m_1) - H(m_2)) \cdot (s_1 - s_2)^{-1} \bmod n, \quad x = (s_1 \cdot k - H(m_1)) \cdot r^{-1} \bmod n$$
+**How to avoid.** Treat every presignature as single-use. Destroy $(k, R)$ atomically
+with the signature output — whether or not the ceremony completed successfully —
+before any response is sent. Maintain a signed presignature ledger that marks each
+entry as consumed before the response is sent. Never retry a failed signing ceremony
+with the same presignature; generate a fresh one.
 
-([source](https://eprint.iacr.org/2020/1052.pdf))
+**Example: presignature object passed twice to `Sign`.** A naïve threshold-ECDSA API
+exposes a `Presignature` object and a `Sign(msgHash)` method on it. Calling `Sign`
+twice with different message hashes reuses $(k, R)$ and leaks $x$:
 
 ```go
-// INSECURE: presignature (k, R) reused across two signing calls
+// INSECURE: presignature (k, R) not destroyed on Sign; can be reused
 type Presignature struct {
     K *big.Int
     R *ECPoint
 }
 
-// If Sign is called twice with the same Presignature, the caller can recover x.
+// If Sign is called twice with the same Presignature, the caller (or any observer
+// of both signatures) recovers x via the closed-form equations above.
 func (p *Presignature) Sign(x, msgHash *big.Int, n *big.Int) *big.Int {
     r := p.R.X
     kInv := new(big.Int).ModInverse(p.K, n)
@@ -99,10 +115,23 @@ func (p *Presignature) Sign(x, msgHash *big.Int, n *big.Int) *big.Int {
 }
 ```
 
-**Attack.** An adversary who participates in two signing sessions that reuse the same $(k, R)$ obtains $(r, s_1)$ and $(r, s_2)$ and solves the system of equations above to extract $x$. In threshold settings, a single corrupt party that records its presignature contribution can later supply identical partial values to force presignature reuse across sessions.
+An adversary who participates in two signing sessions that reuse the same $(k, R)$
+obtains $(r, s_1)$ and $(r, s_2)$ and solves the system above to extract $x$. The
+remediation is to mark the presignature consumed atomically before any response is
+returned:
 
-**Remediation.** Treat every presignature as single-use: destroy $(k, R)$ atomically with the signature output, whether or not the ceremony completed successfully. Maintain a signed presignature ledger that marks each entry as consumed before the response is sent. Never retry a failed signing ceremony with the same presignature.
+```go
+// SECURE: presignature consumed atomically on first use
+func (p *Presignature) Sign(x, msgHash *big.Int, n *big.Int) (*big.Int, error) {
+    if !p.consumed.CompareAndSwap(false, true) {
+        return nil, errors.New("presignature already consumed")
+    }
+    defer p.Zeroize()  // destroy k before any response is sent
+    // ... signing logic ...
+}
+```
 
+<!--
 ### Commit Timeline
 
 | Date | Repository | Artifact | Description |
@@ -120,3 +149,4 @@ func (p *Presignature) Sign(x, msgHash *big.Int, n *big.Int) *big.Int {
 **CVE-2022-47930 — IoFinnet / tss-lib ecosystem (December 2022).** The SSID=0 vulnerability was disclosed by io.Finnet in December 2022 (CVSS 8.8 High). It affected all tss-lib v1.x deployments: any threshold ECDSA or EdDSA signing ceremony allowed proof replay across sessions. THORChain halted its mainnet in March 2023 after receiving Verichains' TSSHOCK proof of concept, which relied on the missing session binding among other weaknesses. All downstream forks (SwingBy, Keep Network, Multichain) running v1.x inherited the exposure. The v2.0.0 fix is not backward-compatible: parties on v1.x and v2.0.0 cannot interoperate, creating a mixed-version rollout risk that incentivised operators to delay upgrading.
 
 **Presignature reuse (recurring).** The 2010 PlayStation 3 break — two ECDSA signatures sharing the same nonce $k$ — is the canonical nonce-reuse example: the private key is recovered in closed form. In threshold ECDSA, the distributed presignature plays the same role. The Aumasson–Shlomovits paper identified presignature reuse as a first-class threshold wallet threat; subsequent audits (Kudelski, Trail of Bits) explicitly checked for absence of presignature-reuse protection.
+-->

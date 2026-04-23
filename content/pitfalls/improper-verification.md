@@ -1,67 +1,71 @@
 ---
 title: "Improper Verification of Received Messages"
-class: "Protocol"
+class: "Received-Message Validation"
 order: 1
 ---
 
-In MPC protocols, parties exchange mathematical objects such as:
+In MPC protocols, parties exchange bitstrings that are supposed to represent mathematical
+objects: elements of $\mathbb{Z}_q^*$, commitments to polynomial coefficients,
+zero-knowledge proofs, and lists of peer contributions. A related concern is that the
+**secret space** — the values a party is logically supposed to contribute — is often much
+smaller than the **share space**, the algebraic ring or field over which the protocol
+computes. A 1-bit boolean secret is shared over $\mathbb{F}_p$ for a large prime $p$; a
+64-bit integer is shared over $\mathbb{Z}_{2^{128}}$; a Schnorr / ECDSA message hash must
+lie in $\mathbb{Z}_q$. Before the receiver uses an incoming bitstring, it must verify both
+that the bitstring corresponds to a *valid* object of the expected type and that its value
+lies within the expected secret space. The pitfalls below are what goes wrong when that
+verification is skipped or performed in the wrong domain.
 
-- 'an element from $\mathbb{Z}_q^*$',
-- 'a commitment to the coefficients of a degree $t-1$ polynomial'
-- 'a list of zero-knowledge proofs'.
+### Empty proof list passes vacuously
 
-In MPC implementations, parties exchange bitstrings over a network, and they need to verify that the received
-bitstring corresponds to a valid mathematical object of the expected type. Each of the following issues is commonly
-found in MPC implementations, affecting confidentiality, integrity, or availability:
+<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>
 
-- **The received value is not a valid element**:
-    When receiving an element from $\mathbb{Z}_q^*$ or a similar group/ring/field,
-    the receiver needs to check that it's non-zero. Additionally, when the element is supposed to generate a non-trivial subgroup, the receiver also needs to check that it's not 1 (or some other invalid value that does not generate the correct subgroup).
-- **The received sequence of values is not the correct length**:
-    - When receiving the commitments to the coefficients of a degree $t-1$ polynomial during Feldman VSS, the receiver needs to check that the length of the committed coefficient vector is equal to $t$, lest the threshold becomes higher than intended.
-    - When receiving a list of zero-knowledge proofs, the receiver needs to verify that the list is not empty. Iterating over an empty list often results in accepting the proofs, as an empty list contains no incorrect proofs.
+**What can go wrong.** A protocol round that expects a list of zero-knowledge proofs (one
+per party, one per commitment coefficient, one per witness) must reject an empty list
+explicitly. In most languages, a `for-each` loop over an empty collection executes zero
+iterations and returns no error, which is syntactically indistinguishable from a loop over
+a list in which every proof passed. A caller that only checks whether the verification
+function returned an error treats an empty list as "all proofs valid."
 
-### Examples
+**Security implication.** A malicious party sends an empty proof list when the protocol
+expects $n-1$ proofs. The verifier iterates zero times, returns success, and the protocol
+proceeds as if every proof had been correctly verified. In a DKG this lets the adversary
+contribute arbitrarily biased public-share values without demonstrating knowledge of the
+matching secrets; in a signing round it lets the adversary skip any proof-of-correctness
+obligation and substitute crafted partial values.
 
-### Example 1: Empty Proof List Passes Vacuously
+**How to avoid.** Check `len(proofs) == expected` before iterating; never infer "all
+proofs valid" from "no error was returned."
 
-When a protocol round expects a list of zero-knowledge proofs — one per party, or one per commitment coefficient — an empty list must be rejected explicitly. A `for range` loop over an empty slice executes zero iterations and returns no errors, which is indistinguishable from a loop over a list where every proof passed.
+**Example.** *TBD.* Trail of Bits has flagged this pattern across multiple MPC audits but
+no specific public CVE is attached to this mini-pitfall yet.
 
-```go
-// INSECURE: zero proofs = zero errors = accepted
-func verifyCommitmentProofs(proofs []ZKProof) error {
-    for _, proof := range proofs {
-        if err := proof.Verify(); err != nil {
-            return err
-        }
-    }
-    return nil // returns nil even when len(proofs) == 0
-}
-```
+### Non-zero check performed in the wrong domain
 
-**Attack.** A malicious party sends an empty proof list `[]` when the protocol expects $n-1$ proofs. The verifier iterates zero times, returns `nil`, and proceeds as if all proofs were valid. The adversary's commitments are accepted without proof, allowing it to set arbitrarily biased contribution values in a DKG or signing protocol.
+<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#party-index-not-validated-as-non-zero-mod-q">Party index not validated as non-zero mod q</a></span></div>
 
-**Remediation.** Check that the length of the received proof list matches the expected count before verification:
+**What can go wrong.** When a received value $x$ must be rejected if it is zero in
+$\mathbb{Z}_q^*$, the check must be `x mod q != 0`, not `x != 0` in integer arithmetic. A
+value $x = k \cdot q$ for any integer $k$ passes the integer comparison but is zero in the
+protocol's arithmetic domain. The same mistake generalises to any modular or curve-scalar
+setting where the wire representation can exceed the modulus without the type system
+flagging it.
 
-```go
-func verifyCommitmentProofs(proofs []ZKProof, expected int) error {
-    if len(proofs) != expected {
-        return fmt.Errorf("expected %d proofs, got %d", expected, len(proofs))
-    }
-    for _, proof := range proofs {
-        if err := proof.Verify(); err != nil {
-            return err
-        }
-    }
-    return nil
-}
-```
+**Security implication.** A malicious party sends a value that is zero in the protocol's
+arithmetic domain but non-zero in the language's integer type. The honest verifier accepts
+it, and downstream operations silently collapse: polynomial evaluation at zero returns the
+constant term; modular inversion of zero blows up or returns zero; Pedersen commitments
+degenerate to trivial openings. In Shamir secret sharing, an attacker who submits $x = q$
+as its "index" receives $f(q) \equiv f(0) = \text{secret}$.
 
-### Example 2: Non-Zero Check in the Wrong Domain — tss-lib Party Indices
+**How to avoid.** Reduce received values modulo the protocol's arithmetic domain *before*
+the zero check — e.g. `new(big.Int).Mod(x, q).Sign() == 0`. Apply the same discipline to
+every $\mathbb{Z}_q^*$ membership test; integer comparisons against the literal `0` are
+not sufficient.
 
-When receiving a value that must be non-zero in $\mathbb{Z}_q^*$, the check `x != 0` must be performed as `x mod q != 0`, not as `x != 0` in integer arithmetic. A value $x = q$ (or $x = kq$) passes the integer check but is $0 \bmod q$.
-
-([source](https://github.com/bnb-chain/tss-lib/blob/73560daec7f83d7355107ea9b5e59d16de8765be/crypto/vss/feldman_vss.go#L64-L70))
+**Example: tss-lib party index `== q`.** In `bnb-chain/tss-lib`, party indices for the
+Feldman VSS share assignment were compared against the integer literal `0` only
+([source](https://github.com/bnb-chain/tss-lib/blob/73560daec7f83d7355107ea9b5e59d16de8765be/crypto/vss/feldman_vss.go#L64-L70)):
 
 ```go
 // crypto/vss/feldman_vss.go — bnb-chain/tss-lib (vulnerable)
@@ -69,30 +73,73 @@ for i := 0; i < num; i++ {
     if indexes[i].Cmp(big.NewInt(0)) == 0 {
         return nil, nil, fmt.Errorf("party index should not be 0")
     }
-    // indexes[i] == q passes the above check but evaluates to f(0) == secret
+    // indexes[i] == q passes the check; evaluatePolynomial(q) ≡ f(0) = secret
     share := evaluatePolynomial(ec, threshold, poly, indexes[i])
 }
 ```
 
-**Attack.** An attacker sets their party ID to $q$ (the secp256k1 group order). This passes the `!= 0` integer check, but polynomial evaluation operates modulo $q$, so `evaluatePolynomial(q) ≡ evaluatePolynomial(0) = f(0)` — the secret itself. The attacker receives the complete shared key without needing reconstruction.
+A party that sets its ID to the secp256k1 group order $q$ passes the `!= 0` check, but
+polynomial evaluation runs modulo $q$, so the returned "share" is $f(0)$ — the shared
+secret. See the [Shamir Secret Sharing](../shamir-secret-sharing/) pitfall for the full
+writeup and remediation.
 
-**Remediation.** Reduce the index modulo $q$ before comparing, and also check for duplicate indices:
+### Subgroup-generator check missing
 
-```go
-func validateIndex(idx, q *big.Int) error {
-    reduced := new(big.Int).Mod(idx, q)
-    if reduced.Sign() == 0 {
-        return errors.New("party index is 0 mod q — invalid")
-    }
-    return nil
-}
-```
+<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span><span class="flag flag-related">Closely related to <a href="#group-generator-not-validated">Group generator not validated</a></span></div>
 
-### Example 3: Feldman Commitment Vector Wrong Length — FROST DKG
+**What can go wrong.** A received value that is supposed to generate a non-trivial subgroup
+must be checked to actually do so. At minimum, it must not be the identity (1 in a
+multiplicative group, the point at infinity on a curve) and must have the expected order
+(typically a large prime $q$). A received "generator" that equals 1 generates only the
+trivial subgroup; a generator of order 2 or 4 on an RSA-style modulus leaks one or two bits
+of any secret exponent per operation. Accepting an adversary-supplied generator without an
+order check is the same mistake as accepting a zero field element, applied one level up the
+algebraic hierarchy.
 
-When receiving Feldman VSS commitment vectors during a DKG round, each vector must have length exactly equal to the threshold $t$. A longer vector corresponds to a higher-degree polynomial, silently raising the threshold and potentially rendering the shared key permanently inaccessible.
+**Security implication.** A malicious party supplies a trivial or small-order generator as
+its contribution to a shared protocol parameter — a Pedersen base, a DLN proof base, a
+Paillier auxiliary generator. The honest verifier then uses it in exponentiations with its
+own secret exponent, and each exponentiation leaks the low bits of that exponent. Across a
+handful of rounds the attacker recovers the secret exponent completely — a Pohlig–Hellman
+decomposition in disguise.
 
-([source](https://github.com/ZcashFoundation/frost/blob/a1350ea18206a812975740207f90fb121883a5b3/frost-core/src/keys/dkg.rs#L395-L446))
+**How to avoid.** Before using an adversary-supplied group element in any exponentiation,
+verify it has the expected subgroup order: on RSA-style moduli, check
+$x^q \equiv 1 \pmod{N}$ and $x \ne 1, N-1$; on non-prime-order curves, multiply by the
+cofactor and reject the identity; on prime-order curves, reject the identity (point at
+infinity).
+
+**Example.** *TBD on this page.* The concrete instances on this site live in the
+[Discrete-Log Groups](../discrete-log-groups/) pitfall (generator validation; $g = \pm 1
+\bmod p$ leaks the exponent LSB) and the [RSA / Paillier Moduli](../rsa-moduli/) pitfall
+(missing DLN proofs for $h_1$, $h_2$ on Pedersen bases, CVE-2020-12118). Either is a worked
+instance of this general failure.
+
+### Received sequence has the wrong length
+
+<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#commitment-vector-length-not-checked-threshold-raise-sabotage">Commitment vector length not checked</a></span></div>
+
+**What can go wrong.** Protocols that transmit a fixed-length vector — a Feldman VSS
+commitment vector of length $t$, a list of $n-1$ peer signatures, a vector of DLN proof
+iterations — must verify that the incoming length equals the expected length before
+processing. Accepting a longer-than-expected vector is functionally running a strictly
+different protocol instance from the one the verifier thought it was in.
+
+**Security implication.** A malicious party sends a vector of length $t + k$ when the
+protocol expects length $t$. Honest verifiers iterate over all $t + k$ elements without
+noticing the mismatch. In Feldman VSS this raises the reconstruction threshold from $t$ to
+$t + k$ silently, rendering the shared key irrecoverable from the $t$ honest shares alone.
+The sabotage is permanent: there is no on-chain trace of a raised threshold, and no retry
+path without restarting the entire key-generation ceremony.
+
+**How to avoid.** Compare the received vector length against the protocol-specified length
+before any iteration or verification step. Treat a length mismatch as a protocol abort;
+do not truncate, pad, or iterate defensively.
+
+**Example: FROST DKG commitment vector length.** The `part2` function in ZCash Foundation's
+FROST implementation checked the number of round-1 packages received but not the length of
+each package's commitment vector
+([source](https://github.com/ZcashFoundation/frost/blob/a1350ea18206a812975740207f90fb121883a5b3/frost-core/src/keys/dkg.rs#L395-L446)):
 
 ```rust
 // frost-core/src/keys/dkg.rs — ZCash Foundation FROST (pre-fix)
@@ -100,33 +147,23 @@ pub fn part2<C: Ciphersuite>(
     secret_package: round1::SecretPackage<C>,
     round1_packages: &BTreeMap<Identifier<C>, round1::Package<C>>,
 ) -> Result<(round2::SecretPackage<C>, Vec<round2::Package<C>>)> {
-    // Checks number of packages but NOT the length of each commitment vector
     if round1_packages.len() != (secret_package.max_signers - 1) as usize {
         return Err(Error::IncorrectNumberOfPackages);
     }
-    for (sender_identifier, round1_package) in round1_packages {
+    for (_, round1_package) in round1_packages {
         // processes commitments without validating len == min_signers
-        verify_proof_of_knowledge(sender_identifier, round1_package.commitment(), ...)?;
+        verify_proof_of_knowledge(...)?;
     }
 }
 ```
 
-**Attack.** A malicious party sends a commitment vector of length $t + k$ ($k > 0$). Honest parties accept it, believing they are running a threshold-$t$ protocol. From this point, reconstruction requires $t + k$ shares; since honest parties hold only $t$-degree shares, the key is irrecoverable. The Trail of Bits report calls this a "key sabotage" attack.
+Ten implementations across FROST, GG18, and GG20 were affected; Chainflip was the only one
+that had the check at the time of the Trail of Bits disclosure.
+[PR #597](https://github.com/ZcashFoundation/frost/pull/597) added the per-package length
+check. See the [Feldman Verified Secret Sharing](../feldman-vss/) pitfall for the full
+writeup.
 
-**Remediation.** After checking the number of packages, verify each package's commitment vector length:
-
-([source](https://github.com/ZcashFoundation/frost/pull/597))
-
-```rust
-// frost-core/src/keys/dkg.rs — ZCash Foundation FROST (fixed, PR #597)
-for (sender_identifier, round1_package) in round1_packages {
-    if round1_package.commitment().0.len() != secret_package.min_signers as usize {
-        return Err(Error::IncorrectNumberOfCommitments);
-    }
-    // ...
-}
-```
-
+<!--
 ### Commit Timeline
 
 | Date | Repository | Artifact | Description |
@@ -141,3 +178,4 @@ for (sender_identifier, round1_package) in round1_packages {
 **Shamir index-0 attack (December 2021).** Trail of Bits disclosed that five downstream forks of tss-lib — Keep Network, THORChain, Swingby, Clover Network — all inherited the party-index-$q$ vulnerability. The same integer-vs-modular comparison error appeared independently in ZenGo-X/curv (Rust). While no exploitation was confirmed, any deployment between initial release and the patch window was vulnerable to a single malicious party receiving the complete shared secret.
 
 **Feldman threshold sabotage (February 2024).** Trail of Bits found the commitment-vector-length vulnerability in 10 implementations including FROST, GG18, and GG20 reference code. An adversary who raises the threshold can deny key reconstruction indefinitely, destroying funds without any on-chain trace.
+-->

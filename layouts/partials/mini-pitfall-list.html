@@ -1,0 +1,8 @@
+{{- range . -}}
+    {{- if eq .Level 3 -}}
+        <li><a href="#{{ .ID }}">{{ .Title }}</a></li>
+    {{- end -}}
+    {{- if .Headings -}}
+        {{- partial "mini-pitfall-list.html" .Headings -}}
+    {{- end -}}
+{{- end -}}

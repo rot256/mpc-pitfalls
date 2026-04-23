@@ -1,94 +1,67 @@
 ---
 title: "Commitments Are Not Bound to the Opening Party"
-class: "Protocol"
-order: 2
+class: "Commitments Not Bound to Opener"
+order: 3
 ---
 
-In many MPC protocol, for instance, commit-and-reveal, it's important to bind the commitments to a particular party,
-such that e.g. a rushing adversaries which can observe honest parties commitments,
-before providing his own, cannot copy commitments of an honest party.
-As a toy example consider a simple Blum coinflip protocol:
+### Rushing adversary copies an honest commitment
 
-1. Alice commits to `v_alice` by sending `com_alice = Com(v_alice; r_alice)`
-1. Bob commits to `v_bob` by sending `com_bob = Com(v_bob; r_bob)`
-1. After each party receives a commitment, they both open:
-  - Alice sends `v_alice`, `r_alice` to Bob
-  - Bob sends `v_bob`, `r_bob` to Alice
-1. They both compute `v_alice XOR v_bob` as the output of the coinflip
+**What can go wrong.** In a commit-and-reveal protocol, each party sends a commitment
+during round 1 and opens it during round 2. If the commitment scheme does not bind each
+commitment to the identity of its opener (for example, by hashing in the party's ID and
+session ID), a rushing adversary — one that observes honest parties' messages before
+sending its own in the same round — can copy an honest party's commitment byte-for-byte,
+then copy the opening during the reveal phase. Both parties end up revealing the same
+value.
 
-This simple protocol is vulnable to an attack, because the commitments of either party is not bound to the party.
-A corrupt Bob can force the coinflip to always be `0` as follows:
+**Security implication.** Consider a Blum coinflip: Alice and Bob commit to random bits
+$v_A, v_B$ and open to produce $v = v_A \oplus v_B$. A corrupt Bob who copies Alice's
+commitment, then copies her opening, makes $v_B = v_A$, so the output is always $v_A
+\oplus v_A = 0$ — the coin no longer flips. The same pattern breaks the SPDZ MAC-check
+sub-protocol in two-party settings: when parties commit to their $z_i$ shares and an
+honest $P_1$'s commitment is copied, the reconstructed $z = z_1 + z_1 = 0$ and the MAC
+check passes for any opened value $a'$, defeating the integrity guarantee on every wire
+of the circuit.
 
-1. Alice sends `com_alice` to Bob.
-1. Bob sets `com_bob = com_alice` and sends this as his commitment to Alice
-1. Both commitments are opened to `v_alice` and the output is `v_alice XOR v_alice = 0`
+**How to avoid.** Bind every commitment to its opener's identity (and to the session).
+Two standard constructions:
 
-### Example
+- **Hash-based commitment with opener ID and session ID**:
+  $c_i = H(\text{pid}_i \,\|\, \text{ssid} \,\|\, v_i \,\|\, r_i)$.
+  A copied commitment has the wrong `pid` and cannot be reopened consistently.
+- **Signed commitment**: attach a signature over the commitment with a key uniquely
+  tied to the opener; a copied commitment fails signature verification.
 
-In the [SPDZ protocol](https://eprint.iacr.org/2011/535.pdf),
-the parties have BDOZ MACs on all wires in the circuit.
-For an additively secret shared value $a$, 
-a BDOZ MAC consists of a secret sharing of $[\alpha \cdot a]$ where $\alpha$ is a global MAC key.
-To verify that the parties have reconstructed the correct $a'$ (i.e. $a = a'$ if all parties are honest), they compute:
-$$
-[z] = a' \cdot [\alpha] - [\alpha \cdot a]
-$$
-And want to check that $z = 0$.
-To do this, they each commit to their share $z_i$ and reconstructs $z$.
-If $z$ is non-zero they all abort the protocol.
+Either construction prevents the rushing-adversary copy because the opener's identity is
+now part of what the commitment binds to.
 
-Consider the following code from [Fresco](https://github.com/aicis/fresco/commit/fdada93b1abf19c68a1cf744e0f294df86bb1b8f)
+**Example: Fresco SPDZ MAC check (`SpdzMacCheckProtocol`).** In the
+[SPDZ protocol](https://eprint.iacr.org/2011/535.pdf), parties hold BDOZ MACs
+$[\alpha \cdot a]$ on every wire under a global MAC key $\alpha$. To verify that a
+reconstructed value $a'$ is correct, each party computes
+$z_i = a' \cdot \alpha_i - (\alpha \cdot a)_i$, commits to $z_i$, and opens; if the
+reconstructed $z = \sum z_i \ne 0$, they abort.
+
+Fresco's implementation used a plain hash-based commitment ([source](https://github.com/aicis/fresco/commit/fdada93b1abf19c68a1cf744e0f294df86bb1b8f)):
 
 ```java
-// FILE: SpdzMacCheckProtocol.java
-
-...
-
-// compute gamma_i as the sum of all MAC's on the opened values times
-// r_j.
-FieldElement gamma = definition.createElement(0);
-index = 0;
-for (SpdzSInt closedValue : closedValues) {
-  FieldElement closedValueHidden = rs[index++].multiply(closedValue.getMac());
-  gamma = gamma.add(closedValueHidden);
-}
-
-// compute delta_i as: gamma_i - alpha_i*a
-FieldElement delta = gamma.subtract(alpha.multiply(a));
-byte[] deltaBytes = definition.serialize(delta);
-
-// Commit to delta and open it afterwards
-return seq.seq(new CommitmentComputation(commitmentSerializer, deltaBytes, localDrbg));
-
-...
-
-// FILE: HashBasedCommitment.java‎
+// FILE: HashBasedCommitment.java — Fresco (vulnerable)
 public byte[] commit(Drbg rand, byte[] value) {
-   if (commitmentVal != null) {
-     throw new IllegalStateException("Already committed");
-   }
-   // Sample a sufficient amount of random bits
-   byte[] randomness = new byte[DIGEST_LENGTH];
-   rand.nextBytes(randomness);
-   // Construct an array to contain the bytes to hash
-   byte[] openingInfo = new byte[value.length + randomness.length];
-   System.arraycopy(value, 0, openingInfo, 0, value.length);
-   System.arraycopy(randomness, 0, openingInfo, value.length)
-   commitmentVal = digest.digest(openingInfo);
-   return openingInfo;
+    if (commitmentVal != null) {
+        throw new IllegalStateException("Already committed");
+    }
+    byte[] randomness = new byte[DIGEST_LENGTH];
+    rand.nextBytes(randomness);
+    byte[] openingInfo = new byte[value.length + randomness.length];
+    System.arraycopy(value, 0, openingInfo, 0, value.length);
+    System.arraycopy(randomness, 0, openingInfo, value.length, randomness.length);
+    commitmentVal = digest.digest(openingInfo);  // no party ID in hash input
+    return openingInfo;
 }
 ```
 
-In other words, each party computes their commitment as $c_i = \mathsf{Hash}(z_i |\!| r_i)$.
-
-**Attack.**
-Suppose for simplicity that the protocol operates over $\mathbb{F}_{2^k}$ and there are two parties,
-of which one is corrupt.
-The attack is executed by the corrupt party by simply copying the commitment of the honest party,
-then during the reveal, copying the opening of the honest party. This causes:
-
-$$
-z_1 + z_1 = 0
-$$
-
-And the MAC-check passes, regardless of what $a'$ was reconstructed.
+Each party's commitment is $c_i = H(z_i \,\|\, r_i)$ — no opener identity in the hash
+input. In a two-party setting over $\mathbb{F}_{2^k}$, the corrupt party copies the honest
+$P_1$'s commitment, then copies the opening $(z_1, r_1)$. The reconstructed
+$z = z_1 + z_1 = 0$ and the MAC check passes regardless of what $a'$ was reconstructed,
+breaking the MAC's integrity guarantee.

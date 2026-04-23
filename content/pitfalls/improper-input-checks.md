@@ -1,35 +1,41 @@
 ---
 title: "Improper Input Checks"
-class: "Protocol"
-order: 12
+class: "Received-Message Validation"
+order: 2
 ---
 
-It is often the case that the "secret space" differs from the "share space".
-This is for example the case when using Shamir's secret sharing over a small field such as $\mathbb{F}_2$, or a ring such as $\mathbb{Z}_{2^{64}}$.
-This is (arguably) also the case for protocols that rely on statistical hiding.
-If the input mechanism of the secure protocol does not validate an input, it might lead to incorrect computations and/or breaches of privacy.
+### Input not reduced to the arithmetic domain
 
----
+**What can go wrong.** When a protocol's arithmetic domain is $\mathbb{Z}_q$ (or
+$\mathbb{Z}_{2^k}$, or any modular ring), an incoming bitstring is untyped — it can encode
+a raw integer $x$ outside the modulus. If the protocol accepts $x$ verbatim without
+reducing modulo $q$ or range-checking against $q$, two byte-distinct wire values $x$ and
+$x + q$ represent the same algebraic element. Downstream consumers that see only the raw
+bytes then treat them as different inputs. Protocols claiming malicious security carry a
+specific obligation here: every party's input must be checked or proven well-formed
+*before* it enters the authenticated state.
 
-# DRAFT Improper Input Checks
+**Security implication.** A malicious orchestrator submits $m' = m + q$ (or any
+$m' \equiv m \pmod{q}$ with $m' \ne m$). All parties compute the same signature, MAC, or
+commitment for $m'$ as for $m$, but an external verifier treating the raw bytes as the
+signed message accepts both as valid signatures — breaking single-signature-per-message
+unforgeability. More broadly, unvalidated out-of-domain inputs produce correctness
+violations (silent modular wrap-around that parties accept as correct output) or privacy
+violations (biased reconstructions that leak one bit of an honest party's input per
+session).
 
-In MPC protocols the **secret space** — the set of values a party is logically supposed to contribute — is typically much smaller than the **share space** — the algebraic ring or field over which the protocol computes. A 1-bit boolean secret is shared over $\mathbb{F}_p$ for a large prime $p$; a 64-bit integer is shared over $\mathbb{Z}_{2^{128}}$; a Schnorr/ECDSA message is a hash value that must lie in $\mathbb{Z}_q$. If the protocol does not reject inputs that fall outside the valid range, two classes of attack become possible:
+**How to avoid.** Reject inputs at the protocol boundary: before accepting any bitstring
+as a domain element, verify its integer value lies in $[0, q)$ (or the ring-appropriate
+range). A single `value.Cmp(modulus) < 0` check at every entry point is usually
+sufficient.
 
-1. **Correctness violation**: computations silently wrap around, producing wrong outputs that parties accept as correct.
-2. **Privacy violation**: a malicious party contributes an out-of-range share whose reconstruction leaks information about honest parties' private inputs via selective-abort or biased-output attacks.
-
-Protocols with **malicious security** carry a specific obligation: they must prove (or verify) that every party's input is well-formed *before* it is mixed into the authenticated state. Dropping or weakening this check — even in a single sub-protocol — breaks the malicious-security guarantee for all computations that consume those inputs.
-
-### Example 1: Message Not Reduced Modulo the Curve Order — tss-lib (Issue #55)
-
-In threshold ECDSA, signing party $i$ receives a message digest $m$ and must treat it as an element of $\mathbb{Z}_q$ (the scalar field of the elliptic curve). A message that is not reduced modulo $q$ invalidates the security proof for the nonce-binding step, and can allow a malicious coordinator to craft two distinct raw byte strings $m, m'$ such that $m \equiv m' \pmod{q}$, making any existing signature on $m$ also a valid signature on $m'$.
-
-In `bnb-chain/tss-lib` before October 2019, the `Sign()` entry-point accepted an arbitrary `*big.Int` without checking that it lay in $[0, q)$
+**Example: tss-lib ECDSA signing accepts messages $\ge q$ (Issue #55).** In
+`bnb-chain/tss-lib` before October 2019, the `Sign()` entry-point accepted an arbitrary
+`*big.Int` without checking it lay in $[0, q)$
 ([source](https://github.com/bnb-chain/tss-lib/issues/55)):
 
 ```go
 // FILE: ecdsa/signing/local_party.go — bnb-chain/tss-lib (vulnerable, pre-Oct 2019)
-
 func NewLocalParty(
     msg *big.Int,   // ← accepted verbatim; no check that msg < curveN
     params *tss.Parameters,
@@ -43,20 +49,29 @@ func NewLocalParty(
 }
 ```
 
-**Attack.** A malicious orchestrator submits $m' = m + q$ (or any $m' \equiv m \pmod{q}$, $m' \ne m$). All parties compute a signature for $m'$ but the bytes $m'$ differ from $m$; an external verifier treating the raw bytes as the signed message accepts both as valid signatures, breaking the one-signature-per-message unforgeability guarantee.
-
-**Remediation.** The fix (Issue [#55](https://github.com/bnb-chain/tss-lib/issues/55), landed October 17, 2019) added an explicit range check at the entry-point ([source](https://github.com/bnb-chain/tss-lib/blob/9f398c92def051a66cb23d4f8087cf5d6422f7d4/ecdsa/signing/local_party.go)):
+A malicious orchestrator submits $m' = m + q$. All parties compute a signature for $m'$
+but the bytes of $m'$ differ from $m$; an external verifier treating the raw bytes as
+the signed message accepts both as valid signatures. The fix
+([Issue #55](https://github.com/bnb-chain/tss-lib/issues/55), landed October 17, 2019)
+added an explicit range check at the entry-point:
 
 ```go
-// FILE: ecdsa/signing/local_party.go — bnb-chain/tss-lib (fixed)
-
 curveN := params.EC().Params().N
 if msg.Cmp(curveN) != -1 {
     return nil, fmt.Errorf("signing message is not in Z_q")
 }
 ```
 
-### Example 2: Final Signature Not Verified Against the Group Public Key — tss-lib (Issue #55)
+<!--
+### Alternative worked examples preserved from earlier DRAFT
+
+Four more examples (Final Signature Not Verified, SPDZ2k Wrong MAC Modulus, Bit-Input
+Shares Not Validated, HighGear Security Parameter Degradation) covered distinct concerns
+that are adjacent to this pitfall but are not themselves "input not reduced to the
+arithmetic domain." They are preserved here in case they deserve their own mini-pitfall
+page later.
+
+### Example: Final Signature Not Verified Against the Group Public Key — tss-lib (Issue #55)
 
 After all threshold parties contribute their partial signatures and the coordinator reconstructs $(r, s)$, the assembled signature must be verified against the group public key before being returned to the caller. Without this check, a malicious participant who submits a corrupted partial response causes the protocol to output a signature that fails external verification — an attack that would not be detected until a downstream consumer (e.g., a blockchain node) rejects the transaction, at which point the signing session's nonce $k$ has been consumed and the attack may have revealed information about partial secrets.
 
@@ -92,7 +107,7 @@ if ok := gecdsa.Verify(pk, msg.Bytes(), new(big.Int).SetBytes(R), new(big.Int).S
 }
 ```
 
-### Example 3: Wrong MAC Check on SPDZ2k Input Tuples (MP-SPDZ v0.2.2)
+### Example: Wrong MAC Check on SPDZ2k Input Tuples (MP-SPDZ v0.2.2)
 
 SPDZ2k is a variant of SPDZ that operates over the ring $\mathbb{Z}_{2^k}$ rather than a prime field. Authentication is achieved by holding MAC shares under a global key $\alpha$. However, because $\mathbb{Z}_{2^k}$ has different algebraic structure from $\mathbb{F}_p$, the MAC check equation must be adapted: the statistical security parameter $s$ ensures that the MAC acts like an information-theoretic authenticator modulo $2^{k+s}$, not just modulo $2^k$.
 
@@ -117,7 +132,7 @@ check = (alpha * x) mod 2^k    // ← should be mod 2^(k+s)
 check = (alpha * x) % (1 << (k + s));  // ← correct modulus
 ```
 
-### Example 4: Bit-Input Shares Not Validated in Malicious Random-Bit Generation (MP-SPDZ)
+### Example: Bit-Input Shares Not Validated in Malicious Random-Bit Generation (MP-SPDZ)
 
 Many MPC protocols require jointly generating a uniform random bit $b \in \{0,1\}$. A standard approach is for each party $i$ to secret-share a locally chosen bit $b_i$, then XOR all shares: $b = b_1 \oplus \cdots \oplus b_n$. Under malicious security, each party must also *prove* that its contribution is a valid bit share. Several protocols in MP-SPDZ with supposed malicious security omitted this check: the party's input was accepted as a field element without verifying it reconstructs to $\{0, 1\}$ ([source](https://github.com/data61/MP-SPDZ/blob/master/Protocols/MascotPrep.hpp)).
 
@@ -151,7 +166,7 @@ if (reconstructed != 0 && reconstructed != 1) {
 bits.push_back(share);
 ```
 
-### Example 5: HighGear Input Protocol Security Parameter Degradation (MP-SPDZ v0.4.2)
+### Example: HighGear Input Protocol Security Parameter Degradation (MP-SPDZ v0.4.2)
 
 HighGear is an offline-phase protocol that uses somewhat-homomorphic encryption to generate authenticated multiplication triples and input masks with active security. Input authentication in HighGear involves a statistical security parameter $\sigma$ (typically 40 or 80 bits) that bounds the probability of an adversary forging a MAC on a malformed input. In MP-SPDZ before v0.4.2, a minor arithmetic error in the parameter selection caused the effective security level to be smaller than the configured value — the ring used for the input MAC was narrower than intended, reducing $\sigma$ by several bits.
 
@@ -188,3 +203,4 @@ int ring_size = numBits(field_prime) + sec_param + 1;
 
 **MP-SPDZ random-bit generation (v0.3.x).** Random bits generated jointly by MPC parties are consumed in oblivious transfer extension, coin-flipping sub-protocols, and garbled circuit wire label selection. A malicious party that injects a non-bit share into the joint random-bit generation can bias these downstream values, potentially reducing the effective security of OT-based protocols from computational to statistical and leaking information about honest parties' inputs one bit at a time. This class of attack is subtle to detect because the biased outputs appear numerically valid and are accepted by all downstream protocol steps.
 
+-->
