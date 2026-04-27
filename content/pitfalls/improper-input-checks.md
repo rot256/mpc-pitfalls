@@ -29,36 +29,39 @@ as a domain element, verify its integer value lies in $[0, q)$ (or the ring-appr
 range). A single `value.Cmp(modulus) < 0` check at every entry point is usually
 sufficient.
 
-**Example: tss-lib ECDSA signing accepts messages $\ge q$ (Issue #55).** In
-`bnb-chain/tss-lib` before October 2019, the `Sign()` entry-point accepted an arbitrary
-`*big.Int` without checking it lay in $[0, q)$
-([source](https://github.com/bnb-chain/tss-lib/issues/55)):
+**Example: tss-lib ECDSA signing accepts messages $\ge q$ ([Issue #55](https://github.com/bnb-chain/tss-lib/issues/55), finding KS-BTL-F-01).** In
+`bnb-chain/tss-lib` before October 2019, the round-1 signing entry-point used the input
+message `round.temp.m` without checking it lay in $[0, q)$. The developers had even left
+a TODO comment naming the missing check
+([source](https://github.com/bnb-chain/tss-lib/blob/38d1b436e7b8d08dc8390073188e4e6a1b63d999/ecdsa/signing/round_1.go#L29-L40)):
 
 ```go
-// FILE: ecdsa/signing/local_party.go — bnb-chain/tss-lib (vulnerable, pre-Oct 2019)
-func NewLocalParty(
-    msg *big.Int,   // ← accepted verbatim; no check that msg < curveN
-    params *tss.Parameters,
-    key keygen.LocalPartySaveData,
-    out chan<- tss.Message,
-    end chan<- common.SignatureData,
-) tss.Party {
-    ...
-    p.temp.m = msg  // stored and used in round 1 without reduction
-    ...
+// FILE: ecdsa/signing/round_1.go — bnb-chain/tss-lib (vulnerable, before commit b611d95)
+// missing:
+// line1: m = H(M) belongs to Zq
+func (round *round1) Start() *tss.Error {
+    if round.started {
+        return round.WrapError(errors.New("round already started"))
+    }
+    round.number = 1
+    round.started = true
+    round.resetOK()
+
+    k := common.GetRandomPositiveInt(tss.EC().Params().N)
+    // ... round.temp.m is used downstream without a Z_q check
 }
 ```
 
 A malicious orchestrator submits $m' = m + q$. All parties compute a signature for $m'$
 but the bytes of $m'$ differ from $m$; an external verifier treating the raw bytes as
 the signed message accepts both as valid signatures. The fix
-([Issue #55](https://github.com/bnb-chain/tss-lib/issues/55), landed October 17, 2019)
-added an explicit range check at the entry-point:
+([commit `b611d95`](https://github.com/bnb-chain/tss-lib/commit/b611d95e75e7ac8aeadd61fd37c03396f0ea02f3),
+October 8, 2019) added an explicit range check at the start of round 1:
 
 ```go
-curveN := params.EC().Params().N
-if msg.Cmp(curveN) != -1 {
-    return nil, fmt.Errorf("signing message is not in Z_q")
+// FILE: ecdsa/signing/round_1.go — bnb-chain/tss-lib (fixed, KS-BTL-F-01)
+if round.temp.m.Cmp(tss.EC().Params().N) >= 0 {
+    return round.WrapError(errors.New("hashed message is not valid"))
 }
 ```
 

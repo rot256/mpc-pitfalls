@@ -7,10 +7,10 @@ order: 1
 In MPC protocols, parties exchange bitstrings that are supposed to represent mathematical
 objects: elements of $\mathbb{Z}_q^*$, commitments to polynomial coefficients,
 zero-knowledge proofs, and lists of peer contributions. A related concern is that the
-**secret space** — the values a party is logically supposed to contribute — is often much
+**secret space**, the values a party is logically supposed to contribute, is often much
 smaller than the **share space**, the algebraic ring or field over which the protocol
 computes. A 1-bit boolean secret is shared over $\mathbb{F}_p$ for a large prime $p$; a
-64-bit integer is shared over $\mathbb{Z}_{2^{128}}$; a Schnorr / ECDSA message hash must
+64-bit integer is shared over $\mathbb{Z}_{2^{128}}$; a Schnorr/ECDSA message hash must
 lie in $\mathbb{Z}_q$. Before the receiver uses an incoming bitstring, it must verify both
 that the bitstring corresponds to a *valid* object of the expected type and that its value
 lies within the expected secret space. The pitfalls below are what goes wrong when that
@@ -18,7 +18,7 @@ verification is skipped or performed in the wrong domain.
 
 ### Empty proof list passes vacuously
 
-<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>
+<!--<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>-->
 
 **What can go wrong.** A protocol round that expects a list of zero-knowledge proofs (one
 per party, one per commitment coefficient, one per witness) must reject an empty list
@@ -29,7 +29,7 @@ function returned an error treats an empty list as "all proofs valid."
 
 **Security implication.** A malicious party sends an empty proof list when the protocol
 expects $n-1$ proofs. The verifier iterates zero times, returns success, and the protocol
-proceeds as if every proof had been correctly verified. In a DKG this lets the adversary
+proceeds as if every proof had been correctly verified. In a DKG (Distributed Key Generation) this lets the adversary
 contribute arbitrarily biased public-share values without demonstrating knowledge of the
 matching secrets; in a signing round it lets the adversary skip any proof-of-correctness
 obligation and substitute crafted partial values.
@@ -37,12 +37,97 @@ obligation and substitute crafted partial values.
 **How to avoid.** Check `len(proofs) == expected` before iterating; never infer "all
 proofs valid" from "no error was returned."
 
-**Example.** *TBD.* Trail of Bits has flagged this pattern across multiple MPC audits but
+<!--**Example.** *TBD.* Trail of Bits has flagged this pattern across multiple MPC audits but
 no specific public CVE is attached to this mini-pitfall yet.
+ -->
+
+**Example: Aptos validator-verifier zero-quorum bypass ([Issue #61](https://github.com/Lchangliang/gravity-aptos/issues/61))** In the `Lchangliang/gravity-aptos` fork of `aptos-core`, `ValidatorVerifier::verify_multi_signatures`
+short-circuits to `Ok(())` whenever the verifier holds an empty validator set, because
+`quorum_voting_power == 0` makes the check `aggregated < target` evaluate as
+`0 < 0 == false`
+([source](https://github.com/Lchangliang/gravity-aptos/blob/master/types/src/validator_verifier.rs#L355-L373)):
+
+```rust
+// types/src/validator_verifier.rs — Lchangliang/gravity-aptos (vulnerable)
+for index in multi_signature.get_signers_bitvec().iter_ones() {
+    // empty signers bitvec: loop body never executes
+    let validator = self.validator_infos.get(index).ok_or(VerifyError::UnknownAuthor)?;
+    authors.push(validator.address);
+    pub_keys.push(validator.public_key());
+}
+self.check_voting_power(authors.iter(), true)?;     // 0 < 0 == false → passes
+#[cfg(any(test, feature = "fuzzing"))]
+{
+    if self.quorum_voting_power == 0 {
+        // empty validator set: returns success without verifying any signature
+        return Ok(());
+    }
+}
+```
+
+`EpochState::empty()` constructs exactly such a zero-validator verifier. Any code path
+that lets a malicious or deserialised `EpochState` reach `verify_multi_signatures`
+(e.g. a `next_epoch_state` injected through an `EpochChangeProof`) yields a verifier
+that accepts every `LedgerInfo` regardless of the BLS multisignature attached to it:
+the iterator over signers runs zero times, the `aggregated < target` quorum check
+passes vacuously, and the `fuzzing` cfg-block returns `Ok(())` before the BLS pairing
+is computed. While no
+fix has been merged at the time of writing, the issue itself sketches three remediation
+steps.
+
+
+<!-- Not relevant
+--- 
+
+
+**Candidate 3 — Taurus `multi-party-sig` (CGGMP21) ZK proofs: nil-receiver panic across seven proofs.**
+In `taurushq-io/multi-party-sig`, the `Verify` methods on the CGGMP21 ZK proofs (`affg`,
+`affp`, `elog`, `enc`, `encelg`, `log`, `logstar`) were value receivers, so dispatching
+`Verify` on a `nil` proof — which is what wire-level deserialisation produces when the
+proof field is omitted — segfaulted instead of returning `false`
+([pre-fix source](https://github.com/taurushq-io/multi-party-sig/blob/v0.6.0-alpha-2021-09-21/pkg/zk/log/log.go#L77-L82)):
+
+```go
+// pkg/zk/log/log.go — taurushq-io/multi-party-sig (vulnerable, before PR #100)
+func (p Proof) Verify(hash *hash.Hash, public Public) bool {
+    if !p.IsValid() {        // nil-receiver value cast panics before this line
+        return false
+    }
+    // ...
+}
+```
+
+[PR #100](https://github.com/taurushq-io/multi-party-sig/pull/100) flipped all seven
+receivers to pointer receivers (`func (p *Proof) Verify`), so `p == nil` reaches
+`p.IsValid()` and returns `false`. *Adjacent root cause — a missing absent-proof guard —
+but the symptom is a panic, and the fix doesn't add a positive list-length check.*
+
+---
+
+**Candidate 4 — pluto/ronkathon BLS aggregation: empty-list panic in educational code.**
+The `BlsSignature::aggregate` function indexes `signatures[0]` with no non-empty check
+([source per issue body](https://github.com/pluto/ronkathon/issues/251)):
+
+```rust
+// src/signatures/bls/mod.rs — pluto/ronkathon (vulnerable)
+pub fn aggregate(signatures: &[BlsSignature<C>]) -> Result<BlsSignature<C>, BlsError> {
+    let mut aggregated = signatures[0].clone();   // panics on empty input
+    for sig in &signatures[1..] {
+        aggregated = aggregated + sig;
+    }
+    Ok(aggregated)
+}
+```
+
+Reported as [pluto/ronkathon#251](https://github.com/pluto/ronkathon/issues/251).
+*Educational repo, not production deployed; included only as a clean illustration of the
+pattern.*-->
+
+<!-- DRAFT END -->
 
 ### Non-zero check performed in the wrong domain
 
-<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#party-index-not-validated-as-non-zero-mod-q">Party index not validated as non-zero mod q</a></span></div>
+<!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#party-index-not-validated-as-non-zero-mod-q">Party index not validated as non-zero mod q</a></span></div>-->
 
 **What can go wrong.** When a received value $x$ must be rejected if it is zero in
 $\mathbb{Z}_q^*$, the check must be `x mod q != 0`, not `x != 0` in integer arithmetic. A
@@ -59,11 +144,47 @@ degenerate to trivial openings. In Shamir secret sharing, an attacker who submit
 as its "index" receives $f(q) \equiv f(0) = \text{secret}$.
 
 **How to avoid.** Reduce received values modulo the protocol's arithmetic domain *before*
-the zero check — e.g. `new(big.Int).Mod(x, q).Sign() == 0`. Apply the same discipline to
+the zero check, e.g. `new(big.Int).Mod(x, q).Sign() == 0`. Apply the same discipline to
 every $\mathbb{Z}_q^*$ membership test; integer comparisons against the literal `0` are
 not sufficient.
 
-**Example: tss-lib party index `== q`.** In `bnb-chain/tss-lib`, party indices for the
+**Example: juicebox-sdk allows index 0 on reconstruction ([Issue #6](https://github.com/juicebox-systems/juicebox-sdk/issues/6)).**
+In `juicebox-systems/juicebox-sdk`'s Shamir
+secret-sharing crate, share creation enforces non-zero indices structurally
+(`(1..=count).map(Index)`), but `recover_secret` runs Lagrange interpolation over
+whatever indices the caller supplies, with no reconstruction-time check
+([source](https://github.com/juicebox-systems/juicebox-sdk/blob/main/rust/secret_sharing/src/lib.rs#L97-L117)):
+
+```rust
+// rust/secret_sharing/src/lib.rs — juicebox-systems/juicebox-sdk (vulnerable)
+pub fn recover_secret<S: Secret>(shares: &[Share<S>]) -> Result<S, RecoverSecretError> {
+    shares
+        .iter()
+        .enumerate()
+        .map(|(i, share)| {
+            let others = shares[..i].iter().chain(&shares[i + 1..]);
+            let numerator: Scalar = others
+                .clone()
+                .map(|other_share| other_share.index.as_scalar())
+                .product();
+            let denominator: Scalar = others
+                .map(|other_share| other_share.index.as_scalar() - share.index.as_scalar())
+                .product();
+            // No check that share.index != 0; an attacker-supplied index 0
+            // makes their share's secret dominate the reconstruction.
+            ...
+        })
+        .sum()
+}
+```
+
+A malicious party submits `Share { index: Index(0), secret: x }` for any chosen `x`. At
+the reconstruction step the Lagrange basis polynomial for index 0 evaluates to 1 there,
+so the recovered secret collapses to the attacker-chosen `x`. The PoC in the issue
+demonstrates this end-to-end. The bug is unfixed at the time of writing; the underlying
+type is `curve25519-dalek::scalar::Scalar`, so the integer-vs-modular distinction does
+not apply here.
+<!--**Example: tss-lib party index `== q`.** In `bnb-chain/tss-lib`, party indices for the
 Feldman VSS share assignment were compared against the integer literal `0` only
 ([source](https://github.com/bnb-chain/tss-lib/blob/73560daec7f83d7355107ea9b5e59d16de8765be/crypto/vss/feldman_vss.go#L64-L70)):
 
@@ -79,9 +200,10 @@ for i := 0; i < num; i++ {
 ```
 
 A party that sets its ID to the secp256k1 group order $q$ passes the `!= 0` check, but
-polynomial evaluation runs modulo $q$, so the returned "share" is $f(0)$ — the shared
+polynomial evaluation runs modulo $q$, so the returned "share" is $f(0)$, the shared
 secret. See the [Shamir Secret Sharing](../shamir-secret-sharing/) pitfall for the full
 writeup and remediation.
+-->
 
 ### Subgroup-generator check missing
 
@@ -97,14 +219,14 @@ order check is the same mistake as accepting a zero field element, applied one l
 algebraic hierarchy.
 
 **Security implication.** A malicious party supplies a trivial or small-order generator as
-its contribution to a shared protocol parameter — a Pedersen base, a DLN proof base, a
+its contribution to a shared protocol parameter, e.g. a Pedersen base, a DLN proof base or a
 Paillier auxiliary generator. The honest verifier then uses it in exponentiations with its
 own secret exponent, and each exponentiation leaks the low bits of that exponent. Across a
-handful of rounds the attacker recovers the secret exponent completely — a Pohlig–Hellman
+handful of rounds the attacker recovers the secret exponent completely, that is, a Pohlig–Hellman
 decomposition in disguise.
 
 **How to avoid.** Before using an adversary-supplied group element in any exponentiation,
-verify it has the expected subgroup order: on RSA-style moduli, check
+verify it has the expected subgroup order. For example, on RSA-style moduli, check
 $x^q \equiv 1 \pmod{N}$ and $x \ne 1, N-1$; on non-prime-order curves, multiply by the
 cofactor and reject the identity; on prime-order curves, reject the identity (point at
 infinity).
@@ -116,12 +238,65 @@ infinity).
 instance of this general failure.
 
 ### Received sequence has the wrong length
+**What can go wrong.** Protocols that transmit a fixed-length vector such as a Feldman VSS
+commitment vector of length $t$, a list of $n-1$ peer signatures or a vector of DLN proof
+iterations, must verify that the incoming length equals the expected length before
+processing. Accepting a vector with unexpected length is functionally running a strictly
+different protocol instance from the one the verifier thought it was in.
 
+**Security implication.** A malicious party sends a vector of length $t + k$ when the
+protocol expects length $t$. Honest verifiers iterate over all $t + k$ elements without
+noticing the mismatch. In Feldman VSS this raises the reconstruction threshold from $t$ to
+$t + k$ silently, rendering the shared key irrecoverable from the $t$ honest shares alone.
+The sabotage is permanent: there is no on-chain trace of a raised threshold, and no retry
+path without restarting the entire key-generation ceremony. A shorter-than-expected vector
+breaks verification in the opposite direction. Code that indexes a fixed offset may panic
+before any length check runs; code that iterates silently operates on a lower-degree
+polynomial than the protocol intended.
+
+**How to avoid.** Compare the received vector length against the protocol-specified length
+before any iteration or verification step. Treat a length mismatch as a protocol abort;
+do not truncate, pad, or iterate defensively.
+
+**Example: WSTS/sBTC FROST DKG empty polynomial commitment (Issues [#1966](https://github.com/stacks-sbtc/sbtc/issues/1966) & [#212](https://github.com/xoloki/wsts/issues/212))** <!--Actually a good example for received sequence has the wrong length-->
+In `xoloki/wsts`, the FROST/WSTS implementation used by Stacks sBTC, the function `PolyCommitment::verify`
+indexed `self.poly[0]` without checking the vector was non-empty
+([source](https://github.com/xoloki/wsts/blob/8f2a96e26c9a/src/common.rs#L35-L40)):
+
+```rust
+// src/common.rs — xoloki/wsts (vulnerable, before PR #224)
+impl PolyCommitment {
+    /// Verify the wrapped schnorr ID
+    pub fn verify(&self, ctx: &[u8]) -> bool {
+        self.id.verify(&self.poly[0], ctx)   // panics if poly is empty
+    }
+}
+```
+
+The function `verify` is then called by `check_public_shares`
+([source](https://github.com/xoloki/wsts/blob/8f2a96e26c9a/src/common.rs#L318-L321)):
+
+```rust
+// src/common.rs — xoloki/wsts (vulnerable, before PR #224)
+/// Check that the PolyCommitment is properly signed and has the correct degree polynomial
+pub fn check_public_shares(poly_comm: &PolyCommitment, threshold: usize, ctx: &[u8]) -> bool {
+    poly_comm.verify(ctx) && poly_comm.poly.len() == threshold
+    // verify(ctx) is evaluated first; an empty poly panics before the length check runs
+}
+```
+
+Deserialisation accepted an empty `poly`; calling `check_public_shares` then panicked
+inside `verify` before the `poly.len() == threshold` clause was reached, crashing any
+node that tried to validate the malicious commitment. The first fix ([PR #224](https://github.com/xoloki/wsts/pull/224)) both adds a
+`!self.poly.is_empty()` guard inside `verify` and swaps the conjunction order in
+`check_public_shares` to evaluate the length check first. A more thorough fix proposed in [PR #1968](https://github.com/stacks-sbtc/sbtc/pull/1968) introduces a
+`PublicPolynomial` newtype that disallows empty vectors at construction time.
+<!--
 <div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#commitment-vector-length-not-checked-threshold-raise-sabotage">Commitment vector length not checked</a></span></div>
 
-**What can go wrong.** Protocols that transmit a fixed-length vector — a Feldman VSS
-commitment vector of length $t$, a list of $n-1$ peer signatures, a vector of DLN proof
-iterations — must verify that the incoming length equals the expected length before
+**What can go wrong.** Protocols that transmit a fixed-length vector, a Feldman VSS
+commitment vector of length $t$, a list of $n-1$ peer signatures or a vector of DLN proof
+iterations, must verify that the incoming length equals the expected length before
 processing. Accepting a longer-than-expected vector is functionally running a strictly
 different protocol instance from the one the verifier thought it was in.
 
@@ -131,6 +306,7 @@ noticing the mismatch. In Feldman VSS this raises the reconstruction threshold f
 $t + k$ silently, rendering the shared key irrecoverable from the $t$ honest shares alone.
 The sabotage is permanent: there is no on-chain trace of a raised threshold, and no retry
 path without restarting the entire key-generation ceremony.
+
 
 **How to avoid.** Compare the received vector length against the protocol-specified length
 before any iteration or verification step. Treat a length mismatch as a protocol abort;
@@ -162,6 +338,8 @@ that had the check at the time of the Trail of Bits disclosure.
 [PR #597](https://github.com/ZcashFoundation/frost/pull/597) added the per-package length
 check. See the [Feldman Verified Secret Sharing](../feldman-vss/) pitfall for the full
 writeup.
+
+--->
 
 <!--
 ### Commit Timeline
