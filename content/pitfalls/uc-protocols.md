@@ -74,8 +74,6 @@ no reliable-broadcast implementation exists in the tree.
 
 ### Unauthenticated or unencrypted point-to-point channels
 
-<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>
-
 **What can go wrong.** UC proofs of MPC protocols typically assume authenticated, and
 usually confidential, channels between every pair of parties. Implementations that
 hand-roll the transport layer — raw TCP, ad-hoc JSON over HTTP, implicit trust in a
@@ -99,12 +97,70 @@ authenticated key-exchange). Never run the cryptographic protocol over unauthent
 transport, even "for testing" — integration-test wiring often migrates into production
 unnoticed.
 
-**Example.** *TBD.* Hand-rolled-transport pitfalls are a common audit finding in MPC
-wallet deployments but no single public CVE collects them on this page yet.
+**Example: `coinbase/kryptology` GG20 DKG ships secret shares unencrypted.** GG20's
+key-generation proof assumes the Round 2 P2P delivery of each Shamir share $x_{ij}$
+runs over a confidential channel — the original paper instantiates this with Paillier
+encryption keyed to the recipient. The Coinbase library's GG20 implementation drops the
+encryption step and returns the share as a bare struct field
+([source](https://github.com/coinbase/kryptology/blob/master/pkg/tecdsa/gg20/participant/dkg_round2.go)):
+
+```go
+// FILE: pkg/tecdsa/gg20/participant/dkg_round2.go — coinbase/kryptology
+
+type DkgRound2P2PSend struct {
+    xij *v1.ShamirShare  // raw share — no Paillier encryption applied
+}
+// ...
+p2PSend[id] = &DkgRound2P2PSend{ xij: dp.state.X[id-1] }
+```
+
+An integrator filed [issue #29](https://github.com/coinbase/kryptology/issues/29) after
+having to fork the library to make `xij` exportable for transmission, noting it "feels
+unsafe to share in unencrypted form" and pointing out that Swingby's tss-lib fork
+[Paillier-encrypts the share](https://github.com/SwingbyProtocol/tss-lib/blob/668d0061fadf08bf2ba9f7e9287516fc173b6b9c/ecdsa/keygen/round_3.go#L127-L133)
+at the equivalent round. The maintainer confirmed in the same thread: *"You should
+encrypt everything sent between participants since the paper states it's only secure in
+the presence of a secure channel."* The library nonetheless leaves channel
+confidentiality entirely to the application — any deployment that wires
+`DkgRound2P2PSend` over a non-confidential transport loses Round 2 secret shares to a
+network observer, which is sufficient to reconstruct the long-term ECDSA private key
+once $t$ such observations accumulate.
+
+**Example: `axelarnetwork/tofnd` accepts spoofed `from` field on the wire.** Axelar's
+GG20 daemon (a separate Rust implementation, not tss-lib) wraps each protocol message
+in a `TrafficIn` envelope that carries the transport-level sender identity
+(`from_party_uid`) alongside an inner `MsgMeta` that carries the protocol-level sender
+index (`from: usize`). [Issue #60](https://github.com/axelarnetwork/tofnd/issues/60),
+filed by maintainer Gus Gutoski in April 2021, describes the failure directly:
+
+> *Currently, the sender of a tofnd message is not authenticated. Thus, malicious
+> parties could spoof messages from other parties. […] It is easy for a malicious actor
+> to dig into the binary payload and spoof this `from` field and therefore send messages
+> on behalf of other parties.*
+
+The vulnerable handler discarded the transport identity and passed the raw payload
+straight to the cryptographic core
+([`src/gg20/protocol.rs#L106-L117`](https://github.com/axelarnetwork/tofnd/blob/56068f8f6090362a33d948e837f5f3442355ecae/src/gg20/protocol.rs#L106-L117)):
+
+```rust
+// FILE: src/gg20/protocol.rs — axelarnetwork/tofnd (pre-fix)
+
+// The transport-level from_party_uid in TrafficIn was ignored;
+// only the binary payload was forwarded to tofn for deserialization.
+// tofn then trusted the inner MsgMeta { from: usize, ... } self-attribution.
+```
+
+A malicious party Alice with subshares `{0, 1}` could craft a message with
+`MsgMeta::from = 2` (Bob's subshare index), and no consistency check linked that index
+back to the transport-authenticated `from_party_uid`. The remediation
+([tofn #42](https://github.com/axelarnetwork/tofn/issues/42)) required exposing the
+`from` field in tofn's public API so tofnd could enforce
+`from_party_uid == MsgMeta::from` before dispatch. The sister-issue thread is explicit
+about which failure mode each spoof produces: cross-party spoof surfaces as an
+authentication fault, intra-party subshare spoof surfaces as a ZK-proof failure — both
+were silently accepted before the fix.
 
 ### Session-ID disagreement not detected early
-
-<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>
 
 **What can go wrong.** When two honest parties run a shared sub-protocol (OT extension,
 MAC check, DLN proof) using a session identifier (`ssid`) that disagrees between them —
@@ -129,10 +185,60 @@ fails include a diagnostic code that distinguishes "mismatched ssid" from "MAC o
 transcript inconsistent under a shared ssid" so operators can tell configuration errors
 apart from attacks.
 
-**Example.** *TBD.* The pre-Sinsoillier description of this pitfall notes it as a
-structural guidance rather than a specific CVE: two parties running OT extension with
-different session IDs will see a consistency-check failure that is indistinguishable
-from malicious behaviour.
+**Example: BitGo `sdk-lib-mpc` DKLS retrofit hardcoded `final_session_id` to zeros.**
+BitGo's institutional MPC SDK wraps Silence Laboratories' DKLS WASM bindings to perform
+threshold-ECDSA key generation. The DKLS protocol uses `final_session_id` (a 32-byte
+value supplied at retrofit time) to bind the OT-extension transcript to a specific
+keygen session — without uniqueness here, the OT-setup transcript is constant across
+sessions and the protocol's session-isolation guarantee collapses. The retrofit code
+path in `modules/sdk-lib-mpc/src/tss/ecdsa-dkls/dkg.ts` shipped with the value
+hardcoded to all zeros, so every retrofit wallet across the entire deployment shared
+the same `ssid`. The fix landed in [PR #8496](https://github.com/BitGo/BitGoJS/pull/8496)
+(merged April 14 2026, internal ticket WAL-392):
+
+```ts
+// FILE: modules/sdk-lib-mpc/src/tss/ecdsa-dkls/dkg.ts — BitGo/BitGoJS
+
+// pre-fix — every retrofit wallet on the server shared this ssid
+final_session_id: Array(32).fill(0),
+
+// fix — bind the ssid to wallet-specific public material
+final_session_id: Array.from(
+    createHash('sha256')
+        .update(Buffer.from(this.retrofitData.xShare.y, 'hex'))           // pubkey
+        .update(Buffer.from(this.retrofitData.xShare.chaincode, 'hex'))   // chaincode
+        .digest()
+),
+```
+
+The PR description spells out the protocol-level impact: *"This weakens DKLS protocol
+transcript binding and could allow cross-session confusion when multiple retrofit
+wallets sign simultaneously on the same server."* This is the pitfall in its purest
+form. The bug was invisible from inside the protocol — no consistency check fires for
+"my `ssid` matches my neighbour's `ssid`, but they're both the wrong constant" — and
+nothing in the type system prevented the placeholder zero-array from reaching
+production. Detection required reasoning about the DKLS spec rather than reading the
+code.
+
+**Example: tss-lib `ssid` semantics are unspecified, leaving each integrator to invent
+their own.** The library's README instructs callers to "wrap each message with a session
+ID" but does not specify the derivation, the wire format, or which sub-protocol
+identifiers must agree. [Issue #292](https://github.com/bnb-chain/tss-lib/issues/292) is
+the textbook misconfiguration question, asked with no maintainer reply on file:
+
+> *"Does that mean adding additional session id data to a message like below?
+> `{ sessionId: out-of-band-id, msg: round-message }`. Or would it be ok to just using
+> https for communication and its session id?"*
+
+The two interpretations the integrator floats — application-supplied out-of-band ID vs.
+HTTPS session ID — produce mutually unintelligible deployments: two parties built by
+different teams will derive `ssid` differently and their consistency checks will fail
+with no diagnostic distinguishing "configuration mismatch" from "cheating peer". This is
+not hypothetical: [issue #228 ("Keygen Freezing and Session ID Problem")](https://github.com/bnb-chain/tss-lib/issues/228)
+is a downstream report of exactly that — random keygen freezes traced by the integrator
+back to lacking any way to "[map] session ID to a single run of keygen round." The
+library exposes no exported method to read the round of an inbound message, so the
+ssid-to-round binding the proof assumes cannot be enforced from outside.
 
 <!--
 ### Commit Timeline

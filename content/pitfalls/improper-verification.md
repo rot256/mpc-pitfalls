@@ -1,20 +1,38 @@
 ---
 title: "Improper Verification of Received Messages"
-class: "Received-Message Validation"
+class: "Missing Data Validation"
 order: 1
 ---
-
-In MPC protocols, parties exchange bitstrings that are supposed to represent mathematical
+<!--class: "Received-Message Validation"-->
+<!--In MPC protocols, parties exchange bitstrings that are supposed to represent mathematical
 objects: elements of $\mathbb{Z}_q^*$, commitments to polynomial coefficients,
-zero-knowledge proofs, and lists of peer contributions. A related concern is that the
-**secret space**, the values a party is logically supposed to contribute, is often much
-smaller than the **share space**, the algebraic ring or field over which the protocol
+zero-knowledge proofs, and lists of peer contributions. In the context of secret sharing, a related concern is that the
+**domain of secrets**, the values a party is logically supposed to contribute, is often much
+smaller than the **domain of shares**, the algebraic ring or field over which the protocol
 computes. A 1-bit boolean secret is shared over $\mathbb{F}_p$ for a large prime $p$; a
 64-bit integer is shared over $\mathbb{Z}_{2^{128}}$; a Schnorr/ECDSA message hash must
 lie in $\mathbb{Z}_q$. Before the receiver uses an incoming bitstring, it must verify both
 that the bitstring corresponds to a *valid* object of the expected type and that its value
 lies within the expected secret space. The pitfalls below are what goes wrong when that
-verification is skipped or performed in the wrong domain.
+verification is skipped or performed in the wrong domain.-->
+
+In MPC protocols, parties exchange data encoded as bitstrings that represent mathematical
+objects such as elements of $\mathbb{Z}_q^*$, commitments to polynomial coefficients,
+zero-knowledge proofs, or lists of peer contributions. The
+protocol guarantees correct computation on whatever inputs the parties supply; it does not
+constrain those inputs. A corrupted party may submit any value, so if an application's
+security depends on well-formed inputs, the implementation must enforce that separately.
+
+In secret-sharing-based MPC, the **domain of secrets**, the admissible inputs of the
+function, and the **domain of shares**, the algebraic structure over which the sharing
+scheme operates, usually do not match. For example, a one-bit boolean secret may be shared over
+$\mathbb{F}_p$ for a large prime $p$; a
+64-bit integer is shared over $\mathbb{Z}_{2^{128}}$; a Schnorr/ECDSA message hash must
+lie in $\mathbb{Z}_q$. Before using an incoming message, the receiver must
+verify that the message has the expected shape, that each component decodes to a valid object of the expected algebraic type,
+and that each value satisfies the constraints of the secret or input domain. The pitfalls
+below arise when one of these checks is omitted, applied only to the encoding, or performed
+in the wrong domain.
 
 ### Empty proof list passes vacuously
 
@@ -45,23 +63,52 @@ no specific public CVE is attached to this mini-pitfall yet.
 short-circuits to `Ok(())` whenever the verifier holds an empty validator set, because
 `quorum_voting_power == 0` makes the check `aggregated < target` evaluate as
 `0 < 0 == false`
-([source](https://github.com/Lchangliang/gravity-aptos/blob/master/types/src/validator_verifier.rs#L355-L373)):
+([source](https://github.com/Lchangliang/gravity-aptos/blob/master/types/src/validator_verifier.rs#L344-L385)):
 
 ```rust
-// types/src/validator_verifier.rs — Lchangliang/gravity-aptos (vulnerable)
-for index in multi_signature.get_signers_bitvec().iter_ones() {
-    // empty signers bitvec: loop body never executes
-    let validator = self.validator_infos.get(index).ok_or(VerifyError::UnknownAuthor)?;
-    authors.push(validator.address);
-    pub_keys.push(validator.public_key());
-}
-self.check_voting_power(authors.iter(), true)?;     // 0 < 0 == false → passes
-#[cfg(any(test, feature = "fuzzing"))]
-{
-    if self.quorum_voting_power == 0 {
-        // empty validator set: returns success without verifying any signature
-        return Ok(());
+// types/src/validator_verifier.rs#L344-L385 — Lchangliang/gravity-aptos (vulnerable)
+pub fn verify_multi_signatures<T: CryptoHash + Serialize>(
+    &self,
+    message: &T,
+    multi_signature: &AggregateSignature,
+) -> std::result::Result<(), VerifyError> {
+    // Verify the number of signature is not greater than expected.
+    Self::check_num_of_voters(self.len() as u16, multi_signature.get_signers_bitvec())?;
+    let mut pub_keys = vec![];
+    let mut authors = vec![];
+    for index in multi_signature.get_signers_bitvec().iter_ones() {
+        // empty signers bitvec: loop body never executes
+        let validator = self
+            .validator_infos
+            .get(index)
+            .ok_or(VerifyError::UnknownAuthor)?;
+        authors.push(validator.address);
+        pub_keys.push(validator.public_key());
     }
+    // Verify the quorum voting power of the authors
+    self.check_voting_power(authors.iter(), true)?;     // 0 < 0 == false → passes
+    #[cfg(any(test, feature = "fuzzing"))]
+    {
+        if self.quorum_voting_power == 0 {
+            // This should happen only in case of tests.
+            // TODO(skedia): Clean up the test behaviors to not rely on empty signature
+            // verification
+            return Ok(());                              // returns success before BLS pairing
+        }
+    }
+    // Verify empty multi signature
+    let multi_sig = multi_signature
+        .sig()
+        .as_ref()
+        .ok_or(VerifyError::EmptySignature)?;
+    // Verify the optimistically aggregated signature.
+    let aggregated_key =
+        PublicKey::aggregate(pub_keys).map_err(|_| VerifyError::FailedToAggregatePubKey)?;
+
+    multi_sig
+        .verify(message, &aggregated_key)
+        .map_err(|_| VerifyError::InvalidMultiSignature)?;
+    Ok(())
 }
 ```
 
@@ -178,12 +225,10 @@ pub fn recover_secret<S: Secret>(shares: &[Share<S>]) -> Result<S, RecoverSecret
 }
 ```
 
-A malicious party submits `Share { index: Index(0), secret: x }` for any chosen `x`. At
-the reconstruction step the Lagrange basis polynomial for index 0 evaluates to 1 there,
-so the recovered secret collapses to the attacker-chosen `x`. The PoC in the issue
-demonstrates this end-to-end. The bug is unfixed at the time of writing; the underlying
+A malicious party submits `Share { index: Index(0), secret: x }` for any chosen `x`, so the recovered secret collapses to the attacker-chosen `x`. The bug is unfixed at the time of writing.
+<!--; the underlying
 type is `curve25519-dalek::scalar::Scalar`, so the integer-vs-modular distinction does
-not apply here.
+not apply here.-->
 <!--**Example: tss-lib party index `== q`.** In `bnb-chain/tss-lib`, party indices for the
 Feldman VSS share assignment were compared against the integer literal `0` only
 ([source](https://github.com/bnb-chain/tss-lib/blob/73560daec7f83d7355107ea9b5e59d16de8765be/crypto/vss/feldman_vss.go#L64-L70)):
@@ -236,6 +281,80 @@ infinity).
 \bmod p$ leaks the exponent LSB) and the [RSA / Paillier Moduli](../rsa-moduli/) pitfall
 (missing DLN proofs for $h_1$, $h_2$ on Pedersen bases, CVE-2020-12118). Either is a worked
 instance of this general failure.
+
+**Example: Symbiotic Relay BLS key registration accepts non-subgroup points ([Sherlock #98](https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/98)).**
+In Symbiotic Relay's middleware SDK, `KeyBlsBn254.wrap()` validates an incoming BN254
+G1 point as a validator BLS public key but only checks coordinate bounds and curve
+membership ($y^2 \equiv x^3 + 3 \pmod p$); it does *not* check subgroup membership
+([source](https://github.com/sherlock-audit/2025-06-symbiotic-relay/blob/main/middleware-sdk/src/contracts/libraries/keys/KeyBlsBn254.sol#L17-L34)):
+
+```solidity
+// middleware-sdk/src/contracts/libraries/keys/KeyBlsBn254.sol — Symbiotic Relay (vulnerable)
+function wrap(
+    BN254.G1Point memory keyRaw
+) internal view returns (KEY_BLS_BN254 memory key) {
+    if (keyRaw.X == 0 && keyRaw.Y == 0) {
+        return zeroKey();
+    }
+    if (keyRaw.X >= BN254.FP_MODULUS || keyRaw.Y >= BN254.FP_MODULUS) {
+        revert KeyBlsBn254_InvalidKey();
+    }
+    (uint256 beta, uint256 derivedY) = BN254.findYFromX(keyRaw.X);
+    if (mulmod(derivedY, derivedY, BN254.FP_MODULUS) != beta) {
+        revert KeyBlsBn254_InvalidKey();
+    }
+    if (keyRaw.Y != derivedY && keyRaw.Y != BN254.FP_MODULUS - derivedY) {
+        revert KeyBlsBn254_InvalidKey();
+    }
+    // MISSING: subgroup check — cofactor·keyRaw should equal point at infinity
+    key = KEY_BLS_BN254(keyRaw);
+}
+```
+
+BN254 has cofactor $h > 1$, so the curve contains small-order points outside the
+prime-order subgroup. An attacker registers such a point as their validator key; every
+subsequent BLS aggregation that includes it operates outside the subgroup the security
+proof assumes, and the pairing equation becomes satisfiable for crafted signatures
+without knowledge of the corresponding private key. The audit's recommended fix is the
+standard `cofactor·P == 0` check before storing the key.
+
+**Example: Symbiotic Relay BLS verification skips subgroup checks on calldata-supplied points ([Sherlock #76](https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/76)).**
+The same omission appears on the verification side. `SigBlsBn254.verify()` decodes
+attacker-controlled `signatureG1` (G1) and `keyG2` (G2) from calldata and feeds them
+directly into `BN254.safePairing(...)` with no subgroup-membership check on either point
+([source](https://github.com/sherlock-audit/2025-06-symbiotic-relay/blob/main/middleware-sdk/src/contracts/libraries/sigs/SigBlsBn254.sol#L13-L42)):
+
+```solidity
+// middleware-sdk/src/contracts/libraries/sigs/SigBlsBn254.sol — Symbiotic Relay (vulnerable)
+function verify(
+    bytes memory keyBytes,
+    bytes memory message,
+    bytes memory signature,
+    bytes memory extraData
+) internal view returns (bool) {
+    // ...
+    BN254.G2Point memory keyG2 = abi.decode(extraData, (BN254.G2Point));
+    BN254.G1Point memory signatureG1 = abi.decode(signature, (BN254.G1Point));
+    // MISSING: subgroup checks on signatureG1 (G1) and keyG2 (G2) before pairing
+    (bool success, bool result) = BN254.safePairing(
+        signatureG1.plus(keyG1.scalar_mul(alpha)),
+        BN254.negGeneratorG2(),
+        messageG1.plus(BN254.generatorG1().scalar_mul(alpha)),
+        keyG2,
+        PAIRING_CHECK_GAS_LIMIT
+    );
+    return success && result;
+}
+```
+
+The pairing equation is satisfiable by points that lie on the curve but outside the
+prime-order subgroup, so an attacker can craft a `(signatureG1, keyG2)` pair that passes
+`verify()` without knowing the corresponding private key — a complete signature-forgery
+primitive against the consensus-layer authentication. The audit's recommended fix is
+explicit `BN254.inG1Subgroup(signatureG1)` and `BN254.inG2Subgroup(keyG2)` calls before
+the pairing, or renaming `verify` to `unsafeVerify` and pushing the obligation to
+callers. Both Sherlock #98 and #76 were filed in the June 2025 contest and are open at
+the time of writing.
 
 ### Received sequence has the wrong length
 **What can go wrong.** Protocols that transmit a fixed-length vector such as a Feldman VSS
@@ -291,6 +410,85 @@ node that tried to validate the malicious commitment. The first fix ([PR #224](h
 `!self.poly.is_empty()` guard inside `verify` and swaps the conjunction order in
 `check_public_shares` to evaluate the length check first. A more thorough fix proposed in [PR #1968](https://github.com/stacks-sbtc/sbtc/pull/1968) introduces a
 `PublicPolynomial` newtype that disallows empty vectors at construction time.
+
+**Example: WSTS threshold-raise via oversized polynomial ([Issue #87](https://github.com/Trust-Machines/wsts/issues/87) & [PR #88](https://github.com/Trust-Machines/wsts/pull/88)).**
+PR #224 above hardened a single call site against empty polynomials. The original
+Trail of Bits length-check fix in `xoloki/wsts` was [PR #88](https://github.com/Trust-Machines/wsts/pull/88)
+("Check length of polynomials", merged Oct 1, 2024), seven months after the
+disclosure. Before that PR, the per-signer DKG verification in `src/v1.rs` only
+checked the Schnorr ID, not the commitment-vector length
+([source](https://github.com/Trust-Machines/wsts/blob/v9.1.0/src/v1.rs)):
+
+```rust
+// src/v1.rs — Trust-Machines/wsts (vulnerable, before PR #88)
+if !comm.verify() {
+    bad_ids.push(*i);
+}
+self.group_key += comm.poly[0];
+```
+
+A malicious signer could append commitments to its `poly` to silently raise the
+reconstruction threshold — or pop one to lower it. PR #88 added the explicit
+equality check at every DKG verification site:
+
+```rust
+// src/v1.rs — Trust-Machines/wsts (fixed, PR #88)
+if comm.poly.len() != threshold || !comm.verify() {
+    bad_ids.push(*i);
+} else {
+    self.group_key += comm.poly[0];
+}
+```
+
+The accompanying test `bad_poly_length_dkg` mutates one signer's `poly` with
+`push(...)` and another with `pop()`, exercising both length-mismatch directions.
+
+**Example: ZenGo-X `multi-party-ecdsa` (still unfixed).** The GG20 keygen
+verification function `phase2_verify_vss_construct_keypair_phase3_pok_dlog` asserts
+the *number* of received VSS schemes but never the *length of each commitment
+vector*
+([source](https://github.com/ZenGo-X/multi-party-ecdsa/blob/7d8bd416/src/protocols/multi_party_ecdsa/gg_2020/party_i.rs#L322-L348)):
+
+```rust
+// gg_2020/party_i.rs — ZenGo-X (still vulnerable, no fix)
+assert_eq!(vss_scheme_vec.len(), usize::from(params.share_count));
+
+let correct_ss_verify = (0..y_vec.len())
+    .map(|i| {
+        let res = vss_scheme_vec[i]
+            .validate_share(&secret_shares_vec[i], index.try_into().unwrap())
+            .is_ok()
+            && vss_scheme_vec[i].commitments[0] == y_vec[i];
+        // ↑ no check that vss_scheme_vec[i].commitments.len() == threshold + 1
+        // ...
+    })
+```
+
+The repository was named in the [Trail of Bits Feb 2024 disclosure](https://blog.trailofbits.com/2024/02/20/breaking-the-shared-key-in-threshold-signature-schemes/);
+the last commit (`7d8bd416`, Aug 2023) predates the disclosure and no patch has
+been merged since. The codebase was widely forked by wallet implementations before
+being effectively archived.
+
+**Example: LatticeX-Foundation `opentss` (still unfixed).** The DMZ21 keygen
+phase-three handler validates each share but does not enforce a length on the
+incoming `vss_scheme.commitments` vector
+([source](https://github.com/LatticeX-Foundation/opentss/blob/bf15ba9465bd6f27d25fe227bad7a0c9fb21281c/multi_party_ecdsa/src/protocols/multi_party/dmz21/keygen.rs#L254-L262)):
+
+```rust
+// dmz21/keygen.rs — LatticeX-Foundation/opentss (still vulnerable)
+if !(msg
+    .vss_scheme
+    .validate_share(&msg.secret_share, self.party_index.clone())
+    .is_ok()
+    && msg.vss_scheme.commitments[0] == *q)
+{
+    return Err(anyhow!("Verify vss failed in keygen phase three"));
+}
+```
+
+Trail of Bits classified `opentss` as "no response" in the Feb 2024 disclosure;
+the only commit since (`bf15ba94`, Sep 2024) was an email update with no security
+fix.
 <!--
 <div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#commitment-vector-length-not-checked-threshold-raise-sabotage">Commitment vector length not checked</a></span></div>
 

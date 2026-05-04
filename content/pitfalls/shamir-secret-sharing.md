@@ -15,7 +15,7 @@ rogue-key attacks) or destroy it outright (threshold-raise sabotage).
 
 ### Party index not validated as non-zero mod q
 
-<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#non-zero-check-performed-in-the-wrong-domain">Non-zero check performed in the wrong domain</a></span></div>
+<!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#non-zero-check-performed-in-the-wrong-domain">Non-zero check performed in the wrong domain</a></span></div>-->
 
 **What can go wrong.** Shamir reconstructs the secret as $f(0)$, where $f$ is the
 sharing polynomial. If an implementation lets parties choose their own index and

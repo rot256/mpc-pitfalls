@@ -1,8 +1,9 @@
 ---
 title: "Improper Input Checks"
-class: "Received-Message Validation"
+class: "Missing Data Validation"
 order: 2
 ---
+<!--class: "Received-Message Validation"-->
 
 ### Input not reduced to the arithmetic domain
 

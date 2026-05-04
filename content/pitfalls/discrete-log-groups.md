@@ -169,7 +169,7 @@ $p - 1$ for odd $x$, leaking the least significant bit of the exponent on every 
 **Security implication.** An attacker who observes a party's public key $g^x$ with
 $g = p - 1$ immediately learns $x \bmod 2$. With access to a signing or commitment
 oracle, the attacker extracts the full discrete log in $O(\log x)$ queries via binary
-search on each bit. The same LSB-leak bites any protocol that uses the full group
+search on each bit. The same LSB-leak bits any protocol that uses the full group
 $\mathbb{Z}_p^*$ rather than the $q$-order subgroup without the three checks above —
 see [Van Oorschot & Wiener, eprint 2016/995](https://eprint.iacr.org/2016/995.pdf)
 for the detailed analysis and the "square-everything" alternative that avoids the
