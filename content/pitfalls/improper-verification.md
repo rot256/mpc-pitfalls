@@ -249,10 +249,9 @@ polynomial evaluation runs modulo $q$, so the returned "share" is $f(0)$, the sh
 secret. See the [Shamir Secret Sharing](../shamir-secret-sharing/) pitfall for the full
 writeup and remediation.
 -->
-
 ### Subgroup-generator check missing
 
-<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span><span class="flag flag-related">Closely related to <a href="#group-generator-not-validated">Group generator not validated</a></span></div>
+<div class="pitfall-flags"><!--<span class="flag flag-tbd">TBD example</span>--><span class="flag flag-related">Closely related to <a href="#group-generator-not-validated">Group generator not validated</a></span></div>
 
 **What can go wrong.** A received value that is supposed to generate a non-trivial subgroup
 must be checked to actually do so. At minimum, it must not be the identity (1 in a
@@ -272,15 +271,15 @@ decomposition in disguise.
 
 **How to avoid.** Before using an adversary-supplied group element in any exponentiation,
 verify it has the expected subgroup order. For example, on RSA-style moduli, check
-$x^q \equiv 1 \pmod{N}$ and $x \ne 1, N-1$; on non-prime-order curves, multiply by the
+$x^q \equiv 1 \pmod{N}$ and $x \notin \{1, N-1\}$; on non-prime-order curves, multiply by the
 cofactor and reject the identity; on prime-order curves, reject the identity (point at
 infinity).
 
-**Example.** *TBD on this page.* The concrete instances on this site live in the
+<!--**Example.** *TBD on this page.* The concrete instances on this site live in the
 [Discrete-Log Groups](../discrete-log-groups/) pitfall (generator validation; $g = \pm 1
 \bmod p$ leaks the exponent LSB) and the [RSA / Paillier Moduli](../rsa-moduli/) pitfall
 (missing DLN proofs for $h_1$, $h_2$ on Pedersen bases, CVE-2020-12118). Either is a worked
-instance of this general failure.
+instance of this general failure.-->
 
 **Example: Symbiotic Relay BLS key registration accepts non-subgroup points ([Sherlock #98](https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/98)).**
 In Symbiotic Relay's middleware SDK, `KeyBlsBn254.wrap()` validates an incoming BN254
@@ -318,7 +317,7 @@ proof assumes, and the pairing equation becomes satisfiable for crafted signatur
 without knowledge of the corresponding private key. The audit's recommended fix is the
 standard `cofactor·P == 0` check before storing the key.
 
-**Example: Symbiotic Relay BLS verification skips subgroup checks on calldata-supplied points ([Sherlock #76](https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/76)).**
+<!--**Example: Symbiotic Relay BLS verification skips subgroup checks on calldata-supplied points ([Sherlock #76](https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/76)).**
 The same omission appears on the verification side. `SigBlsBn254.verify()` decodes
 attacker-controlled `signatureG1` (G1) and `keyG2` (G2) from calldata and feeds them
 directly into `BN254.safePairing(...)` with no subgroup-membership check on either point
@@ -354,7 +353,7 @@ primitive against the consensus-layer authentication. The audit's recommended fi
 explicit `BN254.inG1Subgroup(signatureG1)` and `BN254.inG2Subgroup(keyG2)` calls before
 the pairing, or renaming `verify` to `unsafeVerify` and pushing the obligation to
 callers. Both Sherlock #98 and #76 were filed in the June 2025 contest and are open at
-the time of writing.
+the time of writing.-->
 
 ### Received sequence has the wrong length
 **What can go wrong.** Protocols that transmit a fixed-length vector such as a Feldman VSS
