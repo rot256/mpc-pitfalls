@@ -268,5 +268,3 @@ projects including Swingby Skybridge, Keep Network, and multiple cross-chain bri
 tss-lib v1.x (lacking session binding) remained the deployed version across most downstream
 forks until the August 2023 v2.0.0 release, a four-year window of exposure.
 -->
-### Challenge hash missing session context (ssid or pid)
-<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#challenge-hash-missing-provers-party-identity">Challenge hash missing prover's party identity</a></span></div>

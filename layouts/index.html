@@ -21,12 +21,33 @@
         <p>A collection of common mistakes when implementing MPC protocols, to help developers implement MPC securely.</p>
     </header>
 
-    {{ $pitfalls := sort (where .Site.RegularPages "Section" "pitfalls") ".Params.order" }}
-    {{ $classes := slice }}
+    {{ $allPages := where .Site.RegularPages "Section" "pitfalls" }}
+    {{ $intros := where $allPages "Params.intro" true }}
+    {{ $pitfalls := sort (where $allPages "Params.intro" "ne" true) ".Params.order" }}
+
+    {{ $classOrder := slice
+        "Input Validation"
+        "Lack of Binding to Execution Context"
+        "Concurrency and Session Lifecycle"
+        "Insecure Subprotocol Instantiation"
+        "Multi-Party Accountability" }}
+
+    {{ $existingClasses := slice }}
     {{ range $pitfalls }}
-        {{ $c := .Params.class }}
-        {{ if not (in $classes $c) }}
-            {{ $classes = $classes | append $c }}
+        {{ if not (in $existingClasses .Params.class) }}
+            {{ $existingClasses = $existingClasses | append .Params.class }}
+        {{ end }}
+    {{ end }}
+
+    {{ $classes := slice }}
+    {{ range $classOrder }}
+        {{ if in $existingClasses . }}
+            {{ $classes = $classes | append . }}
+        {{ end }}
+    {{ end }}
+    {{ range $existingClasses }}
+        {{ if not (in $classes .) }}
+            {{ $classes = $classes | append . }}
         {{ end }}
     {{ end }}
 
@@ -59,6 +80,9 @@
     {{ range $c := $classes }}
         <section class="category" id="category-{{ $c | anchorize }}">
             <h2 class="category-heading">{{ $c }}</h2>
+            {{ with (index (where $intros "Params.class" $c) 0) }}
+                <div class="category-intro">{{ .Content }}</div>
+            {{ end }}
             {{ range (where $pitfalls "Params.class" $c) }}
                 <section class="pitfall" id="{{ .Title | anchorize }}">
                     {{ .Content }}
