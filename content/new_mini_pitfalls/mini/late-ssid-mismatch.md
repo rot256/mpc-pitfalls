@@ -83,5 +83,3 @@ is a downstream report of exactly that — random keygen freezes traced by the i
 back to lacking any way to "[map] session ID to a single run of keygen round." The
 library exposes no exported method to read the round of an inbound message, so the
 ssid-to-round binding the proof assumes cannot be enforced from outside.
-
-<!--

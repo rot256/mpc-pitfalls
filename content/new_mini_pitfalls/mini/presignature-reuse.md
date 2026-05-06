@@ -67,5 +67,3 @@ func (p *Presignature) Sign(x, msgHash *big.Int, n *big.Int) (*big.Int, error) {
     // ... signing logic ...
 }
 ```
-
-<!--

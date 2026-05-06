@@ -42,5 +42,3 @@ attack](https://blog.verichains.io/p/tsshock-critical-vulnerabilities): with
 proof on roughly half of them, and uses the forged proof to extract a signing key share.
 Full key extraction from Multichain's fastMPC was confirmed in a single signing
 ceremony; Multichain's bridge was drained of over \$130M in July 2023.
-
-<!--

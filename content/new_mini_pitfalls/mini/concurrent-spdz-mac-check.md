@@ -115,5 +115,3 @@ values in its own MAC check instance, before A has confirmed those values are
 authenticated. By carefully timing two concurrent MAC check instances the adversary
 extracts information about $\alpha$ through the unauthenticated intermediate state,
 then uses this to forge MACs on arbitrary output values.
-
-<!--

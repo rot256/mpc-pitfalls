@@ -62,5 +62,3 @@ for _, bz := range in {
     data = append(data, dataLen...) // length tag makes encoding injective
 }
 ```
-
-<!--

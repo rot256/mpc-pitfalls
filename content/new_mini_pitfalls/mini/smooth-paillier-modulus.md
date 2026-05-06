@@ -63,5 +63,3 @@ named 15+ affected wallet providers. Apache Milagro had an additional aggravatin
 factor: its range-proof beta parameter was only 256 bits instead of ~2048, reducing the
 number of signing sessions needed for full key extraction from 16 to about 1 —
 practical against any single co-signing session.
-
-<!--

@@ -68,5 +68,3 @@ A malicious party submits $x_j = x_i + q$ for some other party $i$. The raw inte
 values differ, so a naïve `!=` check passes; modular reduction makes $x_j \equiv x_i$,
 and reconstruction crashes. The fix is the `validateDistinctIndices` pass above,
 applied at the protocol's share-ingestion boundary.
-
-<!--

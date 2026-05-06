@@ -187,5 +187,3 @@ check. See the [Feldman Verified Secret Sharing](../feldman-vss/) pitfall for th
 writeup.
 
 --->
-
-<!--

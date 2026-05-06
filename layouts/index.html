@@ -21,54 +21,19 @@
         <p>A collection of common mistakes when implementing MPC protocols, to help developers implement MPC securely.</p>
     </header>
 
-    {{ $allPages := where .Site.RegularPages "Section" "pitfalls" }}
-    {{ $intros := where $allPages "Params.intro" true }}
+    {{ $allPages := where .Site.RegularPages "Section" "new_mini_pitfalls" }}
+    {{ $intros := sort (where $allPages "Params.intro" true) ".Params.order" }}
     {{ $pitfalls := sort (where $allPages "Params.intro" "ne" true) ".Params.order" }}
-
-    {{ $classOrder := slice
-        "Input Validation"
-        "Lack of Binding to Execution Context"
-        "Concurrency and Session Lifecycle"
-        "Insecure Subprotocol Instantiation"
-        "Multi-Party Accountability" }}
-
-    {{ $existingClasses := slice }}
-    {{ range $pitfalls }}
-        {{ if not (in $existingClasses .Params.class) }}
-            {{ $existingClasses = $existingClasses | append .Params.class }}
-        {{ end }}
-    {{ end }}
-
-    {{ $classes := slice }}
-    {{ range $classOrder }}
-        {{ if in $existingClasses . }}
-            {{ $classes = $classes | append . }}
-        {{ end }}
-    {{ end }}
-    {{ range $existingClasses }}
-        {{ if not (in $classes .) }}
-            {{ $classes = $classes | append . }}
-        {{ end }}
-    {{ end }}
 
     <nav>
         <h2>Table of Contents</h2>
         <ul class="toc">
-        {{ range $c := $classes }}
+        {{ range $intros }}
             <li class="toc-category">
-                <a class="toc-category-link" href="#category-{{ $c | anchorize }}">{{ $c }}</a>
+                <a class="toc-category-link" href="#category-{{ .Params.class | anchorize }}">{{ .Params.class }}</a>
                 <ol>
-                {{ range (where $pitfalls "Params.class" $c) }}
-                    {{ $page := . }}
-                    {{ $hasH3 := false }}
-                    {{ range $page.Fragments.HeadingsMap }}
-                        {{ if eq .Level 3 }}{{ $hasH3 = true }}{{ end }}
-                    {{ end }}
-                    {{ if $hasH3 }}
-                        {{ partial "mini-pitfall-list.html" $page.Fragments.Headings }}
-                    {{ else }}
-                        <li><a href="#{{ $page.Title | anchorize }}">{{ $page.Title }}</a></li>
-                    {{ end }}
+                {{ range (where $pitfalls "Params.class" .Params.class) }}
+                    <li><a {{ printf "href=\"#%s\"" (.Title | anchorize) | safeHTMLAttr }}>{{ .Title }}</a></li>
                 {{ end }}
                 </ol>
             </li>
@@ -77,13 +42,11 @@
     </nav>
 
     <main>
-    {{ range $c := $classes }}
-        <section class="category" id="category-{{ $c | anchorize }}">
-            <h2 class="category-heading">{{ $c }}</h2>
-            {{ with (index (where $intros "Params.class" $c) 0) }}
-                <div class="category-intro">{{ .Content }}</div>
-            {{ end }}
-            {{ range (where $pitfalls "Params.class" $c) }}
+    {{ range $intros }}
+        <section class="category" id="category-{{ .Params.class | anchorize }}">
+            <h2 class="category-heading">{{ .Params.class }}</h2>
+            <div class="category-intro">{{ .Content }}</div>
+            {{ range (where $pitfalls "Params.class" .Params.class) }}
                 <section class="pitfall" id="{{ .Title | anchorize }}">
                     {{ .Content }}
                 </section>

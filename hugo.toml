@@ -12,6 +12,9 @@ section = []
 lineNos = true
 lineNumbersInTable = false
 
+[markup.goldmark.parser]
+autoHeadingID = false
+
 [markup.goldmark.renderer]
 unsafe = true
 

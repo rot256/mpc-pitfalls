@@ -69,5 +69,3 @@ recurrence across modern implementations — Trail of Bits' 2024 disclosure foun
 the length-check and rogue-key failures in multiple libraries at once — underscores
 that spec-level mitigations do not reliably translate into implementation-level
 checks without explicit auditing.
-
-<!--

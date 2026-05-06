@@ -64,5 +64,3 @@ if round.temp.m.Cmp(tss.EC().Params().N) >= 0 {
     return round.WrapError(errors.New("hashed message is not valid"))
 }
 ```
-
-<!--

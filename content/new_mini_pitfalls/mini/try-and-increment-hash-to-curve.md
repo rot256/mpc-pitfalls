@@ -51,5 +51,3 @@ The fix is to replace the loop with a constant-time `hash_to_field` + SWU mappin
 specified by RFC 9380. No MPC-library CVE is pinned to this specific pattern on this
 page yet — but the eprint paper shows it arises naturally in implementations that predate
 the IETF standardisation.
-
-<!--

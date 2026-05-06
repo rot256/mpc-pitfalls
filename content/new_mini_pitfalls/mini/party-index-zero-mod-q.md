@@ -12,8 +12,7 @@ source: "shamir-secret-sharing.md"
 sharing polynomial. If an implementation lets parties choose their own index and
 accepts the literal integer `0` as invalid but does not reduce the index modulo the
 group order $q$ before the check, an attacker setting their index to $q$ (or any
-$k \cdot q$) passes the check while causing `evaluatePolynomial(q) ≡ evaluatePolynomial(0)
-= f(0) = \text{secret}$. The same bug shows up when indices are typed as small
+$k \cdot q$) passes the check while causing `evaluatePolynomial(q) ≡ evaluatePolynomial(0)= f(0) = \text{secret}$`. The same bug shows up when indices are typed as small
 unsigned integers (e.g., `u16`): the integer `0` itself is a valid value of the type,
 and if the zero check is written against the type's default the implementation
 accepts it.

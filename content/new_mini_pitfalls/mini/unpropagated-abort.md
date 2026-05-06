@@ -74,5 +74,3 @@ finding is rated Low because the consistency check is batched (not per-bit) and
 the race window is narrow, but it is a clean illustration of the engineering
 pitfall in production code; manual triage is still in progress at the time of
 writing.
-
-<!--

@@ -86,5 +86,3 @@ typically derived to include the participant set for the current run, closing bo
 session-level and party-level replay vectors. No distinct CVE has been assigned to a
 "party identity only" variant — in every observed real-world case the `ssid` and party
 identity are missing together.-->
-
-<!--

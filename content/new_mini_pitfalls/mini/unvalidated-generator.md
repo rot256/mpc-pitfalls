@@ -50,5 +50,3 @@ LSB leak even without an explicit generator check.
 **Example.** *TBD.* The LSB-leak attack is documented in
 [eprint 2016/995](https://eprint.iacr.org/2016/995.pdf) but no specific MPC-library CVE
 is pinned to it on this page yet.
-
-<!--
