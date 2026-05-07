@@ -1,6 +1,6 @@
 ---
 title: "Party index not validated as non-zero mod q"
-class: "Input Validation"
+class: "Others"
 source: "shamir-secret-sharing.md"
 ---
 

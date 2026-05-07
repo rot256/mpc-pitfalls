@@ -1,6 +1,6 @@
 ---
 title: "Non-zero check performed in the wrong domain"
-class: "Input Validation"
+class: "Others"
 source: "improper-verification.md"
 ---
 
