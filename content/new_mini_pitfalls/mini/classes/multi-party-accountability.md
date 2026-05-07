@@ -5,4 +5,7 @@ intro: true
 order: 5
 ---
 
-*Adversarial parties must either be constrained to honest behavior through proofs of knowledge, or detected and (where possible) identified through graceful, terminal aborts on consistency-check failure.*
+*When a party can influence shared protocol state, the protocol must either bind that
+party to a well-formed contribution before others act on it, or surface deviations as
+structured, terminal aborts that the caller can handle according to the protocol's
+recovery rules.*
