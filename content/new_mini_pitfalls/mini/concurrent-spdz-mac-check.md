@@ -1,20 +1,28 @@
 ---
 title: "SPDZ MAC check under multi-threading"
-class: "Others"
+class: "Concurrency and Session Lifecycle"
+order: 1
 source: "sequential-used-concurrently.md"
 ---
 
 ### SPDZ MAC check under multi-threading
 
-**What can go wrong.** SPDZ is proven secure in the UC model assuming a
-**single-threaded** execution environment. The MAC check sub-protocol verifies that
-values opened during the computation are correctly authenticated by the shared MAC key
-$\alpha$. The security proof assumes the MAC check runs atomically: all threads see
-consistent state from the start of verification until its completion (or abort). When
-an implementation splits the MAC check across threads — opening a value in one thread
-while another thread concurrently runs its own MAC check — the intermediate state the
-proof treated as private leaks between threads, and the verification that the proof
-treats as atomic is interleaved with other cryptographic operations.
+**What can go wrong.** SPDZ
+([Damgård–Pastro–Smart–Zakarias, 2012](https://eprint.iacr.org/2011/535)) is a
+maliciously-secure multi-party computation protocol for arithmetic circuits,
+tolerating up to $n-1$ corruptions among $n$ parties. Shared values are
+authenticated by an information-theoretic MAC under a global secret key $\alpha$
+that no party knows individually; at the end of the computation, a batch *MAC
+check* aborts the protocol if any opened value was tampered with. SPDZ's UC
+security proof models a single protocol execution and does not cover
+implementation-level interleaving of shared authenticated state across threads.
+The MAC check, in particular, is treated as an atomic step: the proof assumes all
+participants see consistent state from the start of verification until its
+completion (or abort). When an implementation splits the
+MAC check across threads by opening a value in one thread while another thread
+concurrently runs its own MAC check, the intermediate state the proof treated as
+private leaks between threads, and the verification that the proof treats as atomic
+is interleaved with other cryptographic operations.
 
 **Security implication.** The paper
 [*Rushing at SPDZ: On the Practical Security of Malicious MPC Implementations*](https://eprint.iacr.org/2025/789)
@@ -23,13 +31,11 @@ interleaving to extract information about the global MAC key $\alpha$ from concu
 MAC check instances, then forges MACs on arbitrary output values. The result is full
 compromise of output integrity: the adversary can make the SPDZ computation output any
 value of its choosing, defeating the malicious-security guarantee that SPDZ is
-specifically designed to provide. Three SPDZ implementations were analyzed:
-
-| Repository | Vulnerable | Notes |
-|-----------|-----------|-------|
-| [data61/MP-SPDZ](https://github.com/data61/MP-SPDZ) | Yes (patched) | Fixes shipped in v0.3.3 and v0.3.7 |
-| [KULeuven-COSIC/SCALE-MAMBA](https://github.com/KULeuven-COSIC/SCALE-MAMBA) | Yes | No public patch commit; uses quarterly private release cycle |
-| [aicis/fresco](https://github.com/aicis/fresco) | No | Does not support cross-thread secret transfer by design |
+specifically designed to provide. The paper analyzed several SPDZ implementations and found two of them vulnerable
+to this multi-thread MAC interleaving attack. The example below walks through the
+patches in [MP-SPDZ](https://github.com/data61/MP-SPDZ), one of the two. A third
+implementation, [Fresco](https://github.com/aicis/fresco), was safe by design since 
+its architecture forbids cross-thread secret state.
 
 **How to avoid.** Treat the MAC check sub-protocol as an **atomic critical section**
 across all threads. Three concrete rules:
@@ -50,31 +56,40 @@ were found and patched in MP-SPDZ in July 2023.
 ([commit `5e714b2`](https://github.com/data61/MP-SPDZ/commit/5e714b2)). The
 `SubProcessor<T>::POpen()` function opens secret values. The MAC verification call
 `check()` was only triggered by an explicit output-gate condition (`inst.get_n()`), so
-in multi-threaded programs the opened values were never MAC-checked before use:
+in multi-threaded programs, some opened values could be used without the MAC checks
+needed around the open:
 
 ```cpp
 // FILE: Processor/Processor.hpp — MP-SPDZ (vulnerable, prior to fix)
-
-// Opening loop — MAC check only triggered by inst.get_n(), not by nthreads
-if (inst.get_n())
+template <class T>
+void SubProcessor<T>::POpen(const Instruction& inst)
 {
-    // ... batched open processing ...
-    C[*it + i] = MC.finalize_open();
+    if (inst.get_n())
+        check();    // ← MAC check only before the loop, only if inst.get_n() is truthy
+    // ... batched open setup ...
+    for (auto it = reg.begin(); it < reg.end(); it += 2)
+        for (int i = 0; i < size; i++)
+            C[*it + i] = MC.finalize_open();
+    // ← no MAC check after the loop, even when nthreads > 0
 }
-// check() is never called when inst.get_n() is false,
-// even if multiple threads are concurrently opening values
 ```
 
-The fix extends both conditions to also fire when threads are active:
+The fix widens the pre-loop gate *and* adds a new post-loop MAC check with the
+same gate, so multi-threaded opens trigger both checks:
 
 ```cpp
-// FILE: Processor/Processor.hpp — MP-SPDZ (fixed)
-
-if (inst.get_n() or BaseMachine::s().nthreads > 0)
+// FILE: Processor/Processor.hpp — MP-SPDZ (fixed, commit 5e714b2)
+template <class T>
+void SubProcessor<T>::POpen(const Instruction& inst)
 {
-    C[*it + i] = MC.finalize_open();
     if (inst.get_n() or BaseMachine::s().nthreads > 0)
-        check();
+        check();    // ← gate widened to also fire under multi-threading
+    // ... batched open setup ...
+    for (auto it = reg.begin(); it < reg.end(); it += 2)
+        for (int i = 0; i < size; i++)
+            C[*it + i] = MC.finalize_open();
+    if (inst.get_n() or BaseMachine::s().nthreads > 0)
+        check();    // ← NEW: post-loop MAC check, same gate
 }
 ```
 
