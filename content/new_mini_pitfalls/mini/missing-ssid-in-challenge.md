@@ -1,6 +1,6 @@
 ---
 title: "Challenge hash missing session identifier (ssid)"
-class: "Lack of Binding to Execution Context"
+class: "Others"
 source: "zk-proofs-not-bound.md"
 ---
 
