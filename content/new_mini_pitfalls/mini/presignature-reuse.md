@@ -1,11 +1,11 @@
 ---
-title: "Threshold presignature reuse (nonce reuse)"
+title: "Threshold Presignature Reuse (Nonce Reuse)"
 class: "Concurrency and State Handling"
 order: 2
 source: "signatures.md"
 ---
 
-### Threshold presignature reuse (nonce reuse)
+### Threshold Presignature Reuse (Nonce Reuse)
 
 **What can go wrong.** ECDSA produces signatures $(r, s)$ where 
 

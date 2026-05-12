@@ -1,10 +1,10 @@
 ---
-title: "Empty proof list passes vacuously"
+title: "Empty Proof List Passes Vacuously"
 class: "Others"
 source: "improper-verification.md"
 ---
 
-### Empty proof list passes vacuously
+### Empty Proof List Passes Vacuously
 
 <!--<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>-->
 

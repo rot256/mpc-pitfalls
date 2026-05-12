@@ -1,12 +1,12 @@
 ---
-title: "Opaque error on OT extension consistency-check failure"
+title: "Opaque Error on OT Extension Consistency-Check Failure"
 class: "Others"
 source: "oblivious-transfer.md"
 ---
 
-### Opaque error on OT extension consistency-check failure
+### Opaque Error on OT Extension Consistency-Check Failure
 
-<div class="pitfall-flags"><span class="flag flag-related">Soft-merged with <a href="#panic-or-opaque-error-instead-of-structured-abort">Panic or opaque error instead of structured abort</a></span></div>
+<div class="pitfall-flags"><span class="flag flag-related">Soft-merged with <a href="#panic-or-opaque-error-instead-of-structured-abort">Panic or Opaque Error Instead of Structured Abort</a></span></div>
 
 **What can go wrong.** OT-extension protocols include a *consistency check* by which
 the sender verifies that the receiver constructed its transfer queries honestly; a

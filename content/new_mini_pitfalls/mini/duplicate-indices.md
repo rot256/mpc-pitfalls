@@ -1,10 +1,10 @@
 ---
-title: "Duplicate indices not rejected"
+title: "Duplicate Indices Not Rejected"
 class: "Others"
 source: "shamir-secret-sharing.md"
 ---
 
-### Duplicate indices not rejected
+### Duplicate Indices Not Rejected
 
 **What can go wrong.** Lagrange interpolation reconstructs $f(0)$ from $t$ shares via
 coefficients of the form $\prod_{j \ne i} \frac{-x_j}{x_i - x_j}$. The denominator

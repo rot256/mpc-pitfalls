@@ -1,10 +1,10 @@
 ---
-title: "Non-safe-prime modulus"
+title: "Non-Safe-Prime Modulus"
 class: "Others"
 source: "discrete-log-groups.md"
 ---
 
-### Non-safe-prime modulus
+### Non-Safe-Prime Modulus
 
 **What can go wrong.** When a protocol group is built over $\mathbb{Z}_p^*$ (or over
 $\text{QR}_N$ for some RSA modulus $N = P \cdot Q$), DLP hardness relies on the

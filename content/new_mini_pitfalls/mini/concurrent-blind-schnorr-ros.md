@@ -1,10 +1,10 @@
 ---
-title: "Blind Schnorr signatures used concurrently (ROS attack)"
+title: "Blind Schnorr Signatures Used Concurrently (ROS Attack)"
 class: "Others"
 source: "sequential-used-concurrently.md"
 ---
 
-### Blind Schnorr signatures used concurrently (ROS attack)
+### Blind Schnorr Signatures Used Concurrently (ROS Attack)
 
 **What can go wrong.** The blind Schnorr signature scheme is the blind-signature
 variant of Schnorr's scheme, in which a requester obtains a signature on a message

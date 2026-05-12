@@ -1,10 +1,10 @@
 ---
-title: "Rushing adversary copies an honest commitment"
+title: "Rushing Adversary Copies an Honest Commitment"
 class: "Adaptive Inputs"
 source: "commitments-not-bound.md"
 ---
 
-### Rushing adversary copies an honest commitment
+### Rushing Adversary Copies an Honest Commitment
 
 **What can go wrong.** In a commit-and-reveal protocol, each party sends a commitment
 during round 1 and opens it during round 2. If the commitment scheme does not bind each commitment to the identity of its opener (for example, by hashing in the party's ID and

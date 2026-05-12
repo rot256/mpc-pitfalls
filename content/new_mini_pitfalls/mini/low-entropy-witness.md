@@ -1,10 +1,10 @@
 ---
-title: "Witness domain has insufficient entropy"
+title: "Witness Domain Has Insufficient Entropy"
 class: "Others"
 source: "fiat-shamir.md"
 ---
 
-### Witness domain has insufficient entropy
+### Witness Domain Has Insufficient Entropy
 
 <div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>
 

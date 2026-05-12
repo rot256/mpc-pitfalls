@@ -1,12 +1,12 @@
 ---
-title: "Subgroup-generator check missing"
+title: "Subgroup-Generator Check Missing"
 class: "Others"
 source: "improper-verification.md"
 ---
 
-### Subgroup-generator check missing
+### Subgroup-Generator Check Missing
 
-<div class="pitfall-flags"><!--<span class="flag flag-tbd">TBD example</span>--><span class="flag flag-related">Closely related to <a href="#group-generator-not-validated">Group generator not validated</a></span></div>
+<div class="pitfall-flags"><!--<span class="flag flag-tbd">TBD example</span>--><span class="flag flag-related">Closely related to <a href="#group-generator-not-validated">Group Generator Not Validated</a></span></div>
 
 **What can go wrong.** A received value that is supposed to generate a non-trivial subgroup
 must be checked to actually do so. At minimum, it must not be the identity (1 in a

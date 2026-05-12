@@ -1,10 +1,10 @@
 ---
-title: "Randomness has insufficient entropy"
+title: "Randomness Has Insufficient Entropy"
 class: "Others"
 source: "fiat-shamir.md"
 ---
 
-### Randomness has insufficient entropy
+### Randomness Has Insufficient Entropy
 
 <!--div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div-->
 

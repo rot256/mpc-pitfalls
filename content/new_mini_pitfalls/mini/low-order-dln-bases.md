@@ -1,10 +1,10 @@
 ---
-title: "DLN-proof bases with order 2 or 4 accepted"
+title: "DLN-Proof Bases with Order 2 or 4 Accepted"
 class: "Others"
 source: "rsa-moduli.md"
 ---
 
-### DLN-proof bases with order 2 or 4 accepted
+### DLN-Proof Bases with Order 2 or 4 Accepted
 
 **What can go wrong.** GG18/GG20 range proofs instantiate Pedersen commitments under
 auxiliary bases $h_1, h_2 \in \mathbb{Z}_{\tilde N}^*$ and assume those bases generate

@@ -1,10 +1,10 @@
 ---
-title: "Challenge transcript missing required values (weak Fiat-Shamir)"
+title: "Challenge Transcript Missing Required Values (Weak Fiat-Shamir)"
 class: "Lack of Context Binding"
 source: "fiat-shamir.md"
 ---
 
-### Challenge transcript missing required values (weak Fiat-Shamir)
+### Challenge Transcript Missing Required Values (Weak Fiat-Shamir)
 
 **What can go wrong.** 
 In the Fiat-Shamir transformation, the verifier's challenge is replaced by a hash. Soundness requires that the challenge $c$ be the hash of *every* value the verifier's equation depends on: the public statement, the prover's first-message commitment(s), and any auxiliary values that appear in the verification relation. Missing any of these lets the prover choose the omitted value *after* seeing the challenge, enabling forgery. The [Aumasson–Shlomovits weak-FS analysis](https://eprint.iacr.org/2020/1052.pdf) catalogues several such variants across threshold-wallet implementations.

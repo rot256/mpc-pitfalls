@@ -1,12 +1,12 @@
 ---
-title: "Commitment vector length not checked (threshold-raise sabotage)"
+title: "Commitment Vector Length Not Checked (Threshold-Raise Sabotage)"
 class: "Others"
 source: "feldman-vss.md"
 ---
 
-### Commitment vector length not checked (threshold-raise sabotage)
+### Commitment Vector Length Not Checked (Threshold-Raise Sabotage)
 
-<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#received-sequence-has-the-wrong-length">Received sequence has the wrong length</a></span></div>
+<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#received-sequence-has-the-wrong-length">Received Sequence Has the Wrong Length</a></span></div>
 
 **What can go wrong.** Feldman VSS commits each sharing party to a specific
 degree-$(t-1)$ polynomial by broadcasting the vector of coefficient commitments

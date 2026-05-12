@@ -1,10 +1,10 @@
 ---
-title: "Rogue-key attack: no commit-before-reveal and no proof of knowledge"
+title: "Rogue-Key Attack: No Commit-Before-Reveal and No Proof of Knowledge"
 class: "Adaptive Inputs"
 source: "feldman-vss.md"
 ---
 
-### Rogue-key attack: no commit-before-reveal and no proof of knowledge
+### Rogue-Key Attack: No Commit-Before-Reveal and No Proof of Knowledge
 
 **What can go wrong.** A *distributed key generation* (DKG) protocol lets $n$ parties jointly produce a public key whose corresponding secret is shared among them, with no trusted dealer. In a Feldman-based DKG (the joint-Feldman construction of [Pedersen, 1991](https://link.springer.com/chapter/10.1007/3-540-46416-6_47); the underlying VSS primitive is from [Feldman, 1987](https://ieeexplore.ieee.org/document/4568297/)), each party $P_i$ broadcasts $A_{i,0} = g^{a_{i,0}}$, which is a commitment to its secret contribution $a_{i,0}$.  A shared public key is then defined as $Y = \prod_i A_{i,0}$. If the protocol neither requires parties to commit to their first-round messages before seeing others' contributions nor requires each party to prove knowledge of $a_{i,0}$, a malicious party or coalition may wait to see the honest parties' commitments and then choose its public contribution as a function of theirs. 
 

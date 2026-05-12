@@ -1,10 +1,10 @@
 ---
-title: "Challenge hash missing prover's party identity and session identifier"
+title: "Challenge Hash Missing Prover's Party Identity and Session Identifier"
 class: "Lack of Context Binding"
 source: "zk-proofs-not-bound.md"
 ---
 
-### Challenge hash missing prover's party identity and session identifier
+### Challenge Hash Missing Prover's Party Identity and Session Identifier
 
 **What can go wrong.** In the Fiat-Shamir transformation, the verifier's challenge is replaced by a challenge hash that, in the single-prover, single-session case, depends only on the public statement and the prover's commitment. In a multi-prover or multi-session setting this is not enough, and the hash must also bind to the prover's party identifier (`pid`) and to the session identifier (`ssid`). If the `pid` is missing, nothing in the hash input identifies which prover computed it, so honest $P_i$ and malicious $P_m$ obtain the same challenge on the same statement and commitment within a single session. A proof $\pi_i$ produced by $P_i$ can then be replayed verbatim by $P_m$, who claims knowledge of the underlying witness without ever holding it. If the `ssid` is missing, the hash produces the same challenge value across every session running the same statement. Two invocations of the proof, one in key-generation session $A$ and another in signing session $B$, differ only in the surrounding protocol context, which the hash does not see. The proof bytes from session $A$ therefore remain structurally valid in session $B$, allowing replay across sessions.
 

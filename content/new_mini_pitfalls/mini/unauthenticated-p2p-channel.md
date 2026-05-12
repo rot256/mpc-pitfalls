@@ -1,10 +1,10 @@
 ---
-title: "Unauthenticated or unencrypted point-to-point channels"
+title: "Unauthenticated or Unencrypted Point-to-Point Channels"
 class: "Insecure Subprotocol Instantiation"
 source: "uc-protocols.md"
 ---
 
-### Unauthenticated or unencrypted point-to-point channels
+### Unauthenticated or Unencrypted Point-to-Point Channels
 
 **What can go wrong.** Many MPC protocol proofs are written in the
 *Universal Composability* (UC) framework of

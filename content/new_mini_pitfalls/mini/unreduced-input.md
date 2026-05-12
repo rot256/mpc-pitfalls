@@ -1,10 +1,10 @@
 ---
-title: "Input not reduced to the arithmetic domain"
+title: "Input Not Reduced to the Arithmetic Domain"
 class: "Input Validation"
 source: "improper-input-checks.md"
 ---
 
-### Input not reduced to the arithmetic domain
+### Input Not Reduced to the Arithmetic Domain
 
 **What can go wrong.** MPC protocols usually operate over an arithmetic domain such as $\mathbb{Z}_q$, $\mathbb{Z}_{2^k}$, or some modular ring. However, parties exchange domain elements over the network as untyped bitstrings. Thus, an incoming bitstring may encode a raw integer $x$ living outside the domain, and must be verified reduced modulo $q$, or range-checked against $q$, before use. Otherwise, every value $x + k\cdot q$ for $k \geq 0$ has distinct bytes while representing the same algebraic element, and downstream subroutines treat them as different inputs when they are not.
 

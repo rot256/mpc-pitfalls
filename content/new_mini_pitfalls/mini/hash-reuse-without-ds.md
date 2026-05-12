@@ -1,10 +1,10 @@
 ---
-title: "Missing domain separation when a hash function is reused"
+title: "Missing Domain Separation When a Hash Function Is Reused"
 class: "Others"
 source: "hash-functions.md"
 ---
 
-### Missing domain separation when a hash function is reused
+### Missing Domain Separation When a Hash Function Is Reused
 
 **What can go wrong.** When the same hash function is used for multiple distinct
 purposes — Fiat-Shamir challenges for different proof types, commitment openings, key

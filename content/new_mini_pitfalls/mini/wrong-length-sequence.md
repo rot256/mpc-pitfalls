@@ -1,10 +1,10 @@
 ---
-title: "Received sequence has the wrong length"
+title: "Received Sequence Has the Wrong Length"
 class: "Input Validation"
 source: "improper-verification.md"
 ---
 
-### Received sequence has the wrong length
+### Received Sequence Has the Wrong Length
 
 **What can go wrong.** MPC protocols often handle fixed-length sequences such as Feldman VSS commitment vectors of length $t$, lists of $n-1$ peer signatures, or vectors of DLN proof iterations. Each carries a protocol-specified length that the verifier must check before using the sequence. Accepting a sequence with an unexpected shape is functionally running a different protocol instance from the one the verifier thought it was in. The same bug also appears at the lower bound: an empty proof, signature, or participant list can make a verification loop execute zero times and return success vacuously unless the expected length is checked first.
 

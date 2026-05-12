@@ -1,10 +1,10 @@
 ---
-title: "Multicast masquerading as broadcast"
+title: "Multicast Masquerading as Broadcast"
 class: "Insecure Subprotocol Instantiation"
 source: "uc-protocols.md"
 ---
 
-### Multicast masquerading as broadcast
+### Multicast Masquerading as Broadcast
 
 **What can go wrong.** Many MPC protocol proofs are written in the
 *Universal Composability* (UC) framework of

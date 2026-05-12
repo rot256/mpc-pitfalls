@@ -1,12 +1,12 @@
 ---
-title: "Party index not validated as non-zero mod q"
+title: "Party Index Not Validated as Non-Zero Mod q"
 class: "Others"
 source: "shamir-secret-sharing.md"
 ---
 
-### Party index not validated as non-zero mod q
+### Party Index Not Validated as Non-Zero Mod q
 
-<!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#non-zero-check-performed-in-the-wrong-domain">Non-zero check performed in the wrong domain</a></span></div>-->
+<!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#non-zero-check-performed-in-the-wrong-domain">Non-Zero Check Performed in the Wrong Domain</a></span></div>-->
 
 **What can go wrong.** Shamir reconstructs the secret as $f(0)$, where $f$ is the
 sharing polynomial. If an implementation lets parties choose their own index and

@@ -1,12 +1,12 @@
 ---
-title: "Non-zero check performed in the wrong domain"
+title: "Non-Zero Check Performed in the Wrong Domain"
 class: "Others"
 source: "improper-verification.md"
 ---
 
-### Non-zero check performed in the wrong domain
+### Non-Zero Check Performed in the Wrong Domain
 
-<!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#party-index-not-validated-as-non-zero-mod-q">Party index not validated as non-zero mod q</a></span></div>-->
+<!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#party-index-not-validated-as-non-zero-mod-q">Party Index Not Validated as Non-Zero Mod q</a></span></div>-->
 
 **What can go wrong.** When a received value $x$ must be rejected if it is zero in
 $\mathbb{Z}_q^*$, the check must be `x mod q != 0`, not `x != 0` in integer arithmetic. A

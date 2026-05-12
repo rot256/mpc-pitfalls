@@ -1,10 +1,10 @@
 ---
-title: "Private exponent $d$ not validated against the Wiener bound"
+title: "Private Exponent $d$ Not Validated Against the Wiener Bound"
 class: "Others"
 source: "rsa-moduli.md"
 ---
 
-### Private exponent $d$ not validated against the Wiener bound
+### Private Exponent $d$ Not Validated Against the Wiener Bound
 
 <div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>
 

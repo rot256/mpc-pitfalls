@@ -1,10 +1,10 @@
 ---
-title: "Insecure hash-to-curve (variable-time / try-and-increment)"
+title: "Insecure Hash-to-Curve (Variable-Time / Try-and-Increment)"
 class: "Others"
 source: "elliptic-curve-groups.md"
 ---
 
-### Insecure hash-to-curve (variable-time / try-and-increment)
+### Insecure Hash-to-Curve (Variable-Time / Try-and-Increment)
 
 **What can go wrong.** Some MPC sub-protocols need to map an arbitrary string to a
 curve point — Pedersen-commitment setup, VRF output, hash-based sigma commitments. The

@@ -1,10 +1,10 @@
 ---
-title: "SHA-2 / Merkle-Damgård length-extension attack"
+title: "SHA-2 / Merkle-Damgård Length-Extension Attack"
 class: "Others"
 source: "hash-functions.md"
 ---
 
-### SHA-2 / Merkle-Damgård length-extension attack
+### SHA-2 / Merkle-Damgård Length-Extension Attack
 
 **What can go wrong.** SHA-2 (SHA-256, SHA-512) uses the Merkle-Damgård construction:
 the internal state after processing a message $m$ is fully recoverable from $H(m)$

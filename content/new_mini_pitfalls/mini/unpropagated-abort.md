@@ -1,10 +1,10 @@
 ---
-title: "Abort not propagated to parallel OT-extension instances"
+title: "Abort Not Propagated to Parallel OT-Extension Instances"
 class: "Others"
 source: "oblivious-transfer.md"
 ---
 
-### Abort not propagated to parallel OT-extension instances
+### Abort Not Propagated to Parallel OT-Extension Instances
 
 <!--<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>-->
 

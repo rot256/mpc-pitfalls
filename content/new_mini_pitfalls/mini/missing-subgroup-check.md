@@ -1,10 +1,10 @@
 ---
-title: "Adversary-supplied group element not validated for subgroup membership"
+title: "Adversary-Supplied Group Element Not Validated for Subgroup Membership"
 class: "Others"
 source: "discrete-log-groups.md"
 ---
 
-### Adversary-supplied group element not validated for subgroup membership
+### Adversary-Supplied Group Element Not Validated for Subgroup Membership
 
 **What can go wrong.** A protocol that receives a group element from another party
 must verify the element actually lies in the intended subgroup before using it in any

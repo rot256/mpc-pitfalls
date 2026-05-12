@@ -1,10 +1,10 @@
 ---
-title: "Adversary-supplied point not validated as on-curve"
+title: "Adversary-Supplied Point Not Validated as On-Curve"
 class: "Others"
 source: "elliptic-curve-groups.md"
 ---
 
-### Adversary-supplied point not validated as on-curve
+### Adversary-Supplied Point Not Validated as On-Curve
 
 **What can go wrong.** When a party receives $(X, Y)$ from a peer and treats it as a
 curve point, it must verify that the pair actually satisfies the curve equation before

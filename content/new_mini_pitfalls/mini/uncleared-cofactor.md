@@ -1,10 +1,10 @@
 ---
-title: "Cofactor not cleared on non-prime-order curves"
+title: "Cofactor Not Cleared on Non-Prime-Order Curves"
 class: "Others"
 source: "elliptic-curve-groups.md"
 ---
 
-### Cofactor not cleared on non-prime-order curves
+### Cofactor Not Cleared on Non-Prime-Order Curves
 
 **What can go wrong.** Edwards and Montgomery curves used in MPC (Ed25519, Curve25519)
 have cofactor $h = 8$: the full curve group has order $8\ell$ for large prime $\ell$,

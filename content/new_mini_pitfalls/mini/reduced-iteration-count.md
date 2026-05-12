@@ -1,10 +1,10 @@
 ---
-title: "Insufficient soundness from reduced iteration count"
+title: "Insufficient Soundness from Reduced Iteration Count"
 class: "Others"
 source: "fiat-shamir.md"
 ---
 
-### Insufficient soundness from reduced iteration count
+### Insufficient Soundness from Reduced Iteration Count
 
 **What can go wrong.** Some FS-transformed proofs — notably the DLN non-membership proof
 used in GG18/GG20/CGGMP21, and certain $\Sigma$-protocols for range arguments — achieve

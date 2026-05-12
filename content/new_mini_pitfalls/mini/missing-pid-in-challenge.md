@@ -1,12 +1,12 @@
 ---
-title: "Challenge hash missing prover's party identity"
+title: "Challenge Hash Missing Prover's Party Identity"
 class: "Others"
 source: "zk-proofs-not-bound.md"
 ---
 
-### Challenge hash missing prover's party identity
+### Challenge Hash Missing Prover's Party Identity
 
-<!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#challenge-hash-missing-session-identifier-ssid">Challenge hash missing session identifier (ssid)</a></span></div>
+<!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#challenge-hash-missing-session-identifier-ssid">Challenge Hash Missing Session Identifier (ssid)</a></span></div>
 -->
 
 **What can go wrong.** In the Fiat-Shamir transformation, the verifier's challenge is replaced by a hash that, in the single-prover case, depends only on the public statement and the prover's commitment. In a multi-prover setting this is not enough: nothing in the hash input identifies which prover computed it, so honest $P_i$ and malicious $P_m$ on the same statement and commitment obtain the same challenge. The hash must therefore also bind to the prover's party identifier (`pid`). Otherwise, a proof $\pi_i$ honestly produced by $P_i$ can be replayed verbatim by $P_m$ on the same statement, and $P_m$ claims knowledge of the underlying witness without ever holding it.

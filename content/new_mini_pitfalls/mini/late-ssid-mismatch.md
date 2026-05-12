@@ -1,11 +1,11 @@
 ---
-title: "Session-ID disagreement or non-uniqueness not detected early"
+title: "Session-ID Disagreement or Non-Uniqueness Not Detected Early"
 class: "Failure Recovery and Abort Handling"
 order: 3
 source: "uc-protocols.md"
 ---
 
-### Session-ID disagreement or non-uniqueness not detected early
+### Session-ID Disagreement or Non-Uniqueness Not Detected Early
 
 **What can go wrong.** In the
 [Universal Composability framework of Canetti (2001)](https://eprint.iacr.org/2000/067),

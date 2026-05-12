@@ -1,10 +1,10 @@
 ---
-title: "Missing domain separator across signing contexts"
+title: "Missing Domain Separator Across Signing Contexts"
 class: "Lack of Context Binding"
 source: "signatures.md"
 ---
 
-### Missing domain separator across signing contexts
+### Missing Domain Separator Across Signing Contexts
 
 **What can go wrong.** When the same signing key is used in multiple protocol roles,
 signing round-1 commitments vs round-2 packages in a DKG, authenticating API requests

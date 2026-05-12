@@ -1,10 +1,10 @@
 ---
-title: "Variable-length list hashed without per-element length prefix"
+title: "Variable-Length List Hashed Without Per-Element Length Prefix"
 class: "Others"
 source: "hash-functions.md"
 ---
 
-### Variable-length list hashed without per-element length prefix
+### Variable-Length List Hashed Without Per-Element Length Prefix
 
 **What can go wrong.** When a hash function accepts a variadic list of byte strings
 with only a single delimiter byte between elements — and no per-element length tag —

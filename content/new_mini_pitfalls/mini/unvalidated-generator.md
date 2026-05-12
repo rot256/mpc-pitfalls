@@ -1,12 +1,12 @@
 ---
-title: "Group generator not validated"
+title: "Group Generator Not Validated"
 class: "Others"
 source: "discrete-log-groups.md"
 ---
 
-### Group generator not validated
+### Group Generator Not Validated
 
-<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span><span class="flag flag-related">Closely related to <a href="#subgroup-generator-check-missing">Subgroup-generator check missing</a></span></div>
+<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span><span class="flag flag-related">Closely related to <a href="#subgroup-generator-check-missing">Subgroup-Generator Check Missing</a></span></div>
 
 **What can go wrong.** For a safe-prime group $\mathbb{Z}_p^*$ with $p = 2q + 1$, a
 valid generator of the $q$-order subgroup must satisfy $g \ne 1$, $g \ne p-1$, and

@@ -1,12 +1,12 @@
 ---
-title: "Challenge hash missing session identifier (ssid)"
+title: "Challenge Hash Missing Session Identifier (ssid)"
 class: "Others"
 source: "zk-proofs-not-bound.md"
 ---
 
-### Challenge hash missing session identifier (ssid)
+### Challenge Hash Missing Session Identifier (ssid)
 
-<!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#challenge-hash-missing-provers-party-identity">Challenge hash missing prover's party identity</a></span></div>
+<!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#challenge-hash-missing-provers-party-identity">Challenge Hash Missing Prover's Party Identity</a></span></div>
 -->
 
 **What can go wrong.** A Fiat-Shamir challenge hash that does not include a session

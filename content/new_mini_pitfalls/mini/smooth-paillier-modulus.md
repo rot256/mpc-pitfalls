@@ -1,10 +1,10 @@
 ---
-title: "Paillier modulus with small factors not rejected"
+title: "Paillier Modulus with Small Factors Not Rejected"
 class: "Others"
 source: "rsa-moduli.md"
 ---
 
-### Paillier modulus with small factors not rejected
+### Paillier Modulus with Small Factors Not Rejected
 
 **What can go wrong.** Even after DLN proofs close the $h_1, h_2$ gap above, the
 Paillier modulus $N$ itself can be malformed. An adversary is free to publish $N = p_1

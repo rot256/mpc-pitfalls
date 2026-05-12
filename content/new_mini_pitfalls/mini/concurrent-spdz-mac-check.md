@@ -1,11 +1,11 @@
 ---
-title: "SPDZ MAC check under multi-threading"
+title: "SPDZ MAC Check Under Multi-Threading"
 class: "Concurrency and State Handling"
 order: 1
 source: "sequential-used-concurrently.md"
 ---
 
-### SPDZ MAC check under multi-threading
+### SPDZ MAC Check Under Multi-Threading
 
 **What can go wrong.** SPDZ
 ([Damgård–Pastro–Smart–Zakarias, 2012](https://eprint.iacr.org/2011/535)) is a
