@@ -1,6 +1,6 @@
 ---
 title: "Challenge hash missing prover's party identity and session identifier"
-class: "Lack of Binding to Execution Context"
+class: "Lack of Context Binding"
 source: "zk-proofs-not-bound.md"
 ---
 

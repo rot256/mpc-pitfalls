@@ -1,6 +1,6 @@
 ---
 title: "Rogue-key attack: no commit-before-reveal and no proof of knowledge"
-class: "Multi-Party Accountability"
+class: "Adaptive Inputs"
 source: "feldman-vss.md"
 ---
 

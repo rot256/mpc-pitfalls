@@ -1,6 +1,6 @@
 ---
 title: "Session-ID disagreement or non-uniqueness not detected early"
-class: "Concurrency and Session Lifecycle"
+class: "Failure Recovery and Abort Handling"
 order: 3
 source: "uc-protocols.md"
 ---

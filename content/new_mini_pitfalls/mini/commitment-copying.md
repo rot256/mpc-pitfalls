@@ -1,6 +1,6 @@
 ---
 title: "Rushing adversary copies an honest commitment"
-class: "Lack of Binding to Execution Context"
+class: "Adaptive Inputs"
 source: "commitments-not-bound.md"
 ---
 

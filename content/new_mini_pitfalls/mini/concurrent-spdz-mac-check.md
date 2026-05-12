@@ -1,6 +1,6 @@
 ---
 title: "SPDZ MAC check under multi-threading"
-class: "Concurrency and Session Lifecycle"
+class: "Concurrency and State Handling"
 order: 1
 source: "sequential-used-concurrently.md"
 ---

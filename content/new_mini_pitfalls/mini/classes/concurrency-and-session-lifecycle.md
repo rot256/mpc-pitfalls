@@ -1,6 +1,6 @@
 ---
-title: "Concurrency and Session Lifecycle"
-class: "Concurrency and Session Lifecycle"
+title: "Concurrency and State Handling"
+class: "Concurrency and State Handling"
 intro: true
 order: 3
 ---

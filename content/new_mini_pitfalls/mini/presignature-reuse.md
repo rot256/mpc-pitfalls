@@ -1,6 +1,6 @@
 ---
 title: "Threshold presignature reuse (nonce reuse)"
-class: "Concurrency and Session Lifecycle"
+class: "Concurrency and State Handling"
 order: 2
 source: "signatures.md"
 ---

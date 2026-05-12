@@ -1,6 +1,6 @@
 ---
 title: "Panic or opaque error instead of structured abort"
-class: "Multi-Party Accountability"
+class: "Failure Recovery and Abort Handling"
 source: "oblivious-transfer.md"
 ---
 

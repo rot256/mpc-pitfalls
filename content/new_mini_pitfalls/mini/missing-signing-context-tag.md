@@ -1,6 +1,6 @@
 ---
 title: "Missing domain separator across signing contexts"
-class: "Lack of Binding to Execution Context"
+class: "Lack of Context Binding"
 source: "signatures.md"
 ---
 
