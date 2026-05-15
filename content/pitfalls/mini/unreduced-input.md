@@ -8,6 +8,7 @@ breaks equality/dedup checks) is covered by the party-index pitfall.
 title: "Input Not Reduced to the Arithmetic Domain"
 class: input-validation
 source: "improper-input-checks.md"
+primitives: [signature]
 ---
 
 ### Input Not Reduced to the Arithmetic Domain

@@ -2,6 +2,7 @@
 title: "Commitment Vector Length Not Checked (Threshold-Raise Sabotage)"
 class: others
 source: "feldman-vss.md"
+primitives: [secret-sharing, commitment]
 ---
 
 ### Commitment Vector Length Not Checked (Threshold-Raise Sabotage)

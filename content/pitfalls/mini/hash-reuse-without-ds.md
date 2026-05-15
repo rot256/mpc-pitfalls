@@ -2,6 +2,7 @@
 title: "Missing Domain Separation When a Hash Function Is Reused"
 class: others
 source: "hash-functions.md"
+primitives: [hash, zkp]
 ---
 
 ### Missing Domain Separation When a Hash Function Is Reused

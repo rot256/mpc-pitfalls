@@ -2,6 +2,7 @@
 title: "Opaque Error on OT Extension Consistency-Check Failure"
 class: others
 source: "oblivious-transfer.md"
+primitives: [oblivious-transfer]
 ---
 
 ### Opaque Error on OT Extension Consistency-Check Failure

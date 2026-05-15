@@ -3,6 +3,7 @@ title: "Threshold Presignature Reuse (Nonce Reuse)"
 class: concurrency-and-state-handling
 order: 2
 source: "signatures.md"
+primitives: [signature]
 ---
 
 ### Threshold Presignature Reuse (Nonce Reuse)

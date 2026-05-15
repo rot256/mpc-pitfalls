@@ -2,6 +2,7 @@
 title: "Adversary-Supplied Point Not Validated as On-Curve"
 class: others
 source: "elliptic-curve-groups.md"
+primitives: [elliptic-curve]
 ---
 
 ### Adversary-Supplied Point Not Validated as On-Curve

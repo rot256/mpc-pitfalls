@@ -2,6 +2,7 @@
 title: "Non-Safe-Prime Modulus"
 class: others
 source: "discrete-log-groups.md"
+primitives: [rsa, group]
 ---
 
 ### Non-Safe-Prime Modulus

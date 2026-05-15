@@ -2,6 +2,7 @@
 title: "Challenge Hash Missing Prover's Party Identity"
 class: others
 source: "zk-proofs-not-bound.md"
+primitives: [zkp]
 ---
 
 ### Challenge Hash Missing Prover's Party Identity

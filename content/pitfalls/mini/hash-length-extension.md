@@ -2,6 +2,7 @@
 title: "SHA-2 / Merkle-Damgård Length-Extension Attack"
 class: others
 source: "hash-functions.md"
+primitives: [hash, mac]
 ---
 
 ### SHA-2 / Merkle-Damgård Length-Extension Attack

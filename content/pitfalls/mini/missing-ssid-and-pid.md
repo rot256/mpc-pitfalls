@@ -2,6 +2,7 @@
 title: "Challenge Hash Missing Prover's Party Identity and Session Identifier"
 class: lack-of-context-binding
 source: "zk-proofs-not-bound.md"
+primitives: [zkp]
 ---
 
 ### Challenge Hash Missing Prover's Party Identity and Session Identifier

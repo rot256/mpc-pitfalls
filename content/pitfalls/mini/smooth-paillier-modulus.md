@@ -2,6 +2,7 @@
 title: "Paillier Modulus with Small Factors Not Rejected"
 class: others
 source: "rsa-moduli.md"
+primitives: [paillier, homomorphic-encryption, zkp]
 ---
 
 ### Paillier Modulus with Small Factors Not Rejected

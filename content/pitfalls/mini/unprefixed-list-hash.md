@@ -2,6 +2,7 @@
 title: "Variable-Length List Hashed Without Per-Element Length Prefix"
 class: others
 source: "hash-functions.md"
+primitives: [hash, zkp]
 ---
 
 ### Variable-Length List Hashed Without Per-Element Length Prefix

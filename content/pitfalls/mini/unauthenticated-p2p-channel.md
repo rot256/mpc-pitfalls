@@ -2,6 +2,7 @@
 title: "Unauthenticated or Unencrypted Point-to-Point Channels"
 class: insecure-subprotocol-instantiation
 source: "uc-protocols.md"
+primitives: [secure-channel, paillier, homomorphic-encryption]
 ---
 
 ### Unauthenticated or Unencrypted Point-to-Point Channels

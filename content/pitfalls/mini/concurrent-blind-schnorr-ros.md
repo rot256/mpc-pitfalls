@@ -2,6 +2,7 @@
 title: "Blind Schnorr Signatures Used Concurrently (ROS Attack)"
 class: others
 source: "sequential-used-concurrently.md"
+primitives: [signature]
 ---
 
 ### Blind Schnorr Signatures Used Concurrently (ROS Attack)

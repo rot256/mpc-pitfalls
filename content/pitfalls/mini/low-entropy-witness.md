@@ -2,6 +2,7 @@
 title: "Witness Domain Has Insufficient Entropy"
 class: others
 source: "fiat-shamir.md"
+primitives: [zkp, randomness]
 ---
 
 ### Witness Domain Has Insufficient Entropy

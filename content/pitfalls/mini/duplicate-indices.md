@@ -2,6 +2,7 @@
 title: "Duplicate Indices Not Rejected"
 class: others
 source: "shamir-secret-sharing.md"
+primitives: [secret-sharing]
 ---
 
 ### Duplicate Indices Not Rejected

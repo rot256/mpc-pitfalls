@@ -2,6 +2,7 @@
 title: "Private Exponent $d$ Not Validated Against the Wiener Bound"
 class: others
 source: "rsa-moduli.md"
+primitives: [rsa]
 ---
 
 ### Private Exponent $d$ Not Validated Against the Wiener Bound

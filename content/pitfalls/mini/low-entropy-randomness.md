@@ -2,6 +2,7 @@
 title: "Randomness Has Insufficient Entropy"
 class: others
 source: "fiat-shamir.md"
+primitives: [randomness, zkp]
 ---
 
 ### Randomness Has Insufficient Entropy

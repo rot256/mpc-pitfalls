@@ -2,6 +2,7 @@
 title: "Rogue-Key Attack: No Commit-Before-Reveal and No Proof of Knowledge"
 class: adaptive-inputs
 source: "feldman-vss.md"
+primitives: [secret-sharing, zkp, signature]
 ---
 
 ### Rogue-Key Attack: No Commit-Before-Reveal and No Proof of Knowledge

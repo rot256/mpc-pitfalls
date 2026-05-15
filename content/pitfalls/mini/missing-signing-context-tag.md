@@ -2,6 +2,7 @@
 title: "Missing Domain Separator Across Signing Contexts"
 class: lack-of-context-binding
 source: "signatures.md"
+primitives: [signature]
 ---
 
 ### Missing Domain Separator Across Signing Contexts

@@ -2,6 +2,7 @@
 title: "Group Generator Not Validated"
 class: others
 source: "discrete-log-groups.md"
+primitives: [group]
 ---
 
 ### Group Generator Not Validated

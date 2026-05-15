@@ -2,6 +2,7 @@
 title: "Insecure Hash-to-Curve (Variable-Time / Try-and-Increment)"
 class: others
 source: "elliptic-curve-groups.md"
+primitives: [hash, elliptic-curve]
 ---
 
 ### Insecure Hash-to-Curve (Variable-Time / Try-and-Increment)

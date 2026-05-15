@@ -2,6 +2,7 @@
 title: "Non-Zero Check Performed in the Wrong Domain"
 class: others
 source: "improper-verification.md"
+primitives: [secret-sharing]
 ---
 
 ### Non-Zero Check Performed in the Wrong Domain

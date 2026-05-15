@@ -2,6 +2,7 @@
 title: "Challenge Hash Missing Session Identifier (ssid)"
 class: others
 source: "zk-proofs-not-bound.md"
+primitives: [zkp, commitment]
 ---
 
 ### Challenge Hash Missing Session Identifier (ssid)

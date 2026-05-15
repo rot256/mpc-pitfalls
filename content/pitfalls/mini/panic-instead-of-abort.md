@@ -2,6 +2,7 @@
 title: "Panic or Opaque Error Instead of Structured Abort"
 class: failure-recovery-and-abort-handling
 source: "oblivious-transfer.md"
+primitives: [oblivious-transfer]
 ---
 
 ### Panic or Opaque Error Instead of Structured Abort

@@ -2,6 +2,7 @@
 title: "Abort Not Propagated to Parallel OT-Extension Instances"
 class: others
 source: "oblivious-transfer.md"
+primitives: [oblivious-transfer]
 ---
 
 ### Abort Not Propagated to Parallel OT-Extension Instances

@@ -2,6 +2,7 @@
 title: "Empty Proof List Passes Vacuously"
 class: others
 source: "improper-verification.md"
+primitives: [zkp, signature]
 ---
 
 ### Empty Proof List Passes Vacuously

@@ -2,6 +2,7 @@
 title: "Insufficient Soundness from Reduced Iteration Count"
 class: others
 source: "fiat-shamir.md"
+primitives: [zkp]
 ---
 
 ### Insufficient Soundness from Reduced Iteration Count

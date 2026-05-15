@@ -2,6 +2,7 @@
 title: "Multicast Masquerading as Broadcast"
 class: insecure-subprotocol-instantiation
 source: "uc-protocols.md"
+primitives: [broadcast]
 ---
 
 ### Multicast Masquerading as Broadcast
