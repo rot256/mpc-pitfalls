@@ -333,6 +333,10 @@ footer .contributors {
     margin: 0.75rem 0 0;
 }
 
+footer .contributors p {
+    margin: 0.15rem 0;
+}
+
 strong {
     font-weight: 600;
 }
