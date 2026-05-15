@@ -9,9 +9,9 @@ source: "zk-proofs-not-bound.md"
 <!--<div class="pitfall-flags"><span class="flag flag-shared">Shared example with <a href="#challenge-hash-missing-session-identifier-ssid">Challenge Hash Missing Session Identifier (ssid)</a></span></div>
 -->
 
-**What can go wrong.** In the Fiat-Shamir transformation, the verifier's challenge is replaced by a hash that, in the single-prover case, depends only on the public statement and the prover's commitment. In a multi-prover setting this is not enough: nothing in the hash input identifies which prover computed it, so honest $P_i$ and malicious $P_m$ on the same statement and commitment obtain the same challenge. The hash must therefore also bind to the prover's party identifier (`pid`). Otherwise, a proof $\pi_i$ honestly produced by $P_i$ can be replayed verbatim by $P_m$ on the same statement, and $P_m$ claims knowledge of the underlying witness without ever holding it.
+**What can go wrong.** A non-interactive zero-knowledge proof attests that *some* witness exists; it does not, by itself, identify *who* produced it. When a protocol needs a proof bound to a specific prover, the proof must be bound to the prover's identity. In the Fiat-Shamir transformation this means adding the prover's party identifier (`pid`) to the transcript hash that produces the challenges.
 
-**Security implication.** In a DKG (Distributed Key Generation) protocol, a malicious party $P_m$ can adaptively choose its public-key to match an honest party $P_i$'s ($X_m = X_i$). The malicious party then record $P_i$'s Schnorr proof and submit it as its own round contribution, passing the proof-of-knowledge check without holding any secret.
+**Security implication.** In a DKG (Distributed Key Generation) protocol, a malicious party $P_m$ can adaptively choose its public-key to match an honest party $P_i$'s ($X_m = X_i$). The malicious party then records $P_i$'s Schnorr proof and submits it as its own round contribution, passing the proof-of-knowledge check without holding any secret.
 
 **How to avoid.** Include the prover's party identifier (`pid`, public key, or
 protocol-assigned role) in every FS challenge hash.
@@ -87,6 +87,8 @@ func NewZKProof(Session []byte, x *big.Int, X *crypto.ECPoint) (*ZKProof, error)
     return &ZKProof{Alpha: alpha, T: t}, nil
 }
 ```
+
+A malicious party can therefore have its round contribution accepted while proving nothing: it claims a public key whose discrete log it does not know, exactly the rogue-key scenario the proof of knowledge is there to rule out.
 
 <!--**Example.** CVE-2022-47930 (above) covers this as well: the vulnerable Schnorr
 challenge hash omitted *both* the session identifier and the prover's party identity,
