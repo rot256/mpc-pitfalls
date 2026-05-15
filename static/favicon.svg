@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="202 219 620 620" role="img" aria-labelledby="title desc">
+  <title id="title">Common MPC Pitfalls icon</title>
+  <desc id="desc">A minimal three-circle Venn mark with large color-separated intersections and generous negative space.</desc>
+  <defs>
+    <circle id="circle-a" cx="398" cy="415" r="205" />
+    <circle id="circle-b" cx="626" cy="415" r="205" />
+    <circle id="circle-c" cx="512" cy="643" r="205" />
+
+    <clipPath id="clip-a">
+      <use href="#circle-a" />
+    </clipPath>
+    <clipPath id="clip-b">
+      <use href="#circle-b" />
+    </clipPath>
+    <mask id="circle-border-mask" x="0" y="0" width="1024" height="1024" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
+      <rect width="1024" height="1024" fill="white" />
+      <use href="#circle-a" fill="none" stroke="black" stroke-width="18" />
+      <use href="#circle-b" fill="none" stroke="black" stroke-width="18" />
+      <use href="#circle-c" fill="none" stroke="black" stroke-width="18" />
+    </mask>
+  </defs>
+
+  <g fill-rule="evenodd" mask="url(#circle-border-mask)">
+    <use href="#circle-a" fill="#6d8f8b" />
+    <use href="#circle-b" fill="#d0a95c" />
+    <use href="#circle-c" fill="#2f3437" />
+
+    <g clip-path="url(#clip-a)">
+      <use href="#circle-b" fill="#a8aaa0" />
+    </g>
+    <g clip-path="url(#clip-a)">
+      <use href="#circle-c" fill="#446760" />
+    </g>
+    <g clip-path="url(#clip-b)">
+      <use href="#circle-c" fill="#8e794f" />
+    </g>
+    <g clip-path="url(#clip-a)">
+      <g clip-path="url(#clip-b)">
+        <use href="#circle-c" fill="#ece7dc" />
+      </g>
+    </g>
+  </g>
+</svg>
