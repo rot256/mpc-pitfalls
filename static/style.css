@@ -329,6 +329,10 @@ footer a {
     color: var(--accent);
 }
 
+footer .contributors {
+    margin: 0.75rem 0 0;
+}
+
 strong {
     font-weight: 600;
 }

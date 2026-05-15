@@ -57,6 +57,12 @@
 
     <footer>
         <a href="https://github.com/rot256/mpc-pitfalls">Discuss &amp; Contribute on GitHub</a>
+        {{ with .Site.Params.contributors }}
+        <p class="contributors">
+            Contributors:
+            {{ range $i, $c := . }}{{ if $i }}, {{ end }}<a href="https://github.com/{{ $c.handle }}">{{ $c.name }}</a> (@{{ $c.handle }}, {{ $c.affiliation }}){{ end }}
+        </p>
+        {{ end }}
     </footer>
 </body>
 </html>

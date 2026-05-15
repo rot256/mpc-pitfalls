@@ -24,3 +24,18 @@ enable = true
 [markup.goldmark.extensions.passthrough.delimiters]
 block = [['$$', '$$']]
 inline = [['$', '$']]
+
+[[params.contributors]]
+name = "Mathias Hall-Andersen"
+handle = "rot256"
+affiliation = "zkSecurity"
+
+[[params.contributors]]
+name = "Mike Junior Sinsoillier"
+handle = "jmnis"
+affiliation = "zkSecurity"
+
+[[params.contributors]]
+name = "Martin Ochoa"
+handle = "martin-ochoa"
+affiliation = "zkSecurity"
