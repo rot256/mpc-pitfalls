@@ -9,9 +9,9 @@ source: "signatures.md"
 **What can go wrong.** When the same signing key is used in multiple protocol roles,
 signing round-1 commitments vs round-2 packages in a DKG, authenticating API requests
 vs producing blockchain transactions, or tagging message types in a single protocol,
-each role must bind its messages to a unique, constant-length domain-separation tag
-*before* the signature is produced. If the tag is missing or identical across roles, a
-signature produced for one role is a structurally valid signature for the other: the
+each role must bind its messages to a unique domain-separation tag.
+If the tag is missing or identical across roles, a
+signature produced for one role is structurally valid for the other: the
 same bytes verify against the same key in both contexts. The tag can live at the
 signing primitive itself (a context string mixed into the hash, such as
 [RFC 8032](https://datatracker.ietf.org/doc/html/rfc8032)'s `Ed25519ctx`) or at the
