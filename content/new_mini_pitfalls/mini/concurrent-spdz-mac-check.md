@@ -18,9 +18,7 @@ adversary then uses the leaked key to manipulate a concurrent thread of the hone
 parties, e.g. forging MACs on tampered values at will. The paper analyzed three SPDZ
 implementations and found two, MP-SPDZ and SCALE-MAMBA, vulnerable to this
 multi-thread MAC interleaving attack. The example below walks through the patches in
-[MP-SPDZ](https://github.com/data61/MP-SPDZ), one of the two. A third implementation,
-[Fresco](https://github.com/aicis/fresco), was unaffected: it does not parallelize
-output instructions, so its MAC checks never run concurrently.
+[MP-SPDZ](https://github.com/data61/MP-SPDZ), one of the two.
 
 **How to avoid.** Treat the MAC check sub-protocol as an **atomic critical section**
 across all threads. Three concrete rules:
