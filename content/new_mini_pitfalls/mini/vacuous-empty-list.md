@@ -1,6 +1,6 @@
 ---
 title: "Empty Proof List Passes Vacuously"
-class: "Others"
+class: others
 source: "improper-verification.md"
 ---
 

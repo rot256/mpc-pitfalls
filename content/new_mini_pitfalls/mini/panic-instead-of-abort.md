@@ -1,6 +1,6 @@
 ---
 title: "Panic or Opaque Error Instead of Structured Abort"
-class: "Failure Recovery and Abort Handling"
+class: failure-recovery-and-abort-handling
 source: "oblivious-transfer.md"
 ---
 

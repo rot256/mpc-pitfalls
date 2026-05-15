@@ -1,6 +1,6 @@
 ---
 title: "DLN-Proof Bases with Order 2 or 4 Accepted"
-class: "Others"
+class: others
 source: "rsa-moduli.md"
 ---
 

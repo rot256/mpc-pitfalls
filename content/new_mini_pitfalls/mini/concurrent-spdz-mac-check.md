@@ -1,6 +1,6 @@
 ---
 title: "SPDZ Multi-Threaded MAC Check"
-class: "Concurrency and State Handling"
+class: concurrency-and-state-handling
 order: 1
 source: "sequential-used-concurrently.md"
 ---

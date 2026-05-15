@@ -1,6 +1,6 @@
 ---
 title: "Rushing Adversary Copies an Honest Commitment"
-class: "Adaptive Inputs"
+class: lack-of-context-binding
 source: "commitments-not-bound.md"
 ---
 

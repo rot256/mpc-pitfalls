@@ -1,6 +1,6 @@
 ---
 title: "Randomness Has Insufficient Entropy"
-class: "Others"
+class: others
 source: "fiat-shamir.md"
 ---
 

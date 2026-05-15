@@ -1,6 +1,6 @@
 ---
 title: "Others"
-class: "Others"
+class: others
 intro: false
 order: 7
 ---

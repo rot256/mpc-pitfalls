@@ -1,6 +1,6 @@
 ---
 title: "Commitment Vector Length Not Checked (Threshold-Raise Sabotage)"
-class: "Others"
+class: others
 source: "feldman-vss.md"
 ---
 

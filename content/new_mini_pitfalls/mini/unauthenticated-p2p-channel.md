@@ -1,6 +1,6 @@
 ---
 title: "Unauthenticated or Unencrypted Point-to-Point Channels"
-class: "Insecure Subprotocol Instantiation"
+class: insecure-subprotocol-instantiation
 source: "uc-protocols.md"
 ---
 

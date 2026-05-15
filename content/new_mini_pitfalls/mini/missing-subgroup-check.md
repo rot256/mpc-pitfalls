@@ -1,6 +1,6 @@
 ---
 title: "Adversary-Supplied Group Element Not Validated for Subgroup Membership"
-class: "Others"
+class: others
 source: "discrete-log-groups.md"
 ---
 

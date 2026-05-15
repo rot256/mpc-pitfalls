@@ -1,6 +1,6 @@
 ---
 title: "Insufficient Soundness from Reduced Iteration Count"
-class: "Others"
+class: others
 source: "fiat-shamir.md"
 ---
 

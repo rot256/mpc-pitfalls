@@ -1,6 +1,6 @@
 ---
 title: "Non-Zero Check Performed in the Wrong Domain"
-class: "Others"
+class: others
 source: "improper-verification.md"
 ---
 

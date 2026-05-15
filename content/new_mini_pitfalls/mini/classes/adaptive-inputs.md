@@ -1,8 +1,8 @@
 ---
 title: "Adaptive Inputs"
-class: "Adaptive Inputs"
+class: adaptive-inputs
 intro: true
-order: 5
+order: 6
 ---
 
 *When a party can choose its protocol contribution after observing honest parties'

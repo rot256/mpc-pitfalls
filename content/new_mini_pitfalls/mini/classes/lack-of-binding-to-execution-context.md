@@ -1,6 +1,6 @@
 ---
 title: "Lack of Context Binding"
-class: "Lack of Context Binding"
+class: lack-of-context-binding
 intro: true
 order: 2
 ---

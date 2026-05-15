@@ -30,7 +30,7 @@
         <ul class="toc">
         {{ range $intros }}
             <li class="toc-category">
-                <a class="toc-category-link" href="#category-{{ .Params.class | anchorize }}">{{ .Params.class }}</a>
+                <a class="toc-category-link" href="#category-{{ .Params.class | anchorize }}">{{ .Title }}</a>
                 <ol>
                 {{ range (where $pitfalls "Params.class" .Params.class) }}
                     <li><a {{ printf "href=\"#%s\"" (.Title | anchorize) | safeHTMLAttr }}>{{ .Title }}</a></li>
@@ -44,7 +44,7 @@
     <main>
     {{ range $intros }}
         <section class="category" id="category-{{ .Params.class | anchorize }}">
-            <h2 class="category-heading">{{ .Params.class }}</h2>
+            <h2 class="category-heading">{{ .Title }}</h2>
             <div class="category-intro">{{ .Content }}</div>
             {{ range (where $pitfalls "Params.class" .Params.class) }}
                 <section class="pitfall" id="{{ .Title | anchorize }}">

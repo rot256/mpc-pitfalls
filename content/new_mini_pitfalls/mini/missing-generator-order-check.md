@@ -1,6 +1,6 @@
 ---
 title: "Subgroup-Generator Check Missing"
-class: "Others"
+class: others
 source: "improper-verification.md"
 ---
 

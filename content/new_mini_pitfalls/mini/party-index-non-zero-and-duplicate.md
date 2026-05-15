@@ -1,6 +1,6 @@
 ---
 title: "Parties' Shares Not Validated as Non-Zero and Distinct"
-class: "Input Validation"
+class: input-validation
 source: "shamir-secret-sharing.md"
 ---
 

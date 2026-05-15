@@ -1,6 +1,6 @@
 ---
 title: "Threshold Presignature Reuse (Nonce Reuse)"
-class: "Concurrency and State Handling"
+class: concurrency-and-state-handling
 order: 2
 source: "signatures.md"
 ---

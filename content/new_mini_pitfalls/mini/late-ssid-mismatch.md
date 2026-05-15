@@ -1,6 +1,6 @@
 ---
 title: "Session-ID Disagreement or Non-Uniqueness Not Detected Early"
-class: "Failure Recovery and Abort Handling"
+class: failure-recovery-and-abort-handling
 order: 3
 source: "uc-protocols.md"
 ---

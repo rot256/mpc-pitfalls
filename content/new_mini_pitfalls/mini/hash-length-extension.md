@@ -1,6 +1,6 @@
 ---
 title: "SHA-2 / Merkle-Damgård Length-Extension Attack"
-class: "Others"
+class: others
 source: "hash-functions.md"
 ---
 

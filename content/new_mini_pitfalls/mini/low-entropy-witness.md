@@ -1,6 +1,6 @@
 ---
 title: "Witness Domain Has Insufficient Entropy"
-class: "Others"
+class: others
 source: "fiat-shamir.md"
 ---
 

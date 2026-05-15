@@ -1,6 +1,6 @@
 ---
 title: "Cofactor Not Cleared on Non-Prime-Order Curves"
-class: "Others"
+class: others
 source: "elliptic-curve-groups.md"
 ---
 

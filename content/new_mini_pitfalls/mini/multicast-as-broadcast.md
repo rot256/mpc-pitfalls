@@ -1,6 +1,6 @@
 ---
 title: "Multicast Masquerading as Broadcast"
-class: "Insecure Subprotocol Instantiation"
+class: insecure-subprotocol-instantiation
 source: "uc-protocols.md"
 ---
 

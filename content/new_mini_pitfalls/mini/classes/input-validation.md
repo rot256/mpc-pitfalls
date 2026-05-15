@@ -1,6 +1,6 @@
 ---
 title: "Input Validation"
-class: "Input Validation"
+class: input-validation
 intro: true
 order: 1
 ---

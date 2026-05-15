@@ -1,6 +1,6 @@
 ---
 title: "Received Sequence Has the Wrong Length"
-class: "Input Validation"
+class: input-validation
 source: "improper-verification.md"
 ---
 

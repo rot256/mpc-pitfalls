@@ -1,6 +1,6 @@
 ---
 title: "Group Generator Not Validated"
-class: "Others"
+class: others
 source: "discrete-log-groups.md"
 ---
 

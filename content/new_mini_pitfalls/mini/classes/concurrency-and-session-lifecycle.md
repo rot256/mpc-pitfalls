@@ -1,6 +1,6 @@
 ---
 title: "Concurrency and State Handling"
-class: "Concurrency and State Handling"
+class: concurrency-and-state-handling
 intro: true
 order: 3
 ---

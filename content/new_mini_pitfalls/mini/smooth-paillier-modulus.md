@@ -1,6 +1,6 @@
 ---
 title: "Paillier Modulus with Small Factors Not Rejected"
-class: "Others"
+class: others
 source: "rsa-moduli.md"
 ---
 

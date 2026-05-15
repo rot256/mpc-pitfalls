@@ -1,6 +1,6 @@
 ---
 title: "Private Exponent $d$ Not Validated Against the Wiener Bound"
-class: "Others"
+class: others
 source: "rsa-moduli.md"
 ---
 

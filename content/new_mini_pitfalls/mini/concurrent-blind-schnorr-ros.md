@@ -1,6 +1,6 @@
 ---
 title: "Blind Schnorr Signatures Used Concurrently (ROS Attack)"
-class: "Others"
+class: others
 source: "sequential-used-concurrently.md"
 ---
 

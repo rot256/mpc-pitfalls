@@ -1,6 +1,6 @@
 ---
 title: "Non-Safe-Prime Modulus"
-class: "Others"
+class: others
 source: "discrete-log-groups.md"
 ---
 

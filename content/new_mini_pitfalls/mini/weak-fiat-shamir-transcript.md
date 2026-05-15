@@ -1,6 +1,6 @@
 ---
 title: "Challenge Transcript Missing Required Values (Weak Fiat-Shamir)"
-class: "Lack of Context Binding"
+class: lack-of-context-binding
 source: "fiat-shamir.md"
 ---
 

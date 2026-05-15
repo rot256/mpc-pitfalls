@@ -1,6 +1,6 @@
 ---
 title: "Missing Domain Separator Across Signing Contexts"
-class: "Lack of Context Binding"
+class: lack-of-context-binding
 source: "signatures.md"
 ---
 

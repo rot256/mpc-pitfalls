@@ -1,6 +1,6 @@
 ---
 title: "Variable-Length List Hashed Without Per-Element Length Prefix"
-class: "Others"
+class: others
 source: "hash-functions.md"
 ---
 

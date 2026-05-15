@@ -1,6 +1,6 @@
 ---
 title: "Missing Domain Separation When a Hash Function Is Reused"
-class: "Others"
+class: others
 source: "hash-functions.md"
 ---
 

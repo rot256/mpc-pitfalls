@@ -1,6 +1,6 @@
 ---
 title: "Insecure Hash-to-Curve (Variable-Time / Try-and-Increment)"
-class: "Others"
+class: others
 source: "elliptic-curve-groups.md"
 ---
 

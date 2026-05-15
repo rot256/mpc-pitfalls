@@ -1,6 +1,6 @@
 ---
 title: "Challenge Hash Missing Prover's Party Identity"
-class: "Others"
+class: others
 source: "zk-proofs-not-bound.md"
 ---
 

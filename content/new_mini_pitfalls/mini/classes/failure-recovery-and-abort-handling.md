@@ -1,8 +1,8 @@
 ---
 title: "Failure Recovery and Abort Handling"
-class: "Failure Recovery and Abort Handling"
+class: failure-recovery-and-abort-handling
 intro: true
-order: 6
+order: 5
 ---
 
 *When a subprotocol detects a consistency failure, the implementation must surface that
