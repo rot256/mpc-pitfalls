@@ -6,7 +6,7 @@ source: "improper-verification.md"
 
 ### Received Sequence Has the Wrong Length
 
-**What can go wrong.** MPC protocols often handle fixed-length sequences such as Feldman VSS commitment vectors of length $t$, lists of $n-1$ peer signatures, or vectors of DLN proof iterations. Each carries a protocol-specified length that the verifier must check before using the sequence. Accepting a sequence with an unexpected shape is functionally running a different protocol instance from the one the verifier thought it was in. The same bug also appears at the lower bound: an empty proof, signature, or participant list can make a verification loop execute zero times and return success vacuously unless the expected length is checked first.
+**What can go wrong.** MPC protocols often handle sequences with an expected length such as Feldman VSS commitment vectors of length $t$, lists of $n-1$ peer signatures, or vectors of DLN proof iterations. Each carries a protocol-specified length that the verifier must check before using the sequence. Accepting a sequence with an unexpected shape is functionally running a different protocol instance from the one the verifier thought it was in. The same bug also appears at the lower bound: an empty proof, signature, or participant list can make a verification loop execute zero times and return success vacuously unless the expected length is checked first.
 
 **Security implication.** In the context of DKG (Distributed Key Generation), a malicious party can send a Feldman VSS commitment vector of length $t + k$ while the protocol-specified length is $t$. Honest verifiers iterate over all $t + k$ elements without noticing the mismatch, [surreptitiously raising the reconstruction threshold](https://blog.trailofbits.com/2024/02/20/breaking-the-shared-key-in-threshold-signature-schemes/) from $t$ to $t + k$ and leaving the shared key irrecoverable from the $t$ honest shares alone, unless the DKG is restarted from scratch.
 
@@ -36,20 +36,6 @@ if comm.poly.len() != threshold || !comm.verify() {
 } else {
     self.group_key += comm.poly[0];
 }
-```
-
-PR #88 also added a regression test, `bad_poly_length_dkg`, which mutates one signer's `poly` with `push(...)` to make it longer than the threshold and another with `pop()` to make it shorter ([source](https://github.com/Trust-Machines/wsts/blob/v9.2.0/src/state_machine/coordinator/fire.rs#L1943-L2048)):
-
-```rust
-// src/state_machine/coordinator/fire.rs — Trust-Machines/wsts (test, PR #88)
-// Mutate two signers' DkgPublicShares: signer 0 grows its poly, signer 1 shrinks it
-let mut c = comm.clone();
-if signer.signer_id == 0 {
-    c.poly.push(Point::new());   // oversized — would raise threshold
-} else {
-    c.poly.pop();                 // undersized — would lower threshold
-}
-// ... test then asserts DkgError::DkgEndFailure with BadPublicShares from signers 0 and 1
 ```
 
 <!--

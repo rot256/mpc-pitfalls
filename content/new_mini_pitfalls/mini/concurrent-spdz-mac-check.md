@@ -35,8 +35,8 @@ across all threads. Three concrete rules:
    entirely. Fresco's design-by-construction single-thread-per-session model is a
    useful reference point.
 
-**Example: MP-SPDZ `POpen` and `Commit_And_Open_` race conditions.** Two concrete bugs
-were found and patched in MP-SPDZ in July 2023.
+**Example: MP-SPDZ `POpen` and `Commit_And_Open_` race conditions.** Two bugs
+were found and patched in MP-SPDZ.
 
 *Bug 1 — Missing MAC check in multi-threaded `POpen`*
 ([commit `5e714b2`](https://github.com/data61/MP-SPDZ/commit/5e714b2)). The

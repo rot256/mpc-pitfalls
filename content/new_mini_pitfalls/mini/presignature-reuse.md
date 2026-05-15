@@ -61,12 +61,3 @@ The docs additionally warn that backup-and-restore can reintroduce a
 previously-consumed presignature, turning a routine ops procedure into a
 key-extraction vector if mishandled. Operators are therefore instructed to delete
 all presignatures either before taking a database backup or upon restoring.
-
-The docs describe the impact of this threshold-specific attack: in a 2-of-3
-deployment, a compromised $P_1$ requests non-interactive online signing with $P_2$
-on message $m_1$, and separately requests non-interactive online signing with $P_3$
-on message $m_2$, but using the *same* presignature both times. *"Since signing with
-presignatures is non-interactive, the two honest nodes $P_2$ and $P_3$ have no chance
-of knowing that they are signing different messages."* The resulting signatures
-share the nonce $(k, R)$, and any observer applies the closed-form equations from
-*What can go wrong* above to recover the long-term signing key $x$. 
