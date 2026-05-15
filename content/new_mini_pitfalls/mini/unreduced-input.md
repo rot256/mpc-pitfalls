@@ -1,3 +1,9 @@
+<!--
+COMMENTED OUT: the tss-lib ECDSA example has no concrete impact. Signing m vs m+q
+yields the identical signature, and ECDSA verification reduces the hash mod n, so it
+accepts/rejects both identically. The real harm of unreduced inputs (aliasing that
+breaks equality/dedup checks) is covered by the party-index pitfall.
+
 ---
 title: "Input Not Reduced to the Arithmetic Domain"
 class: "Input Validation"
@@ -47,3 +53,4 @@ if round.temp.m.Cmp(tss.EC().Params().N) >= 0 {
     return round.WrapError(errors.New("hashed message is not valid"))
 }
 ```
+-->
