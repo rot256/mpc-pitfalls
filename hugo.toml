@@ -1,7 +1,6 @@
 title = "Common MPC Pitfalls"
 languageCode = "en-us"
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
-ignoreFiles = ['content/pitfalls/older/.*\.md$']
 
 [outputs]
 home = ["HTML"]

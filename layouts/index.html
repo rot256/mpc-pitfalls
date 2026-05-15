@@ -21,7 +21,7 @@
         <p>A collection of common mistakes when implementing MPC protocols, to help developers implement MPC securely.</p>
     </header>
 
-    {{ $allPages := where .Site.RegularPages "Section" "new_mini_pitfalls" }}
+    {{ $allPages := where .Site.RegularPages "Section" "pitfalls" }}
     {{ $intros := sort (where $allPages "Params.intro" true) ".Params.order" }}
     {{ $pitfalls := sort (where $allPages "Params.intro" "ne" true) ".Params.order" }}
 
