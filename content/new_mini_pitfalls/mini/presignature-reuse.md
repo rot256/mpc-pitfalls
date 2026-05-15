@@ -22,34 +22,31 @@ incident is the 2010
 where Sony reused a fixed nonce across game-code signatures and the master key fell
 out of two signed binaries.
 
-Modern threshold-ECDSA protocols such as [GG18](https://eprint.iacr.org/2019/114),
+Some threshold ECDSA protocols such as [GG18](https://eprint.iacr.org/2019/114),
 [GG20](https://eprint.iacr.org/2020/540), and
 [CGGMP21](https://eprint.iacr.org/2021/060) generate this nonce distributively as a
 *presignature* $(k, R = k \cdot G)$ before the message is known, consuming it once a
-message arrives. The presignature exists as a stateful object that can in principle
-be referenced more than once, so two signing ceremonies that consume the same
-presignature reproduce the single-party nonce-reuse failure: any observer (including
-any signing participant) recovers $x$ from the resulting pair of signatures.
+message arrives. The set of unused presignatures is a stateful object, and
+implementations must ensure that no two executions consume the same presignature.
+If they do, two or more signatures share a nonce.
 
-**Security implication.** A single signing party that records its presignature
-contribution can retry a signing ceremony twice with different messages, triggering
-presignature reuse and extracting the complete signing key $x$. In threshold
-deployments the failure surface widens: a malicious party can abort the first
-ceremony after observing the presignature and force a retry with a different message;
-or, exploiting the non-interactive nature of online signing, orchestrate two signing
-requests with different honest subsets using the same presignature ID. As a result, honest
-parties signing non-interactively cannot detect that the same nonce is being consumed
-twice. Lifecycle hazards compound this: backup-and-restore can reintroduce a
-previously-consumed presignature, and any reuse-by-ID after a process restart,
-snapshot, or replication event has the same effect. The Aumasson–Shlomovits
+**Security implication.** When two signatures over different messages share a
+presignature, anyone who observes them can recover the long-term signing key $x$.
+In threshold deployments
+the reuse is both easy to trigger and hard to detect: a malicious party can abort a
+ceremony after the presignature is fixed and force a retry on a different message,
+or route two non-interactive signing requests to different honest subsets using the
+same presignature. Honest parties signing non-interactively have no way to notice
+that the same nonce is being consumed twice. The Aumasson–Shlomovits
 [*Attacking Threshold Wallets*](https://eprint.iacr.org/2020/1052.pdf) paper
 catalogues presignature reuse as a first-class threshold-wallet threat.
 
-**How to avoid.** Treat every presignature as single-use. Destroy $(k, R)$ atomically
-with the signature output (whether or not the ceremony completed successfully)
-before any response is sent. Maintain a signed presignature ledger that marks each
-entry as consumed before the response is sent. Never retry a failed signing ceremony
-with the same presignature; generate a fresh one.
+**How to avoid.** Atomically (across parallel sessions) consume the presignature
+before starting the signing, and consume it whether or not the signing protocol
+completed successfully. Upon failure, never retry signing with the same
+presignature; generate a fresh one. Beware lifecycle events that can resurrect a
+consumed presignature: backup-and-restore, process restarts, snapshots, and
+replication must not reintroduce a presignature that has already been used.
 
 **Example: Blockdaemon Builder Vault warns against 2-of-3 presignature reuse
 ([Builder Vault TSM docs](https://builder-vault-tsm.docs.blockdaemon.com/docs/presignatures)).**
