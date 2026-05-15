@@ -1,11 +1,17 @@
+baseURL = "https://mpcsec.org/"
 title = "Common MPC Pitfalls"
 languageCode = "en-us"
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
 
 [outputs]
-home = ["HTML"]
+home = ["HTML", "llms"]
 page = []
 section = []
+
+[outputFormats.llms]
+mediaType = "text/plain"
+baseName = "llms"
+isPlainText = true
 
 [markup.highlight]
 lineNos = true
