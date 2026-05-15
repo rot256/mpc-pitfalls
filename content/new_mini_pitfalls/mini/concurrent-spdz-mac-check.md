@@ -12,16 +12,15 @@ source: "sequential-used-concurrently.md"
 
 **Security implication.** The paper
 [*Rushing at SPDZ: On the Practical Security of Malicious MPC Implementations*](https://eprint.iacr.org/2025/789)
-(IEEE S&P 2025) shows a malicious party running a modified client exploits multi-thread
-interleaving to extract information about the global MAC key $\alpha$ from concurrent
-MAC check instances, then forges MACs on arbitrary output values. The result is full
-compromise of output integrity: the adversary can make the SPDZ computation output any
-value of its choosing, defeating the malicious-security guarantee that SPDZ is
-specifically designed to provide. The paper analyzed several SPDZ implementations and found two of them vulnerable
-to this multi-thread MAC interleaving attack. The example below walks through the
-patches in [MP-SPDZ](https://github.com/data61/MP-SPDZ), one of the two. A third
-implementation, [Fresco](https://github.com/aicis/fresco), was safe by design since 
-its architecture forbids cross-thread secret state.
+(IEEE S&P 2025) shows that a malicious party can exploit the multi-thread interleaving
+to cause one MAC-check thread to abort, leaking the global SPDZ MAC key $\alpha$. The
+adversary then uses the leaked key to manipulate a concurrent thread of the honest
+parties, e.g. forging MACs on tampered values at will. The paper analyzed three SPDZ
+implementations and found two, MP-SPDZ and SCALE-MAMBA, vulnerable to this
+multi-thread MAC interleaving attack. The example below walks through the patches in
+[MP-SPDZ](https://github.com/data61/MP-SPDZ), one of the two. A third implementation,
+[Fresco](https://github.com/aicis/fresco), was unaffected: it does not parallelize
+output instructions, so its MAC checks never run concurrently.
 
 **How to avoid.** Treat the MAC check sub-protocol as an **atomic critical section**
 across all threads. Three concrete rules:
@@ -81,10 +80,11 @@ void SubProcessor<T>::POpen(const Instruction& inst)
 
 *Bug 2 — Race condition in `Commit_And_Open_`*
 ([commit `b86f29b`](https://github.com/data61/MP-SPDZ/commit/b86f29b)). Inside
-`Tools/Subroutines.cpp`, the coordinator was signaled as finished *before* the
-commitment-opening validation loop ran. A second thread waiting on the coordinator
-could therefore observe the "finished" state and proceed with values that had not yet
-been verified:
+`Tools/Subroutines.cpp`, a shared `coordinator` object lets one thread signal to the
+others that its commitment phase is complete. That signal was raised *before* the
+commitment-opening validation loop ran, so a second thread waiting on the coordinator
+could observe the "finished" state and proceed with values that had not yet been
+verified:
 
 ```cpp
 // FILE: Tools/Subroutines.cpp — MP-SPDZ (vulnerable)
