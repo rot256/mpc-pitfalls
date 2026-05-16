@@ -1,6 +1,7 @@
 baseURL = "https://mpcsec.org/"
 title = "Common MPC Pitfalls"
 languageCode = "en-us"
+staticDir = ["static", "skill"]
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
 
 [outputs]

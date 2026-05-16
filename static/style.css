@@ -2,6 +2,8 @@
     --text: #2d2d2d;
     --bg: #fafafa;
     --accent: #1a4a6e;
+    --accent-dark: #102f47;
+    --accent-soft: #eef3f7;
     --border: #ddd;
     --code-bg: #f0f0f0;
     --max-width: 760px;
@@ -21,22 +23,50 @@ body {
     font-size: 17px;
 }
 
+a {
+    color: var(--accent);
+    text-underline-offset: 2px;
+    text-decoration-color: rgba(26, 74, 110, 0.4);
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+a:hover {
+    color: var(--accent-dark);
+    text-decoration-color: currentColor;
+}
+
 header {
     border-bottom: 2px solid var(--accent);
-    padding: 2.5rem 1.5rem 1.5rem;
+    padding: 3rem 1.5rem 1.75rem;
     max-width: var(--max-width);
     margin: 0 auto;
 }
 
 header h1 {
-    font-size: 1.8rem;
+    font-size: 2rem;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
     color: var(--accent);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.55rem;
 }
 
 header p {
-    font-size: 0.95rem;
-    color: #555;
+    font-size: 1rem;
+    color: #4a4a4a;
+}
+
+header p.skill-link {
+    margin-top: 1.2rem;
+    padding: 0.7rem 0.95rem;
+    font-size: 0.92rem;
+    color: var(--text);
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+}
+
+header p.skill-link a {
+    font-weight: 600;
 }
 
 nav {
