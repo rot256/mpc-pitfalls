@@ -1,6 +1,6 @@
 ---
 name: mpc-audit
-description: Audit MPC and threshold-cryptography implementations for common protocol and implementation pitfalls.
+description: Audit MPC and threshold-cryptography implementations
 ---
 
 # Introduction
@@ -99,6 +99,10 @@ or API change. Include replacement code when the fix is local.
 - **Input Not Reduced to the Arithmetic Domain**. Raw bytes can encode values outside
   `Z_q`, `Z_2^k`, or a scalar field. Range-check at ingress; do not let two byte
   strings represent the same algebraic value unless the protocol says so.
+- **Secret Space and Share Space Confused**. The value being shared may live in a
+  smaller domain than the field or ring used for shares. Validate inputs against the
+  secret domain, and recompute statistical slack when masks or rings differ from the
+  paper.
 - **Non-Zero Check Performed in the Wrong Domain** / **Party Index Not Validated as Non-Zero Mod q**. Check zero after reduction into the protocol domain, not as a host
   integer. This fails because `q`, `2q`, or equivalent encodings are zero in the field.
 - **Parties' Shares Not Validated as Non-Zero and Distinct** / **Duplicate Indices Not Rejected**. Shamir and VSS interpolation require nonzero, pairwise-distinct indices
@@ -162,6 +166,14 @@ or API change. Include replacement code when the fix is local.
 - **SPDZ Multi-Threaded MAC Check**. Shared MAC keys and overlapping MAC-check abort
   paths can leak the global key in one thread and allow forgery in another. Treat MAC
   checks and abort handling as atomic with respect to shared authenticated state.
+- **Secret-Shared Values Cross Threads Without Fresh MAC Verification**. If shares,
+  MACs, triples, or authenticated buffers move through shared memory, the thread that
+  opens or consumes them must verify the MACs at the use site. Check TOCTOU windows
+  between verification and use.
+- **MAC Checks Deferred Past Openings**. Openings, mask-and-open subprotocols,
+  truncation, comparison, and modular reduction need MAC verification before revealing
+  the masked value. Batching MAC checks after several openings can leak private data
+  before the batch fails.
 - **Threshold Presignature Reuse (Nonce Reuse)**. Presignatures, nonces, and correlated
   signing randomness are one-shot. Reuse across messages or sessions leaks signing key
   material. Enforce lifecycle state in storage and APIs.
@@ -189,6 +201,10 @@ or API change. Include replacement code when the fix is local.
 - **Abort state not terminal**. After an abort, discard MAC keys, base OT state,
   presignatures, preprocessing, randomness pools, and partially-opened transcripts unless
   the protocol proves that reuse is safe.
+- **Correlated Randomness Reused After Abort**. Persisted Beaver triples, MAC keys,
+  random shares, OT seeds, presignatures, or Paillier/MtA state can carry leakage from a
+  failed run into future executions. Treat abort as a state-destroying transition unless
+  the protocol explicitly proves resumability.
 
 ### Adaptive Inputs
 
@@ -236,6 +252,24 @@ or API change. Include replacement code when the fix is local.
 - **Missing RSA/Paillier parameter assumptions**. Audit whether the code actually checks
   Blum integer, safe-prime, gcd, range, Jacobi, generator, and ciphertext-domain
   assumptions instead of inheriting them from comments or papers.
+- **Malformed Homomorphic-Encryption Public Key Accepted**. In MPC, honest parties
+  encrypt secrets under peer-supplied HE keys or compute on ciphertexts using their own
+  secrets. Validate Paillier, ElGamal, or lattice-HE keys before first use; require the
+  protocol's well-formedness proofs, not just successful deserialization.
+- **Homomorphic Operation on Malicious Ciphertext with Honest Secret**. MtA-style code
+  often multiplies an adversary-provided ciphertext by an honest scalar or share. Verify
+  ciphertext domain, key validity, and range proofs before any operation involving an
+  honest secret.
+- **HE Plaintext Space Larger Than Protocol Secret Space**. Paillier plaintexts in
+  `Z_N` and curve scalars in `Z_q` do not have the same distribution. Audit reductions,
+  masks, range bounds, and nonce-lifetime limits for MSB or wraparound leakage.
+- **HE Decryption Oracle Through Protocol Flow**. If the secret-key holder decrypts
+  attacker-influenced ciphertexts, confirm the output is blinded, range-checked, and not
+  reflected through success/failure, retry behavior, or later messages.
+- **Paillier Threshold-Signing Proofs Use Broken or Incomplete Assumptions**. For
+  Paillier-based threshold signing, check minimum modulus size, biprime or Paillier-Blum
+  proofs, no-small-factor proofs, corrected range-proof bounds, transcript binding to
+  `N`, ciphertexts, parties, and session, and retry limits after abort.
 - **Insecure Hash-to-Curve (Variable-Time / Try-and-Increment)**. Try-and-increment can
   leak timing and bias. Use a standard constant-time hash-to-curve suite for the curve
   and domain.
