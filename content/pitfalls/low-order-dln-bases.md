@@ -1,6 +1,6 @@
 ---
 title: "DLN-Proof Bases with Order 2 or 4 Accepted"
-class: others
+class: input-validation
 hidden: true
 source: "rsa-moduli.md"
 primitives: [zkp, commitment, paillier, homomorphic-encryption]

@@ -1,6 +1,6 @@
 ---
 title: "Subgroup-Generator Check Missing"
-class: others
+class: input-validation
 hidden: true
 source: "improper-verification.md"
 primitives: [elliptic-curve, signature]

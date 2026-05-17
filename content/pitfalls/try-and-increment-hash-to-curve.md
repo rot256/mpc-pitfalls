@@ -1,6 +1,6 @@
 ---
 title: "Insecure Hash-to-Curve (Variable-Time / Try-and-Increment)"
-class: others
+class: cryptographic-primitives
 hidden: true
 source: "elliptic-curve-groups.md"
 primitives: [hash, elliptic-curve]

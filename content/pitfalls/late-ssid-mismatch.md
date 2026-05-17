@@ -1,6 +1,6 @@
 ---
 title: "Session-ID Disagreement or Non-Uniqueness Not Detected Early"
-class: others
+class: lack-of-context-binding
 hidden: true
 order: 3
 source: "uc-protocols.md"

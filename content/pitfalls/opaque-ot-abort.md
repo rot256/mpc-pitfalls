@@ -1,6 +1,6 @@
 ---
 title: "Opaque Error on OT Extension Consistency-Check Failure"
-class: others
+class: failure-recovery-and-abort-handling
 hidden: true
 source: "oblivious-transfer.md"
 primitives: [oblivious-transfer]

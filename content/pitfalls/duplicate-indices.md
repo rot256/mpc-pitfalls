@@ -1,6 +1,6 @@
 ---
 title: "Duplicate Indices Not Rejected"
-class: others
+class: input-validation
 hidden: true
 source: "shamir-secret-sharing.md"
 primitives: [secret-sharing]

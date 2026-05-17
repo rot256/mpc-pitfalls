@@ -1,6 +1,6 @@
 ---
 title: "Cofactor Not Cleared on Non-Prime-Order Curves"
-class: others
+class: input-validation
 hidden: true
 source: "elliptic-curve-groups.md"
 primitives: [elliptic-curve, signature]

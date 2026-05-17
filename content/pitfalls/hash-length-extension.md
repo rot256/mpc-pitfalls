@@ -1,6 +1,6 @@
 ---
 title: "SHA-2 / Merkle-Damgård Length-Extension Attack"
-class: others
+class: cryptographic-primitives
 hidden: true
 source: "hash-functions.md"
 primitives: [hash, mac]

@@ -1,6 +1,6 @@
 ---
 title: "Adversary-Supplied Point Not Validated as On-Curve"
-class: others
+class: input-validation
 hidden: true
 source: "elliptic-curve-groups.md"
 primitives: [elliptic-curve]

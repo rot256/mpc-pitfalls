@@ -1,6 +1,6 @@
 ---
 title: "Missing Domain Separation When a Hash Function Is Reused"
-class: others
+class: cryptographic-primitives
 hidden: true
 source: "hash-functions.md"
 primitives: [hash, zkp]

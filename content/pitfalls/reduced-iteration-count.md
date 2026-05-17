@@ -1,6 +1,6 @@
 ---
 title: "Insufficient Soundness from Reduced Iteration Count"
-class: others
+class: cryptographic-primitives
 hidden: true
 source: "fiat-shamir.md"
 primitives: [zkp]

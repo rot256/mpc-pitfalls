@@ -1,6 +1,6 @@
 ---
 title: "Commitment Vector Length Not Checked (Threshold-Raise Sabotage)"
-class: others
+class: input-validation
 hidden: true
 source: "feldman-vss.md"
 primitives: [secret-sharing, commitment]

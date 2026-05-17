@@ -1,6 +1,6 @@
 ---
 title: "Private Exponent $d$ Not Validated Against the Wiener Bound"
-class: others
+class: cryptographic-primitives
 hidden: true
 source: "rsa-moduli.md"
 primitives: [rsa]

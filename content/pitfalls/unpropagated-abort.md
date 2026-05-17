@@ -1,6 +1,6 @@
 ---
 title: "Abort Not Propagated to Parallel OT-Extension Instances"
-class: others
+class: failure-recovery-and-abort-handling
 hidden: true
 source: "oblivious-transfer.md"
 primitives: [oblivious-transfer]
