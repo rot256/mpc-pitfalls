@@ -1,6 +1,7 @@
 ---
 title: "Session-ID Disagreement or Non-Uniqueness Not Detected Early"
 class: others
+hidden: true
 order: 3
 source: "uc-protocols.md"
 primitives: [oblivious-transfer]

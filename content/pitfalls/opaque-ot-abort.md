@@ -1,6 +1,7 @@
 ---
 title: "Opaque Error on OT Extension Consistency-Check Failure"
 class: others
+hidden: true
 source: "oblivious-transfer.md"
 primitives: [oblivious-transfer]
 ---

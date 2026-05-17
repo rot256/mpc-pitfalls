@@ -1,6 +1,7 @@
 ---
 title: "Non-Safe-Prime Modulus"
 class: others
+hidden: true
 source: "discrete-log-groups.md"
 primitives: [rsa, group]
 ---

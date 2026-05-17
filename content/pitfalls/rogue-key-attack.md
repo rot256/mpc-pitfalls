@@ -1,6 +1,7 @@
 ---
 title: "Rogue-Key Attacks"
 class: adaptive-inputs
+hidden: false
 source: "feldman-vss.md"
 primitives: [secret-sharing, zkp, signature, commitment]
 ---

@@ -43,35 +43,41 @@
 
     {{ $allPages := where .Site.RegularPages "Section" "pitfalls" }}
     {{ $intros := sort (where $allPages "Params.intro" true) ".Params.order" }}
-    {{ $pitfalls := sort (where $allPages "Params.intro" "ne" true) ".Params.order" }}
+    {{ $pitfalls := sort (where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true) ".Params.order" }}
 
     <nav>
         <h2>Table of Contents</h2>
         <ul class="toc">
         {{ range $intros }}
+            {{ $categoryPitfalls := where $pitfalls "Params.class" .Params.class }}
+            {{ if $categoryPitfalls }}
             <li class="toc-category">
                 <a class="toc-category-link" href="#category-{{ .Params.class | anchorize }}">{{ .Title }}</a>
                 <ol>
-                {{ range (where $pitfalls "Params.class" .Params.class) }}
+                {{ range $categoryPitfalls }}
                     <li><a {{ printf "href=\"#%s\"" (.Title | anchorize) | safeHTMLAttr }}>{{ .Title }}</a></li>
                 {{ end }}
                 </ol>
             </li>
+            {{ end }}
         {{ end }}
         </ul>
     </nav>
 
     <main>
     {{ range $intros }}
+        {{ $categoryPitfalls := where $pitfalls "Params.class" .Params.class }}
+        {{ if $categoryPitfalls }}
         <section class="category" id="category-{{ .Params.class | anchorize }}">
             <h2 class="category-heading">{{ .Title }}</h2>
             <div class="category-intro">{{ .Content }}</div>
-            {{ range (where $pitfalls "Params.class" .Params.class) }}
+            {{ range $categoryPitfalls }}
                 <section class="pitfall" id="{{ .Title | anchorize }}">
                     {{ .Content }}
                 </section>
             {{ end }}
         </section>
+        {{ end }}
     {{ end }}
     </main>
 

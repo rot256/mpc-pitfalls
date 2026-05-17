@@ -1,6 +1,7 @@
 ---
 title: "Randomness Has Insufficient Entropy"
 class: others
+hidden: true
 source: "fiat-shamir.md"
 primitives: [randomness, zkp]
 ---

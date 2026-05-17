@@ -1,6 +1,7 @@
 ---
 title: "Challenge Transcript Missing Required Values (Weak Fiat-Shamir)"
 class: lack-of-context-binding
+hidden: false
 source: "fiat-shamir.md"
 primitives: [zkp, paillier, homomorphic-encryption]
 ---

@@ -1,6 +1,7 @@
 ---
 title: "Challenge Hash Missing Session Identifier (ssid)"
 class: others
+hidden: true
 source: "zk-proofs-not-bound.md"
 primitives: [zkp, commitment]
 ---

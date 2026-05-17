@@ -1,6 +1,7 @@
 ---
 title: "Insufficient Soundness from Reduced Iteration Count"
 class: others
+hidden: true
 source: "fiat-shamir.md"
 primitives: [zkp]
 ---

@@ -1,6 +1,7 @@
 ---
 title: "Variable-Length List Hashed Without Per-Element Length Prefix"
 class: others
+hidden: true
 source: "hash-functions.md"
 primitives: [hash, zkp]
 ---

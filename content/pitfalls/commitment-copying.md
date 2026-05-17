@@ -1,6 +1,7 @@
 ---
 title: "Rushing Adversary Copies an Honest Commitment"
 class: lack-of-context-binding
+hidden: false
 source: "commitments-not-bound.md"
 primitives: [commitment, mac]
 ---

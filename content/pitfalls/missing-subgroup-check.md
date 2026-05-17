@@ -1,6 +1,7 @@
 ---
 title: "Adversary-Supplied Group Element Not Validated for Subgroup Membership"
 class: others
+hidden: true
 source: "discrete-log-groups.md"
 primitives: [group, zkp]
 ---

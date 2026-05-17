@@ -1,6 +1,7 @@
 ---
-title: "Challenge Hash Missing Prover's Party Identity"
+title: "NIZK Not Bound to Prover's Identity"
 class: others
+hidden: true
 source: "zk-proofs-not-bound.md"
 primitives: [zkp]
 ---

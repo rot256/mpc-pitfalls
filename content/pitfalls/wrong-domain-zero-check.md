@@ -1,6 +1,7 @@
 ---
 title: "Non-Zero Check Performed in the Wrong Domain"
 class: others
+hidden: true
 source: "improper-verification.md"
 primitives: [secret-sharing]
 ---

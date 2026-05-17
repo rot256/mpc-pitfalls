@@ -1,6 +1,7 @@
 ---
 title: "Witness Domain Has Insufficient Entropy"
 class: others
+hidden: true
 source: "fiat-shamir.md"
 primitives: [zkp, randomness]
 ---

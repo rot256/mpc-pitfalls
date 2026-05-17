@@ -1,6 +1,7 @@
 ---
 title: "SPDZ Multi-Threaded MAC Check"
 class: concurrency-and-state-handling
+hidden: false
 order: 1
 source: "sequential-used-concurrently.md"
 primitives: [mac, commitment]

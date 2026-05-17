@@ -1,6 +1,7 @@
 ---
 title: "Empty Proof List Passes Vacuously"
 class: others
+hidden: true
 source: "improper-verification.md"
 primitives: [zkp, signature]
 ---

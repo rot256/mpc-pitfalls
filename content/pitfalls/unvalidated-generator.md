@@ -1,6 +1,7 @@
 ---
 title: "Group Generator Not Validated"
 class: others
+hidden: true
 source: "discrete-log-groups.md"
 primitives: [group]
 ---

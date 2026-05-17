@@ -1,6 +1,7 @@
 ---
 title: "Abort Not Propagated to Parallel OT-Extension Instances"
 class: others
+hidden: true
 source: "oblivious-transfer.md"
 primitives: [oblivious-transfer]
 ---

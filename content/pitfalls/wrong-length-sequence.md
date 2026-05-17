@@ -1,6 +1,7 @@
 ---
 title: "Received Sequence Has the Wrong Length"
 class: input-validation
+hidden: false
 source: "improper-verification.md"
 primitives: [secret-sharing, commitment]
 ---
