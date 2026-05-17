@@ -50,3 +50,8 @@ affiliation = "zkSecurity"
 name = "Joop van de Pol"
 handle = "jvdprng"
 affiliation = "Trail of Bits"
+
+[[params.contributors]]
+name = "Anders Dalskov"
+handle = "anderspkd"
+affiliation = "Partisia"
