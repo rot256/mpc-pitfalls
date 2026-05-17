@@ -1,6 +1,6 @@
 ---
 title: "Session-ID Disagreement or Non-Uniqueness Not Detected Early"
-class: failure-recovery-and-abort-handling
+class: others
 order: 3
 source: "uc-protocols.md"
 primitives: [oblivious-transfer]
