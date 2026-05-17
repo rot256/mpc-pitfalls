@@ -1,8 +1,8 @@
 ---
-title: "Rogue-Key Attack: No Commit-Before-Reveal and No Proof of Knowledge"
+title: "Rogue-Key Attacks"
 class: adaptive-inputs
 source: "feldman-vss.md"
-primitives: [secret-sharing, zkp, signature]
+primitives: [secret-sharing, zkp, signature, commitment]
 ---
 
 ### Rogue-Key Attack: No Commit-Before-Reveal and No Proof of Knowledge
@@ -18,7 +18,7 @@ $A_{1,0}, \dots, A_{n-1,0}$, $P_m$ announces $A_{m,0} = Y^\star \cdot
 $\prod_i A_{i,0} = Y^\star$. The shared "threshold" key is now under $P_m$'s sole
 control. As a consequence, reconstruction is not required and the protocol's threshold property no longer holds.
 
-**How to avoid.** Either of the following two mitigations is sufficient; most
+**How to Avoid.** Either of the following two mitigations is sufficient; most
 deployments use both:
 
 - **Commit-before-reveal**: each party first broadcasts a commitment to its
@@ -26,12 +26,12 @@ deployments use both:
   has been seen. The attacker cannot choose its $A_{m,0}$ as a function of the
   others because the commitment binds it before any other party has opened.
 
-- **Proof of knowledge**: each round-1 package includes a Schnorr proof of knowledge
+- **Proof of Knowledge**: each round-1 package includes a Schnorr proof of knowledge
   of $a_{i,0}$, binding the commitment to the sender's identity and the current
   session. An attacker that chose $A_{m,0}$ adversarially cannot produce a valid
   proof without knowing the discrete log.
 
-**Example 1: Drand DKG threshold constraint ([Sigma Prime, 2020](https://blog.sigmaprime.io/dkg-rogue-key.html)).**
+**Example: Drand DKG Threshold Constraint ([Sigma Prime, 2020](https://blog.sigmaprime.io/dkg-rogue-key.html)).**
 Drand's [protocol specification](https://docs.drand.love/docs/specification) describes
 it as a distributed randomness beacon using DKG and threshold BLS, with a threshold above
 half the participants under its security model. Sigma Prime showed that
@@ -46,6 +46,7 @@ commitments, for example `Hash(A_{i,0} || A_{i,1} || ... || A_{i,t})`, before an
 commitment values are revealed. Drand instead lowered the configured threshold closer to
 $n/2$, so the rogue-key attack would require a coalition outside the assumed fault bound.
 
+<!--
 **Example 2: Reference correct shape in FROST ([Komlo–Goldberg, 2020](https://eprint.iacr.org/2020/852)).** The FROST DKG explicitly includes a Schnorr proof of knowledge in round 1 as a documented rogue-key mitigation. Zcash Foundation's implementation pins $a_{i,0}$ to the sender's identity through a `proof_of_knowledge` field on the round-1 package ([source](https://github.com/ZcashFoundation/frost/blob/main/frost-core/src/keys/dkg.rs)):
 
 ```rust
@@ -61,4 +62,5 @@ pub fn part1<C: Ciphersuite>(...) -> Result<(SecretPackage<C>, Package<C>)> {
 }
 ```
 
-An adversary who chose $A_{m,0}$ as a function of other parties' commitments cannot produce a valid Schnorr signature without knowing the discrete log of its own first coefficient commitment, so the rogue-key strategy is detected at round-1 verification. 
+An adversary who chose $A_{m,0}$ as a function of other parties' commitments cannot produce a valid Schnorr signature without knowing the discrete log of its own first coefficient commitment, so the rogue-key strategy is detected at round-1 verification.
+-->
