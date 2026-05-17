@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Common Multi-Party Computation Pitfalls">
+  <rect width="1200" height="630" fill="#fafafa" />
+
+  <!-- Venn mark, reused from favicon.svg -->
+  <svg x="730" y="120" width="390" height="390" viewBox="202 219 620 620">
+    <defs>
+      <circle id="circle-a" cx="398" cy="415" r="205" />
+      <circle id="circle-b" cx="626" cy="415" r="205" />
+      <circle id="circle-c" cx="512" cy="643" r="205" />
+      <clipPath id="clip-a"><use href="#circle-a" /></clipPath>
+      <clipPath id="clip-b"><use href="#circle-b" /></clipPath>
+      <mask id="circle-border-mask" x="0" y="0" width="1024" height="1024" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
+        <rect width="1024" height="1024" fill="white" />
+        <use href="#circle-a" fill="none" stroke="black" stroke-width="18" />
+        <use href="#circle-b" fill="none" stroke="black" stroke-width="18" />
+        <use href="#circle-c" fill="none" stroke="black" stroke-width="18" />
+      </mask>
+    </defs>
+    <g fill-rule="evenodd" mask="url(#circle-border-mask)">
+      <use href="#circle-a" fill="#6d8f8b" />
+      <use href="#circle-b" fill="#d0a95c" />
+      <use href="#circle-c" fill="#2f3437" />
+      <g clip-path="url(#clip-a)"><use href="#circle-b" fill="#a8aaa0" /></g>
+      <g clip-path="url(#clip-a)"><use href="#circle-c" fill="#446760" /></g>
+      <g clip-path="url(#clip-b)"><use href="#circle-c" fill="#8e794f" /></g>
+      <g clip-path="url(#clip-a)"><g clip-path="url(#clip-b)"><use href="#circle-c" fill="#ece7dc" /></g></g>
+    </g>
+  </svg>
+
+  <g font-family="Palatino Linotype, Palatino, Book Antiqua, Georgia, serif">
+    <text x="80" y="232" font-size="64" font-weight="700" fill="#1a4a6e" letter-spacing="-1">Common Multi-Party</text>
+    <text x="80" y="312" font-size="64" font-weight="700" fill="#1a4a6e" letter-spacing="-1">Computation Pitfalls</text>
+
+    <text x="80" y="392" font-size="27" fill="#4a4a4a">Common mistakes when implementing MPC</text>
+    <text x="80" y="428" font-size="27" fill="#4a4a4a">protocols &#8212; helping developers ship MPC securely.</text>
+
+    <text x="80" y="532" font-size="25" fill="#1a4a6e" letter-spacing="0.5">mpcsec.org</text>
+  </g>
+
+  <rect x="0" y="620" width="1200" height="10" fill="#1a4a6e" />
+</svg>

@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Common MPC Pitfalls</title>
+    {{ $desc := "A collection of common mistakes when implementing MPC protocols, to help developers implement MPC securely." }}
+    <meta name="description" content="{{ $desc }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Common MPC Pitfalls">
+    <meta property="og:title" content="Common MPC Pitfalls">
+    <meta property="og:description" content="{{ $desc }}">
+    <meta property="og:url" content="{{ .Permalink }}">
+    <meta property="og:image" content="{{ "og-image.png" | absURL }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Common MPC Pitfalls">
+    <meta name="twitter:description" content="{{ $desc }}">
+    <meta name="twitter:image" content="{{ "og-image.png" | absURL }}">
+
     <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
     <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="1024x1024">
     <link rel="stylesheet" href="{{ "style.css" | relURL }}">
