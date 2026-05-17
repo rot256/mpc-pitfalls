@@ -5,13 +5,10 @@
 
 A collection of common mistakes when implementing MPC protocols, to help developers implement MPC securely.
 {{ range $intros }}
-{{- $categoryPitfalls := where $pitfalls "Params.class" .Params.class -}}
-{{- if $categoryPitfalls }}
 ## {{ .Title }}
 
 {{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
-{{ range $categoryPitfalls }}
+{{ range (where $pitfalls "Params.class" .Params.class) }}
 {{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
 {{ end -}}
-{{- end -}}
 {{- end }}

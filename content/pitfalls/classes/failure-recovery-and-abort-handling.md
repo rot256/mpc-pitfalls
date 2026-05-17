@@ -1,7 +1,7 @@
 ---
 title: "Failure Recovery and Aborts"
 class: failure-recovery-and-abort-handling
-intro: false
+intro: true
 order: 5
 ---
 
