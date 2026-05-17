@@ -1,5 +1,5 @@
 ---
-title: "Insecure Subprotocol Instantiation"
+title: "Insecure Subprotocols"
 class: insecure-subprotocol-instantiation
 intro: true
 order: 4

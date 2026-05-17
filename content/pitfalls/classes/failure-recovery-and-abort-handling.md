@@ -1,5 +1,5 @@
 ---
-title: "Failure Recovery and Abort Handling"
+title: "Failure Recovery and Aborts"
 class: failure-recovery-and-abort-handling
 intro: true
 order: 5

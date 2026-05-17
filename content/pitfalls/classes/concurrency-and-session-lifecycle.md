@@ -1,5 +1,5 @@
 ---
-title: "Concurrency and State Handling"
+title: "Concurrency and State"
 class: concurrency-and-state-handling
 intro: true
 order: 3
