@@ -1,11 +1,8 @@
 ---
 title: "Failure Recovery and Aborts"
 class: failure-recovery-and-abort-handling
-intro: true
+intro: false
 order: 5
 ---
 
-*When a subprotocol detects a consistency failure, the implementation must surface that
-failure in a form the caller can act on. Structured terminal errors, diagnostic mismatch
-signals, and coordinated cancellation prevent honest parties from misdiagnosing
-configuration failures as attacks or retrying with compromised state.*
+*When a protocol aborts, whether for benign or malicious reasons, the implementation must ensure that the failures are handled securely. What securely means is protocol-specific and may vary from: simply rerunning the protocol, removing a corrupted party, restarting other parts of the protocol, discarding some correlated randomness, or never running the protocol with the same input again.*
