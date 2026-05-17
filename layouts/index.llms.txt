@@ -7,8 +7,8 @@ A collection of common mistakes when implementing MPC protocols, to help develop
 {{ range $intros }}
 ## {{ .Title }}
 
-{{ .RawContent | strings.TrimSpace }}
+{{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
 {{ range (where $pitfalls "Params.class" .Params.class) }}
-{{ .RawContent | strings.TrimSpace }}
+{{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
 {{ end -}}
 {{- end }}
