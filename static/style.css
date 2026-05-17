@@ -107,7 +107,7 @@ main {
 
 .pitfall {
     /* .pitfall is now just a grouping container for one file's content —
-       no title, no card border; visual separation lives at the mini-pitfall (h3) level. */
+       no title, no card border; visual separation lives at the pitfall (h3) level. */
     margin-top: 0;
     padding-top: 0;
     border-top: none;
@@ -119,7 +119,7 @@ main {
     color: var(--accent);
 }
 
-/* Mini-pitfall: a direct-child h3 inside a pitfall acts as its own sub-pitfall,
+/* Pitfall: a direct-child h3 inside a pitfall acts as its own sub-pitfall,
    visually separated from the next one by a dashed rule. */
 .pitfall > h3 {
     margin-top: 2.25rem;
@@ -135,7 +135,7 @@ main {
     border-top: none;
 }
 
-/* Status flags rendered just under a mini-pitfall heading */
+/* Status flags rendered just under a pitfall heading */
 .pitfall-flags {
     margin-top: -0.25rem;
     margin-bottom: 0.9rem;
@@ -233,6 +233,7 @@ main {
     margin: 0;
     font-size: 0.85em;
     line-height: 1.5;
+    min-width: max-content;
 }
 
 .pitfall .highlight pre code {
