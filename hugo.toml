@@ -55,3 +55,8 @@ affiliation = "Trail of Bits"
 name = "Anders Dalskov"
 handle = "anderspkd"
 affiliation = "Partisia"
+
+[[params.contributors]]
+name = "Tore Frederiksen"
+handle = "jot2re"
+affiliation = "Zama"
