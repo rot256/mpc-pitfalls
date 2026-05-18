@@ -60,3 +60,8 @@ affiliation = "Partisia"
 name = "Tore Frederiksen"
 handle = "jot2re"
 affiliation = "Zama"
+
+[[params.contributors]]
+name = "Daniel Demmler"
+handle = "dd23"
+affiliation = "Zama"
