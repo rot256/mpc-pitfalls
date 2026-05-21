@@ -50,6 +50,7 @@ presignature; generate a fresh one. Beware lifecycle events that can resurrect a
 consumed presignature: backup-and-restore, process restarts, snapshots, and
 replication must not reintroduce a presignature that has already been used.
 
+<!--
 **Example: Blockdaemon Builder Vault warns against 2-of-3 presignature reuse
 ([Builder Vault TSM docs](https://builder-vault-tsm.docs.blockdaemon.com/docs/presignatures)).**
 Builder Vault is Blockdaemon's production MPC threshold-signing platform (powered by
@@ -60,3 +61,5 @@ The docs additionally warn that backup-and-restore can reintroduce a
 previously-consumed presignature, turning a routine ops procedure into a
 key-extraction vector if mishandled. Operators are therefore instructed to delete
 all presignatures either before taking a database backup or upon restoring.
+
+-->

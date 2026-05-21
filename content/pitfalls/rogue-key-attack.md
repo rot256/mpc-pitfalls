@@ -32,6 +32,7 @@ deployments use both:
   session. An attacker that chose $A_{m,0}$ adversarially cannot produce a valid
   proof without knowing the discrete log.
 
+<!--
 **Example: Drand DKG Threshold Constraint ([Sigma Prime, 2020](https://blog.sigmaprime.io/dkg-rogue-key.html)).**
 Drand's [protocol specification](https://docs.drand.love/docs/specification) describes
 it as a distributed randomness beacon using DKG and threshold BLS, with a threshold above
@@ -46,6 +47,7 @@ The post proposes an initial hash commit-before-reveal phase over each party's p
 commitments, for example `Hash(A_{i,0} || A_{i,1} || ... || A_{i,t})`, before any
 commitment values are revealed. Drand instead lowered the configured threshold closer to
 $n/2$, so the rogue-key attack would require a coalition outside the assumed fault bound.
+-->
 
 <!--
 **Example 2: Reference correct shape in FROST ([Komlo–Goldberg, 2020](https://eprint.iacr.org/2020/852)).** The FROST DKG explicitly includes a Schnorr proof of knowledge in round 1 as a documented rogue-key mitigation. Zcash Foundation's implementation pins $a_{i,0}$ to the sender's identity through a `proof_of_knowledge` field on the round-1 package ([source](https://github.com/ZcashFoundation/frost/blob/main/frost-core/src/keys/dkg.rs)):

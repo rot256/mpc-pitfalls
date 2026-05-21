@@ -14,6 +14,7 @@ primitives: [secret-sharing, commitment]
 
 **How to avoid.** Each party must compare the received vector length against the protocol-specified length before using the vector and abort the protocol on any length mismatch.
 
+<!--
 **Example: WSTS threshold-raise via oversized polynomial ([Issue #87](https://github.com/Trust-Machines/wsts/issues/87) & [PR #88](https://github.com/Trust-Machines/wsts/pull/88)).**        
 WSTS (Weighted Schnorr Threshold Signatures), aka WileyProofs, is based on [FROST](https://eprint.iacr.org/2020/852.pdf) and was vulnerable to threshold-raise attacks. Before PR #88, the per-signer DKG verification in `src/v1.rs` only checked the Schnorr ID, not the commitment-vector length
 ([source](https://github.com/Trust-Machines/wsts/blob/v9.1.0/src/v1.rs#L154-L157)):
@@ -39,6 +40,7 @@ if comm.poly.len() != threshold || !comm.verify() {
     self.group_key += comm.poly[0];
 }
 ```
+-->
 
 <!--
 **Example: ZenGo-X `multi-party-ecdsa` (still unfixed).** The GG20 keygen

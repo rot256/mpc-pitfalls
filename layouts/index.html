@@ -69,6 +69,38 @@
             {{ range (where $pitfalls "Params.class" .Params.class) }}
                 <section class="pitfall" id="{{ .Title | anchorize }}">
                     {{ .Content }}
+                    {{ $pitfallTitle := .Title }}
+                    {{ $bugs := where (where (where $.Site.RegularPages "Section" "bugs") "Params.hidden" "ne" true) "Params.subcategory" $pitfallTitle }}
+                    {{ range (sort $bugs "Params.order") }}
+                        {{ $repo := .Params.repository }}
+                        {{ $refs := slice }}
+                        {{ with .Params.source }}
+                            {{ range . }}
+                                {{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}
+                            {{ end }}
+                        {{ end }}
+                        {{ with .Params.cve }}
+                            {{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}
+                        {{ end }}
+                        {{ if .Params.issue }}
+                            {{ $refs = $refs | append (printf "[Issue #%d](%s/issues/%d)" .Params.issue $repo .Params.issue) }}
+                        {{ end }}
+                        {{ if .Params.pr }}
+                            {{ $refs = $refs | append (printf "[PR #%d](%s/pull/%d)" .Params.pr $repo .Params.pr) }}
+                        {{ end }}
+                        {{ if .Params.commit }}
+                            {{ $short := substr .Params.commit 0 7 }}
+                            {{ $refs = $refs | append (printf "commit [`%s`](%s/commit/%s)" $short $repo .Params.commit) }}
+                        {{ end }}
+                        {{ $parenthetical := "" }}
+                        {{ if gt (len $refs) 0 }}
+                            {{ $parenthetical = printf " (%s)" (delimit $refs ", ") }}
+                        {{ end }}
+                        <div class="bug">
+                            {{ (printf "**Example: %s%s.**" .Title $parenthetical) | markdownify }}
+                            {{ .Content }}
+                        </div>
+                    {{ end }}
                 </section>
             {{ end }}
         </section>

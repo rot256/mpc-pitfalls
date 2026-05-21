@@ -15,6 +15,7 @@ In the Fiat-Shamir transformation, the verifier's challenge is replaced by a has
 
 **How to avoid.** When implementing an FS transform, enumerate every value that appears in the verification equation (public statement, all first-round commitments, all auxiliary public inputs) and hash *all* of them into the challenge. Prepend a constant-length domain-separation tag identifying the specific proof type to prevent cross-proof-type substitutions.
 
+<!--
 **Example: tss-lib ProofBobWC missing `u` in hash ([Issue #42](https://github.com/bnb-chain/tss-lib/issues/42), [PR #43](https://github.com/bnb-chain/tss-lib/pull/43)).** The MtA "Bob-with-check"
 range proof in `bnb-chain/tss-lib` involves a commitment $u = g^\alpha$ to the prover's
 randomness. Pre-fix, the FS hash omitted `u`
@@ -40,3 +41,5 @@ eHash = common.SHA512_256i(
     append(pk.AsInts(), X.X(), X.Y(), c1, c2, u.X(), u.Y(), z, zPrm, t, v, w)...
 )
 ```
+
+-->

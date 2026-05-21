@@ -38,6 +38,7 @@ func validateIndices(indices []*big.Int, q *big.Int) error {
 
 In Rust with an unsigned index type, construct `Scalar::from(index)` and compare against `Scalar::zero()` rather than comparing the integer to `0u16`. Prefer protocol-assigned indices over party-chosen ones whenever feasible.-->
 
+<!--
 **Example: tss-lib Shamir validation ([Trail of Bits Shamir disclosure](https://blog.trailofbits.com/2021/12/21/disclosing-shamirs-secret-sharing-vulnerabilities-and-announcing-zkdocs/) & [PR #149](https://github.com/bnb-chain/tss-lib/pull/149)).** Both failures appear in `bnb-chain/tss-lib`'s `crypto/vss/feldman_vss.go` and were disclosed together by Trail of Bits in December 2021. They were fixed in a single PR ([`shareid-security`](https://github.com/bnb-chain/tss-lib/pull/149), merge commit [`c26beac`](https://github.com/bnb-chain/tss-lib/commit/c26beac7880cfe0f583eedab419b4641a281de95), December 17 2021).
 
 **Failure 1: zero index mod $q$.** Before the fix, `Create` checked the party index against the integer literal `0` without reducing modulo $q$ first ([source](https://github.com/bnb-chain/tss-lib/blob/73560daec7f83d7355107ea9b5e59d16de8765be/crypto/vss/feldman_vss.go#L64-L70)):
@@ -88,6 +89,8 @@ func CheckIndexes(ec elliptic.Curve, indexes []*big.Int) ([]*big.Int, error) {
     return indexes, nil
 }
 ```
+-->
+
 <!--
 **Other affected forks.** The same disclosure prompted parallel patches in [Swingby's tss-lib fork](https://github.com/SwingbyProtocol/tss-lib/commit/3a9d45177ee22e73e4c032d6c48e691d66c899a2) (commit `3a9d451`, "Fixing issue in the Feldman VSS code. Checking indexes modulo the curve order") and [THORChain's tss-lib fork](https://gitlab.com/thorchain/tss/tss-lib/-/commit/e1fed6a07f266d96b5c3d33b9ae29a9adef46edc) (GitLab commit `e1fed6a`). [ZenGo-X/curv PR #157](https://github.com/ZenGo-X/curv/pull/157) addressed only the zero-index leak by changing the index parameter type to `NonZeroU16`; duplicate handling was left to callers. Clover Network's `threshold-crypto` did not respond to disclosure.
 

@@ -31,6 +31,7 @@ Two standard constructions:
 Either construction prevents the rushing-adversary copy because the opener's identity is
 now part of what the commitment binds to.
 
+<!--
 **Example: Fresco `HashBasedCommitment` ([Issue #432](https://github.com/aicis/fresco/issues/432), [PR #433](https://github.com/aicis/fresco/pull/433), commit
 [`fdada93b`](https://github.com/aicis/fresco/commit/fdada93b1abf19c68a1cf744e0f294df86bb1b8f)).** In the
 [SPDZ protocol](https://eprint.iacr.org/2011/535.pdf), parties hold BDOZ MACs
@@ -97,3 +98,5 @@ public byte[] commit(int myId, Drbg rand, byte[] value) {
   return openingInfo;
 }
 ```
+
+-->

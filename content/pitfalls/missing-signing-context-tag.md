@@ -45,6 +45,7 @@ of enforcement:
   allowed to serve, and reject at the API entry-point any request that targets a key
   whose purpose does not match the call.
 
+<!--
 **Example: NEAR MPC `DomainPurpose` tagging**
 ([issue #2076](https://github.com/near/mpc/issues/2076),
 [PR #2163](https://github.com/near/mpc/pull/2163)). The NEAR
@@ -114,3 +115,5 @@ if domain_config.purpose != DomainPurpose::CKD {
     );
 }
 ```
+
+-->

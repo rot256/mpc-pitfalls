@@ -1,0 +1,41 @@
+---
+title: "`coinbase/kryptology` GG20 DKG ships secret shares unencrypted"
+category: insecure-subprotocol-instantiation
+subcategory: "Unauthenticated or Unencrypted Point-to-Point Channels"
+order: 2
+date: 2022-01-06
+primitives: [secure-channel, paillier, homomorphic-encryption]
+repository: https://github.com/coinbase/kryptology
+issue: 29
+hidden: false
+---
+
+GG20's
+joint key-generation procedure (inherited from
+[GG18](https://eprint.iacr.org/2019/114)) assumes the Round 2 P2P delivery of each
+Shamir share $x_{ij}$ runs over a confidential channel, instantiated in the GG18 paper
+with Paillier encryption keyed to the recipient.
+The Coinbase library's GG20 implementation drops the encryption step and returns the
+share as a bare struct field
+([source](https://github.com/coinbase/kryptology/blob/master/pkg/tecdsa/gg20/participant/dkg_round2.go)):
+
+```go
+// FILE: pkg/tecdsa/gg20/participant/dkg_round2.go — coinbase/kryptology
+
+type DkgRound2P2PSend struct {
+    xij *v1.ShamirShare  // raw share — no Paillier encryption applied
+}
+// ...
+p2PSend[id] = &DkgRound2P2PSend{ xij: dp.state.X[id-1] }
+```
+
+An integrator filed [issue #29](https://github.com/coinbase/kryptology/issues/29) after
+having to fork the library to make `xij` exportable for transmission, noting it "feels
+unsafe to share in unencrypted form" and pointing out that Swingby's tss-lib fork
+[Paillier-encrypts the share](https://github.com/SwingbyProtocol/tss-lib/blob/668d0061fadf08bf2ba9f7e9287516fc173b6b9c/ecdsa/keygen/round_3.go#L127-L133)
+at the equivalent round. The maintainer confirmed in the same thread: *"You should
+encrypt everything sent between participants since the paper states it's only secure in
+the presence of a secure channel."* The library nonetheless leaves channel
+confidentiality entirely to the application. Note that the kryptology repository has since been
+[archived by Coinbase](https://github.com/coinbase/kryptology), with an explicit
+notice that the library *"should not be used"* and is not used by Coinbase itself.

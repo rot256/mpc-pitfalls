@@ -41,6 +41,7 @@ authenticated key-exchange). Never run the cryptographic protocol over unauthent
 transport, even "for testing", since integration-test wiring often migrates into production
 unnoticed.
 
+<!--
 **Example: `axelarnetwork/tofnd` accepts spoofed `from` field on the wire.** Axelar's
 tofnd is a Rust daemon implementing [GG20](https://eprint.iacr.org/2020/540)
 (Gennaro–Goldfeder, 2020), a threshold-ECDSA protocol widely deployed in MPC wallet
@@ -105,3 +106,5 @@ the presence of a secure channel."* The library nonetheless leaves channel
 confidentiality entirely to the application. Note that the kryptology repository has since been
 [archived by Coinbase](https://github.com/coinbase/kryptology), with an explicit
 notice that the library *"should not be used"* and is not used by Coinbase itself.
+
+-->

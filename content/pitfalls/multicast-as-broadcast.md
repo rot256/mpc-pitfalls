@@ -42,6 +42,7 @@ $n/3$ corruptions, Bracha broadcast provides the required guarantees. Enforce th
 per-round broadcast-vs-P2P classification at the library boundary using the protocol
 specification as reference, rather than delegating the decision to the caller.
 
+<!--
 **Example: GG18 resharing split-view attack ([Kudelski, 2021](https://kudelskisecurity.com/research/audit-of-ings-threshold-ecdsa-library---and-a-dangerous-vulnerability-in-existing-gennaro-goldfeder18-implementations)).**
 Kudelski's audit of ING's threshold-ECDSA library identified a communication-layer
 failure in the GG18 resharing protocol. The issue was a design-level mismatch: the
@@ -70,3 +71,5 @@ The attack is exactly the multicast-as-broadcast failure: every honest party rec
 message from $E$, but they did not receive the same message. The fix is not another local
 validation check inside the resharing round; the deployment needs a broadcast mechanism
 that gives all honest parties a consistent view of whether the final confirmation was sent.
+
+-->
