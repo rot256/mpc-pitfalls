@@ -13,14 +13,11 @@ hidden: false
 Axelar's
 tofnd is a Rust daemon implementing [GG20](https://eprint.iacr.org/2020/540)
 (Gennaro–Goldfeder, 2020), a threshold-ECDSA protocol widely deployed in MPC wallet
-implementations. It wraps each protocol message in a `TrafficIn` envelope that
-carries the transport-level sender identity (`from_party_uid`) alongside an inner
-`MsgMeta` that carries the protocol-level sender index (`from: usize`). [Issue #60](https://github.com/axelarnetwork/tofnd/issues/60) describes the failure directly:
-
-> *Currently, the sender of a tofnd message is not authenticated. Thus, malicious
-> parties could spoof messages from other parties. […] It is easy for a malicious actor
-> to dig into the binary payload and spoof this `from` field and therefore send messages
-> on behalf of other parties.*
+implementations. Each message is wrapped in a `TrafficIn` envelope that carries both a
+transport-level sender identity (`from_party_uid`) and an inner `MsgMeta` with a
+protocol-level sender index (`from: usize`). As reported in [Issue #60](https://github.com/axelarnetwork/tofnd/issues/60),
+the inner `from` field is unauthenticated: a malicious party can edit it in the
+binary payload and send messages on behalf of any other party.
 
 The vulnerable handler discarded the transport identity and passed the raw payload
 straight to the cryptographic core

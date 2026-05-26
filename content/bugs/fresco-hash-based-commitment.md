@@ -46,8 +46,7 @@ Each party's commitment is $c_i = H(z_i \,\|\, r_i)$, with no opener identity in
 hash input. In a two-party SPDZ MAC check over $\mathbb{F}_{2^k}$, a corrupt $P_2$ copies
 $P_1$'s commitment byte-for-byte, then copies the opening $(z_1, r_1)$. Because the
 field has characteristic 2, the reconstructed $z = z_1 + z_1 = 0$ and the MAC check
-passes regardless of what $a'$ was reconstructed, breaking the MAC's integrity guarantee
-on every wire of the circuit. The fix ([PR #433](https://github.com/aicis/fresco/pull/433), commit
+passes regardless of what $a'$ was reconstructed. The fix ([PR #433](https://github.com/aicis/fresco/pull/433), commit
 [`fdada93b`](https://github.com/aicis/fresco/commit/fdada93b1abf19c68a1cf744e0f294df86bb1b8f),
 merged February 27, 2025) added the committer's party ID as the first input to the hash
 and required the opener to supply a matching ID at open time

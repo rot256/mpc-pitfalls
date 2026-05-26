@@ -29,13 +29,8 @@ type DkgRound2P2PSend struct {
 p2PSend[id] = &DkgRound2P2PSend{ xij: dp.state.X[id-1] }
 ```
 
-An integrator filed [issue #29](https://github.com/coinbase/kryptology/issues/29) after
+<!--An integrator filed [issue #29](https://github.com/coinbase/kryptology/issues/29) after
 having to fork the library to make `xij` exportable for transmission, noting it "feels
 unsafe to share in unencrypted form" and pointing out that Swingby's tss-lib fork
 [Paillier-encrypts the share](https://github.com/SwingbyProtocol/tss-lib/blob/668d0061fadf08bf2ba9f7e9287516fc173b6b9c/ecdsa/keygen/round_3.go#L127-L133)
-at the equivalent round. The maintainer confirmed in the same thread: *"You should
-encrypt everything sent between participants since the paper states it's only secure in
-the presence of a secure channel."* The library nonetheless leaves channel
-confidentiality entirely to the application. Note that the kryptology repository has since been
-[archived by Coinbase](https://github.com/coinbase/kryptology), with an explicit
-notice that the library *"should not be used"* and is not used by Coinbase itself.
+at the equivalent round.-->

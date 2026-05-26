@@ -31,9 +31,4 @@ $A$ and $B$ believe resharing succeeded, discard their old shares, and migrate t
 committee. $C$ and $D$ believe resharing failed, keep the old shares, and do not save the
 new shares. The honest parties are now split between incompatible old and new committee
 states. Neither honest subset has enough compatible shares to sign without $E$, so the
-single malicious participant can lock the wallet and blackmail the rest of the committee.
-
-The attack is exactly the multicast-as-broadcast failure: every honest party received a
-message from $E$, but they did not receive the same message. The fix is not another local
-validation check inside the resharing round; the deployment needs a broadcast mechanism
-that gives all honest parties a consistent view of whether the final confirmation was sent.
+single malicious participant can lock the wallet.

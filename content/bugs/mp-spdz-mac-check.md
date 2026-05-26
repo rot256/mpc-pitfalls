@@ -8,8 +8,7 @@ repository: https://github.com/data61/MP-SPDZ
 hidden: false
 ---
 
-Two bugs
-were found and patched in MP-SPDZ.
+Two bugs were found and patched in MP-SPDZ.
 
 *Bug 1 — Missing MAC check in multi-threaded `POpen`*
 ([commit `5e714b2`](https://github.com/data61/MP-SPDZ/commit/5e714b2)). The

@@ -10,16 +10,7 @@ source:
 hidden: false
 ---
 
-Drand's [protocol specification](https://docs.drand.love/docs/specification) describes
-it as a distributed randomness beacon using DKG and threshold BLS, with a threshold above
-half the participants under its security model. Sigma Prime showed that
-when the polynomial degree $t$ exceeds $n/2$ (that is, a $(t+1)$-of-$n$ reconstruction
-threshold), a coalition of $m \ge n - t + 1$ parties can mount a rogue-key attack: after
-seeing the honest parties' public commitments, the colluding parties choose their own
-constant-term commitments so the final public key becomes an attacker-chosen
-$Y^\star = g^x$. The attacker then knows the discrete log of the group public key.
+Drand is a distributed randomness beacon using DKG and threshold BLS, with a threshold above half the participants under its security model (see the [protocol specification](https://docs.drand.love/docs/specification)). With polynomial degree $t > n/2$, a coalition of at least $n - t + 1$ parties can mount a rogue-key attack: after seeing the honest parties' constant-term commitment ($A_{i,0} = g^{a_{i,0}}$), the colluding parties choose their own so the group public key becomes an attacker-chosen 
+$Y^\star = g^{x^\star}$.
 
-The post proposes an initial hash commit-before-reveal phase over each party's polynomial
-commitments, for example `Hash(A_{i,0} || A_{i,1} || ... || A_{i,t})`, before any
-commitment values are revealed. Drand instead lowered the configured threshold closer to
-$n/2$, so the rogue-key attack would require a coalition outside the assumed fault bound.
+The proposed fix was using commit-before-reveal. Drand instead mitigated the issue by lowering the configured threshold closer to $n/2$, since the rogue-key attack would then require a coalition outside the honest-majority assumption.
