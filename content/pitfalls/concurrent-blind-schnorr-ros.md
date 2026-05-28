@@ -50,7 +50,7 @@ FROST achieves this with a per-participant binding factor, standardized in
 nonces per session whose specific linear combination is provably secure under
 concurrent execution.
 
-*Application-layer serialisation.* If the protocol itself cannot be changed, the signer
+*Application-layer serialization.* If the protocol itself cannot be changed, the signer
 must complete or abort one session before starting another, preventing the
 $\ell \approx 192$ sessions required to solve ROS from being open simultaneously.
 

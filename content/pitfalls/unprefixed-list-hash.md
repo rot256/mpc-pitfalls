@@ -23,7 +23,7 @@ two proof inputs that hash identically to forge a range proof.
 
 **How to avoid.** Make the encoding injective by appending a fixed-width length tag
 after each element (or equivalently, length-prefixing each element before it is
-serialised). An 8-byte little-endian length tag after each delimiter is enough to
+serialized). An 8-byte little-endian length tag after each delimiter is enough to
 disambiguate any two distinct input tuples, even when some element happens to contain
 the delimiter byte.
 
@@ -47,7 +47,7 @@ func SHA512_256(in ...[]byte) []byte {
 ```
 
 The collision: `SHA512_256([]byte("a$"), []byte("b"))` and `SHA512_256([]byte("a"),
-[]byte("$b"))` both serialise to `a$$b$` and therefore produce the same digest. The
+[]byte("$b"))` both serialize to `a$$b$` and therefore produce the same digest. The
 fix (IoFinnet [commit `369ec50`](https://github.com/IoFinnet/threshlib/commit/369ec50be1437588a9733443bcb2f15b794601d4),
 imported into bnb-chain/tss-lib as
 [PR #233](https://github.com/bnb-chain/tss-lib/pull/233)) appends an 8-byte length

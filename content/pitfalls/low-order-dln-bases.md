@@ -67,5 +67,5 @@ for j, msg := range round.temp.kgRound1Messages {
 ```
 
 For the complementary concern that the factors of $\tilde N$ themselves must be safe
-primes (otherwise even a sound DLN proof can be forged once the factorisation is
+primes (otherwise even a sound DLN proof can be forged once the factorization is
 smooth), see the [Discrete Log Groups](../discrete-log-groups/) pitfall.

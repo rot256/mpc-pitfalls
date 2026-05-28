@@ -24,7 +24,7 @@ honest parties hold only $t$ values. The shared key becomes permanently unrecove
 — a key-destruction attack with no on-chain trace. The attacker incurs no cost beyond
 sending a longer round-1 message. [Trail of Bits' 2024
 disclosure](https://blog.trailofbits.com/2024/02/20/breaking-the-shared-key-in-threshold-signature-schemes/)
-catalogued this across ten implementations in FROST, GG18, and GG20; only Chainflip had
+cataloged this across ten implementations in FROST, GG18, and GG20; only Chainflip had
 independently added the per-package length check.
 
 **How to avoid.** After checking the number of incoming packages, verify each

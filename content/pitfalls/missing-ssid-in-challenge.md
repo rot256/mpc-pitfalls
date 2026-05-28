@@ -23,7 +23,7 @@ by an honest party in session $A$ replays $\pi$ in any later session $B$ that re
 the same public statement. The verifier accepts the replay because the recomputed
 challenge matches. In threshold-signature keygen this lets a corrupt party skip its
 proof-of-knowledge obligation in future ceremonies by reusing an earlier honest proof;
-in signing rounds it enables unauthorised progress with a replayed round message.
+in signing rounds it enables unauthorized progress with a replayed round message.
 
 **How to avoid.** Derive a session identifier `ssid` from every public parameter of the
 current run — participant set, group public key, round counters, any caller-supplied

@@ -13,7 +13,7 @@ primitives: [secret-sharing]
 **What can go wrong.** When a received value $x$ must be rejected if it is zero in
 $\mathbb{Z}_q^*$, the check must be `x mod q != 0`, not `x != 0` in integer arithmetic. A
 value $x = k \cdot q$ for any integer $k$ passes the integer comparison but is zero in the
-protocol's arithmetic domain. The same mistake generalises to any modular or curve-scalar
+protocol's arithmetic domain. The same mistake generalizes to any modular or curve-scalar
 setting where the wire representation can exceed the modulus without the type system
 flagging it.
 

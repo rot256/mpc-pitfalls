@@ -17,7 +17,7 @@ check returns a plain `error` rather than a typed sentinel that the caller can b
 on. A caller that catches the error via a generic `if err != nil { return err }`
 cannot distinguish a benign network timeout from a malicious consistency-check
 violation, and the base-OT seed is left in memory for a retry. Trail of Bits
-[summarised](https://blog.trailofbits.com/2023/09/20/dont-overextend-your-oblivious-transfer/)
+[summarized](https://blog.trailofbits.com/2023/09/20/dont-overextend-your-oblivious-transfer/)
 the industry pattern: *"most OT extension libraries will report something along the
 lines of 'correlation check failed,' which does not tell a user what to do next."*
 
