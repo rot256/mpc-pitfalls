@@ -83,15 +83,27 @@
                         {{ with .Params.cve }}
                             {{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}
                         {{ end }}
-                        {{ if .Params.issue }}
-                            {{ $refs = $refs | append (printf "[Issue #%d](%s/issues/%d)" .Params.issue $repo .Params.issue) }}
+                        {{ with .Params.issue }}
+                            {{ $issues := . }}
+                            {{ if not (reflect.IsSlice .) }}{{ $issues = slice . }}{{ end }}
+                            {{ range $issues }}
+                                {{ $refs = $refs | append (printf "[Issue #%d](%s/issues/%d)" . $repo .) }}
+                            {{ end }}
                         {{ end }}
-                        {{ if .Params.pr }}
-                            {{ $refs = $refs | append (printf "[PR #%d](%s/pull/%d)" .Params.pr $repo .Params.pr) }}
+                        {{ with .Params.pr }}
+                            {{ $prs := . }}
+                            {{ if not (reflect.IsSlice .) }}{{ $prs = slice . }}{{ end }}
+                            {{ range $prs }}
+                                {{ $refs = $refs | append (printf "[PR #%d](%s/pull/%d)" . $repo .) }}
+                            {{ end }}
                         {{ end }}
-                        {{ if .Params.commit }}
-                            {{ $short := substr .Params.commit 0 7 }}
-                            {{ $refs = $refs | append (printf "commit [`%s`](%s/commit/%s)" $short $repo .Params.commit) }}
+                        {{ with .Params.commit }}
+                            {{ $commits := . }}
+                            {{ if not (reflect.IsSlice .) }}{{ $commits = slice . }}{{ end }}
+                            {{ range $commits }}
+                                {{ $short := substr . 0 7 }}
+                                {{ $refs = $refs | append (printf "commit [`%s`](%s/commit/%s)" $short $repo .) }}
+                            {{ end }}
                         {{ end }}
                         {{ $parenthetical := "" }}
                         {{ if gt (len $refs) 0 }}

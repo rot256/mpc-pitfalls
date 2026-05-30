@@ -67,12 +67,26 @@ primitives: [commitment, mac]
 repository: https://github.com/aicis/fresco
 
 # commit: bare 40-char SHA (no URL). Rendered as {repository}/commit/{commit}.
+# Accepts either a single SHA or a flow-style list when several commits make
+# up the fix.
+# Examples:
+#   commit: fdada93b1abf19c68a1cf744e0f294df86bb1b8f
+#   commit: [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb]
 commit: fdada93b1abf19c68a1cf744e0f294df86bb1b8f
 
 # issue: bare issue number (no URL). Rendered as {repository}/issues/{issue}.
+# Accepts either a single number or a flow-style list.
+# Examples:
+#   issue: 432
+#   issue: [432, 437]
 issue: 432
 
 # pr: bare PR number (no URL). Rendered as {repository}/pull/{pr}.
+# Accepts either a single number or a flow-style list when the fix spans
+# multiple PRs (the renderer emits one [PR #N] link per entry, in order).
+# Examples:
+#   pr: 433
+#   pr: [7, 10]
 pr: 433
 
 # source: For non-GitHub references (blog post, documentation, paper, audit
