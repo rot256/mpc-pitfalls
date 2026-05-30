@@ -1,12 +1,12 @@
 ---
 title: "SHA-2 / Merkle-Damgård Length-Extension Attack"
 class: cryptographic-primitives
-hidden: true
+hidden: false
+order: 8
 source: "hash-functions.md"
 primitives: [hash, mac]
 ---
 
-### SHA-2 / Merkle-Damgård Length-Extension Attack
 
 **What can go wrong.** SHA-2 (SHA-256, SHA-512) uses the Merkle-Damgård construction:
 the internal state after processing a message $m$ is fully recoverable from $H(m)$

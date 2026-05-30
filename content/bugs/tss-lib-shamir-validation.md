@@ -13,7 +13,7 @@ source:
 hidden: false
 ---
 
-Both failures appear in `bnb-chain/tss-lib`'s `crypto/vss/feldman_vss.go` and were disclosed together by Trail of Bits in December 2021. They were fixed in a single PR ([`shareid-security`](https://github.com/bnb-chain/tss-lib/pull/149), merge commit [`c26beac`](https://github.com/bnb-chain/tss-lib/commit/c26beac7880cfe0f583eedab419b4641a281de95), December 17 2021).
+Both failures appear in `bnb-chain/tss-lib`'s `crypto/vss/feldman_vss.go` and were disclosed together by Trail of Bits. They were fixed in a single PR ([`shareid-security`](https://github.com/bnb-chain/tss-lib/pull/149), merge commit [`c26beac`](https://github.com/bnb-chain/tss-lib/commit/c26beac7880cfe0f583eedab419b4641a281de95)).
 
 **Failure 1: zero index mod $q$.** Before the fix, `Create` checked the party index against the integer literal `0` without reducing modulo $q$ first ([source](https://github.com/bnb-chain/tss-lib/blob/73560daec7f83d7355107ea9b5e59d16de8765be/crypto/vss/feldman_vss.go#L64-L70)):
 

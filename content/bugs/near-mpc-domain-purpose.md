@@ -23,7 +23,7 @@ then replay it to a bridge calling `verify_foreign_transaction()` against the sa
 the bridge would accept the signature as proof that the foreign transaction had been
 attested.
 
-The fix ([PR #2163](https://github.com/near/mpc/pull/2163), merged February 19, 2026) introduces an explicit
+The fix ([PR #2163](https://github.com/near/mpc/pull/2163)) introduces an explicit
 per-domain `DomainPurpose` enum:
 
 ```rust

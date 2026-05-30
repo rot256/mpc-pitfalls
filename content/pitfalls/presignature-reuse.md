@@ -7,7 +7,6 @@ source: "signatures.md"
 primitives: [signature]
 ---
 
-### Threshold Presignature Reuse (Nonce Reuse)
 
 **What can go wrong.** ECDSA produces signatures $(r, s)$ where 
 

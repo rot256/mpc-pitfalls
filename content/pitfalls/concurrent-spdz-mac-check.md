@@ -7,7 +7,6 @@ source: "sequential-used-concurrently.md"
 primitives: [mac, commitment]
 ---
 
-### SPDZ Multi-Threaded MAC Check
 
 **What can go wrong.** SPDZ
 ([Damgård–Pastro–Smart–Zakarias, 2012](https://eprint.iacr.org/2011/535)) is a maliciously-secure MPC protocol with a dishonest majority, where up to $n-1$ out of $n$ parties can be actively corrupted by an adversary. Shared values are authenticated by an information-theoretic MAC under a global key $\alpha$ that no party knows individually, and openings are verified by a *MAC check* that aborts if the opened value was tampered with. SPDZ is proven secure in the UC framework, which guarantees security under "concurrent execution" with arbitrary independent protocols. However, this guarantee does not extend to a multithreaded SPDZ implementation, where all threads share the same $\alpha$. In particular, when an implementation runs two MAC check instances concurrently in different threads, a malicious party can cheat in one of them to leak the entire MAC key $\alpha$ and use it in the other to forge MACs on arbitrary values.

@@ -11,7 +11,7 @@ source:
     url: https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/98
   - name: "Sherlock #76"
     url: https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/76
-hidden: false
+hidden: true
 ---
 
 In Symbiotic Relay's middleware SDK, `KeyBlsBn254.wrap()` validates an incoming
@@ -49,12 +49,13 @@ the prime-order subgroup. An attacker registers such a point as their validator
 key; every subsequent BLS aggregation that includes it operates outside the
 subgroup the security proof assumes, and the pairing equation becomes
 satisfiable for crafted signatures without knowledge of the corresponding
-private key. The audit's recommended fix is the standard `cofactor*P == 0`
-check before storing the key.
+private key. 
 
 The same omission appears on the verification side
 ([Sherlock #76](https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/76))
 in `SigBlsBn254.verify()`, which decodes attacker-controlled G1 and G2 points
 from calldata and feeds them straight into `BN254.safePairing(...)` without
-checking either is in its respective subgroup. Both findings were filed in the
-June 2025 Sherlock contest.
+checking either is in its respective subgroup.
+
+The audit's recommended fix is the standard `cofactor*P == 0`
+check before storing the key.

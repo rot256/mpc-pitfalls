@@ -27,7 +27,7 @@ eHash = common.SHA512_256i(
 Because $u$ is absent, the challenge $e$ is independent of the prover's randomness commitment. A malicious party fixes a desired response, recomputes the challenge on values
 of its choosing, and solves for a consistent $u$ after the fact, forging a valid-looking proof without a witness.
 
-The fix ([PR #43](https://github.com/bnb-chain/tss-lib/pull/43), merged September 11, 2019) added `u.X()`, `u.Y()` to the hash input:
+The fix ([PR #43](https://github.com/bnb-chain/tss-lib/pull/43)) added `u.X()`, `u.Y()` to the hash input:
 
 ```go
 // Fixed: u (the EC commitment to witness randomness) is now in the hash

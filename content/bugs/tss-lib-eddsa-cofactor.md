@@ -1,57 +1,54 @@
 ---
-title: "tss-lib threshold EdDSA missing cofactor clearing (Baby Sharks)"
+title: "tss-lib threshold EdDSA missing cofactor clearing"
 category: input-validation
 subcategory: "Curve Points Not Validated"
 order: 2
-date: 2023-12-08
+date: 2020-11-13
 primitives: [elliptic-curve, signature]
 repository: https://github.com/bnb-chain/tss-lib
-issue: 283
+pr: 115
 source:
-  - name: "Baby Sharks, ZenGo (Shlomovits)"
+  - name: "Baby Sharks"
     url: https://medium.com/zengo/baby-sharks-a3b9ceb4efe0
 hidden: false
 ---
 
-Standard EdDSA defends against small-subgroup attacks via *bit clamping*:
-secret scalars have their three lowest bits zeroed so that any scalar
-multiplication strips the order-8 torsion component of Curve25519. The
-threshold EdDSA path in tss-lib has no equivalent step on adversary-supplied
-points received from peers, so a malicious party can inject a torsion
-component into the joint public key, a partial nonce commitment, or a key
-share.
+Standard EdDSA defends against small-subgroup attacks via bit clamping on the single-party secret scalar. The threshold EdDSA path in tss-lib applied no equivalent defense to supplied points received from peers, so as the ZenGo's [Baby Sharks](https://medium.com/zengo/baby-sharks-a3b9ceb4efe0) analysis showed, a malicious party could inject an order-8 torsion component into the joint public key so that $1/8$ of signing ceremonies verify, while the other will reject.
 
-ZenGo's [Baby Sharks](https://medium.com/zengo/baby-sharks-a3b9ceb4efe0)
-analysis (Shlomovits, 2020) demonstrated the attack. A malicious party in
-threshold EdDSA sends a key share $X_m = x_m \cdot B + T$ where $T$ is a
-torsion point of order 8. The joint public key $Y = \sum X_i$ acquires the
-extra torsion component:
+In the pre-fix tss-lib, the received commitment $R_j$ was constructed straight from peer-supplied coordinates and aggregated into the joint $R$ with no subgroup-membership step ([source](https://github.com/bnb-chain/tss-lib/blob/2f942010e2f18f6bfcec35265b73e0fdf33a1bf0/eddsa/signing/round_3.go#L52-L66)):
 
-```text
-Conceptual threshold-EdDSA keygen without cofactor clearing
-- Malicious party sends X_m = x_m*B + T where T is a torsion point (8*T = O).
-- Honest parties compute joint key Y = Σ X_i = (Σ x_i)*B + T.
-- Signing produces s such that s*B = R + c*Y = R + c*(X + T).
-- Verification s*B == R + c*Y succeeds only when c*T == O, i.e. c ≡ 0 mod 8.
-- Probability of signature acceptance per ceremony: 1/8.
+```go
+// eddsa/signing/round_3.go — bnb-chain/tss-lib (pre-fix)
+Rj, err := crypto.NewECPoint(tss.EC(), coordinates[0], coordinates[1])
+if err != nil {
+    return round.WrapError(errors.Wrapf(err, "NewECPoint(Rj)"), Pj)
+}
+// ... proof.Verify(Rj) checks knowledge of the discrete log, not subgroup ...
+extendedRj := ecPointToExtendedElement(Rj.X(), Rj.Y())
+R = addExtendedElements(R, extendedRj)
 ```
 
-Each ceremony's challenge $c$ is computed over a hash of the public state, so
-the attacker observes whether the signature verifies and learns $c \bmod 8$
-per successful path. Repeated ceremonies either silently deny service (honest
-signatures rejected most of the time) or leak three bits of every successful
-challenge to the attacker. Variants of the same primitive apply to round-1
-commitments and partial signatures.
+The remediation landed in [PR #115](https://github.com/bnb-chain/tss-lib/pull/115). It adds an `EightInvEight()` helper in `crypto/ecpoint.go` that multiplies by 8 then by $8^{-1} \bmod N$, projecting any input into the prime-order subgroup ([source](https://github.com/bnb-chain/tss-lib/blob/a8278131c426cd2e2f9f2ed3cf456b62fddfa49c/crypto/ecpoint.go#L87-L89)):
 
-The fix is to multiply every externally-supplied point by the cofactor $h = 8$
-at the wire boundary and reject if the result is the identity (the input was
-a pure torsion point), or to switch the threshold protocol to
-[Ristretto255](https://ristretto.group), which exposes only the prime-order
-quotient group and makes torsion injection structurally impossible. The
-single-party `crypto/ed25519` library handles this via bit clamping plus
-explicit cofactor checks during verification; the threshold variant must
-reproduce both steps at every input boundary.
+```go
+// crypto/ecpoint.go — bnb-chain/tss-lib (post-fix)
+var (
+    eight    = big.NewInt(8)
+    eightInv = new(big.Int).ModInverse(eight, edwards.Edwards().Params().N)
+)
 
-tss-lib [Issue #283](https://github.com/bnb-chain/tss-lib/issues/283), opened
-December 8, 2023, raises this as an open concern for the library's threshold
-EdDSA path. No fix has been merged at the time of writing.
+func (p *ECPoint) EightInvEight() *ECPoint {
+    return p.ScalarMult(eight).ScalarMult(eightInv)
+}
+```
+
+The helper is then applied to every received point. The patch at the signing site, mirroring the pre-fix excerpt above ([source](https://github.com/bnb-chain/tss-lib/blob/a8278131c426cd2e2f9f2ed3cf456b62fddfa49c/eddsa/signing/round_3.go#L52-L56)):
+
+```go
+// eddsa/signing/round_3.go — bnb-chain/tss-lib (post-fix)
+Rj, err := crypto.NewECPoint(tss.EC(), coordinates[0], coordinates[1])
+Rj = Rj.EightInvEight()
+if err != nil {
+    return round.WrapError(errors.Wrapf(err, "NewECPoint(Rj)"), Pj)
+}
+```

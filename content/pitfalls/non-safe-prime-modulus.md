@@ -1,12 +1,12 @@
 ---
 title: "Non-Safe-Prime Modulus"
 class: cryptographic-primitives
-hidden: true
+hidden: false
+order: 2
 source: "discrete-log-groups.md"
 primitives: [rsa, group]
 ---
 
-### Non-Safe-Prime Modulus
 
 **What can go wrong.** When a protocol group is built over $\mathbb{Z}_p^*$ (or over
 $\text{QR}_N$ for some RSA modulus $N = P \cdot Q$), DLP hardness relies on the
@@ -27,7 +27,7 @@ property of every range proof built on those bases.
 **How to avoid.** Use safe primes. For DLP-based sub-protocols in MPC, generate $p$
 with a safe-prime loop (both $p$ and $(p-1)/2$ are prime). For RSA-style moduli used
 as DL group supports, generate both factors as safe primes and store the Sophie
-Germain primes so downstream code can verify them. For standardised groups, prefer
+Germain primes so downstream code can verify them. For standardized groups, prefer
 RFC 3526 / RFC 7919 groups whose safe-prime structure is publicly audited.
 
 **Example: tss-lib `NTilde` from RSA primes (Issue #67 / KS-BTL-F-03).** tss-lib's

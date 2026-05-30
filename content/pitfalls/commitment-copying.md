@@ -2,11 +2,11 @@
 title: "Rushing Adversary Copies an Honest Commitment"
 class: lack-of-context-binding
 hidden: false
+order: 4
 source: "commitments-not-bound.md"
 primitives: [commitment, mac]
 ---
 
-### Rushing Adversary Copies an Honest Commitment
 
 **What can go wrong.** In a commit-and-reveal protocol, each party sends a commitment
 during round 1 and opens it during round 2. If the commitment scheme does not bind each commitment to the identity of its opener (for example, by hashing in the party's ID and

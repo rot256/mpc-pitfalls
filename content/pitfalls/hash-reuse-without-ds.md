@@ -1,12 +1,12 @@
 ---
 title: "Missing Domain Separation When a Hash Function Is Reused"
 class: cryptographic-primitives
-hidden: true
+hidden: false
+order: 4
 source: "hash-functions.md"
 primitives: [hash, zkp]
 ---
 
-### Missing Domain Separation When a Hash Function Is Reused
 
 **What can go wrong.** When the same hash function is used for multiple distinct
 purposes — Fiat-Shamir challenges for different proof types, commitment openings, key

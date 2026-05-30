@@ -1,12 +1,12 @@
 ---
 title: "Witness Domain Has Insufficient Entropy"
 class: cryptographic-primitives
-hidden: true
+hidden: false
+order: 10
 source: "fiat-shamir.md"
 primitives: [zkp, randomness]
 ---
 
-### Witness Domain Has Insufficient Entropy
 
 <div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>
 

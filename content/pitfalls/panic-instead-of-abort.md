@@ -2,11 +2,11 @@
 title: "Panic or Opaque Error Instead of Structured Abort"
 class: failure-recovery-and-abort-handling
 hidden: false
+order: 2
 source: "oblivious-transfer.md"
 primitives: [oblivious-transfer]
 ---
 
-### Panic or Opaque Error Instead of Structured Abort
 
 **What can go wrong.** The *OT (oblivious transfer) consistency check* is a verification
 step in OT-extension protocols that compares the parties' transcripts of a batch of

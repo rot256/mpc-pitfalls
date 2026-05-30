@@ -22,7 +22,7 @@ self.group_key += comm.poly[0];
 ```
 
 A malicious signer could append commitments to its `poly` to silently raise the
-reconstruction threshold. The [Trail of Bits length-check fix](https://blog.trailofbits.com/2024/02/20/breaking-the-shared-key-in-threshold-signature-schemes/) in `Trust-Machines/wsts` landed as [PR #88](https://github.com/Trust-Machines/wsts/pull/88) ("Check length of polynomials", merged Oct 1, 2024), seven months after the disclosure. PR #88 added the explicit
+reconstruction threshold. The [Trail of Bits length-check fix](https://blog.trailofbits.com/2024/02/20/breaking-the-shared-key-in-threshold-signature-schemes/) in `Trust-Machines/wsts` landed as [PR #88](https://github.com/Trust-Machines/wsts/pull/88) ("Check length of polynomials"). PR #88 added the explicit
 equality check at every DKG verification site
 ([source](https://github.com/Trust-Machines/wsts/blob/v9.2.0/src/v1.rs#L155-L159)):
 

@@ -2,11 +2,11 @@
 title: "Parties' Shares Not Validated as Non-Zero and Distinct"
 class: input-validation
 hidden: false
+order: 1
 source: "shamir-secret-sharing.md"
 primitives: [secret-sharing]
 ---
 
-### Parties' Shares Not Validated as Non-Zero and Distinct
 
 **What can go wrong.** 
 Many MPC protocols build upon Shamir secret sharing, a $(t, n)$-threshold scheme that recovers a secret $s = f(0)$ from $t$ shares of a sharing polynomial $f(x) = s + \sum_{i=1}^{t-1} a_i x^i$ over $\mathbb{Z}_q$, with coefficients $a_i$ drawn uniformly at random. Each party $P_i$ holds the share $(i, x_i = f(i))$, and any $t$ parties can reconstruct via $s = \sum_{j} x_j \, l_j(0)$ with Lagrange basis $l_j(0) = \prod_{k, k \ne j} \frac{x_k}{x_k - x_j}$. 

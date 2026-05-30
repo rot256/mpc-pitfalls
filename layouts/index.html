@@ -42,8 +42,8 @@
     </header>
 
     {{ $allPages := where .Site.RegularPages "Section" "pitfalls" }}
-    {{ $intros := sort (where $allPages "Params.intro" true) ".Params.order" }}
-    {{ $pitfalls := sort (where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true) ".Params.order" }}
+    {{ $intros := sort (where $allPages "Params.intro" true) "Params.order" }}
+    {{ $pitfalls := sort (where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true) "Params.order" }}
 
     <nav>
         <h2>Table of Contents</h2>
@@ -68,6 +68,7 @@
             <div class="category-intro">{{ .Content }}</div>
             {{ range (where $pitfalls "Params.class" .Params.class) }}
                 <section class="pitfall" id="{{ .Title | anchorize }}">
+                    <h3>{{ .Title }}</h3>
                     {{ .Content }}
                     {{ $pitfallTitle := .Title }}
                     {{ $bugs := where (where (where $.Site.RegularPages "Section" "bugs") "Params.hidden" "ne" true) "Params.subcategory" $pitfallTitle }}

@@ -2,11 +2,11 @@
 title: "Rogue-Key Attacks"
 class: adaptive-inputs
 hidden: false
+order: 1
 source: "feldman-vss.md"
 primitives: [secret-sharing, zkp, signature, commitment]
 ---
 
-### Rogue-Key Attacks
 
 **What can go wrong.** A *distributed key generation* (DKG) protocol lets $n$ parties jointly produce a public key whose corresponding secret is shared among them, with no trusted dealer. In a Feldman-based DKG, each party $P_i$ broadcasts $A_{i,0} = g^{a_{i,0}}$, which is a commitment to its secret contribution $a_{i,0}$.  A shared public key is then defined as $Y = \prod_i A_{i,0}$. If the protocol neither requires parties to commit to their first-round messages before seeing others' contributions nor requires each party to prove knowledge of $a_{i,0}$, a malicious party or coalition may wait to see the honest parties' commitments and then choose its public contribution as a function of theirs. 
 

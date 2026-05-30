@@ -2,11 +2,11 @@
 title: "Unauthenticated or Unencrypted Point-to-Point Channels"
 class: insecure-subprotocol-instantiation
 hidden: false
+order: 2
 source: "uc-protocols.md"
 primitives: [secure-channel, paillier, homomorphic-encryption]
 ---
 
-### Unauthenticated or Unencrypted Point-to-Point Channels
 
 **What can go wrong.** Many MPC protocols such as [GG18](https://eprint.iacr.org/2019/114) and
 [GG20](https://eprint.iacr.org/2020/540) assume the presence of *confidential* and *authenticated* P2P channels. The deployment must realize that assumption, typically through mutual TLS,

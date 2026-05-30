@@ -2,11 +2,11 @@
 title: "Multicast Masquerading as Broadcast"
 class: insecure-subprotocol-instantiation
 hidden: false
+order: 1
 source: "uc-protocols.md"
 primitives: [broadcast]
 ---
 
-### Multicast Masquerading as Broadcast
 
 **What Can Go Wrong.** MPC protocols such as [GG18](https://eprint.iacr.org/2019/114), [GG20](https://eprint.iacr.org/2020/540), and [FROST](https://eprint.iacr.org/2020/852) may rely on a *reliable broadcast channel* for some rounds, and are often implemented by instantiating the broadcast with *multicast*: simply having each party send the same message to all others over P2P links. Per [Goldwasser and Lindell, 2002](https://eprint.iacr.org/2002/040), *privacy* and *correctness* can be achieved without full broadcast by using *echo-broadcast* (receivers re-send what they got and abort on mismatch), at the cost of non-unanimous abort. But echo-broadcast only achieves "broadcast with abort": same value or $\bot$, never two different non-abort values, still strictly weaker than what these protocols assume in their published proofs. A library that cannot tell whether a given round was supposed to be broadcast or point-to-point cannot enforce reliable broadcast, and therefore cannot ensure *privacy* and *correctness*.
 

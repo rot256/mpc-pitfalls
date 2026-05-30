@@ -2,11 +2,11 @@
 title: "Abort Not Propagated to Parallel OT-Extension Instances"
 class: failure-recovery-and-abort-handling
 hidden: true
+order: 3
 source: "oblivious-transfer.md"
 primitives: [oblivious-transfer]
 ---
 
-### Abort Not Propagated to Parallel OT-Extension Instances
 
 <!--<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>-->
 

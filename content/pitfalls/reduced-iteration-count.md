@@ -1,12 +1,12 @@
 ---
 title: "Insufficient Soundness from Reduced Iteration Count"
 class: cryptographic-primitives
-hidden: true
+hidden: false
+order: 3
 source: "fiat-shamir.md"
 primitives: [zkp]
 ---
 
-### Insufficient Soundness from Reduced Iteration Count
 
 **What can go wrong.** Some FS-transformed proofs — notably the DLN non-membership proof
 used in GG18/GG20/CGGMP21, and certain $\Sigma$-protocols for range arguments — achieve

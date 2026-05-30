@@ -1,20 +1,14 @@
 ---
-title: "Paillier Modulus with Small Factors Not Rejected"
+title: "Non-Biprime Paillier Modulus"
 class: cryptographic-primitives
-hidden: true
+hidden: false
+order: 1
 source: "rsa-moduli.md"
 primitives: [paillier, homomorphic-encryption, zkp]
 ---
 
-### Paillier Modulus with Small Factors Not Rejected
 
-**What can go wrong.** Even after DLN proofs close the $h_1, h_2$ gap above, the
-Paillier modulus $N$ itself can be malformed. An adversary is free to publish $N = p_1
-\cdot p_2 \cdots p_{16} \cdot q$ — a product of 16 small primes and one large prime —
-rather than a genuine biprime $N = pq$. The receiver stores $N$ without a
-**biprimality check** and uses it directly in MtA sub-protocols. The Paillier-based
-range proof's soundness relies on $N$ being a biprime; with small factors, the proof
-can be forged.
+**What can go wrong.** Paillier cryptosystem relies on a biprime modulus $N = pq$ where $p$ and $q$ are large primes (often required to be safe primes, $p = 2p' + 1$ with $p'$ prime, for downstream proofs). When parties in an MPC protocol publish their own modulus, a receiver that skips biprimality and no-small-factor checks inherits whatever structure the sender chose, which enables key-recovery attacks against the protocols that use $N$.
 
 **Security implication.** The BitForge attack (CVE-2023-33241, Fireblocks 2023): the
 malicious $N_A = p_1 \cdots p_{16} \cdot q$ with each $p_i \approx 2^{16}$ lets the
