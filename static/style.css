@@ -137,10 +137,15 @@ header p.eyebrow a {
     background: transparent;
     font: inherit;
     font-size: 1rem;
-    font-weight: 700;
     line-height: 1;
     cursor: pointer;
     opacity: 0.72;
+}
+
+.theme-toggle svg {
+    display: block;
+    width: 1.05rem;
+    height: 1.05rem;
 }
 
 .theme-toggle:hover {

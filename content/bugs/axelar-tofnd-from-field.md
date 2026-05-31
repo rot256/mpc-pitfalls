@@ -39,5 +39,5 @@ A malicious party Alice with subshares `{0, 1}` could craft a message with
 `MsgMeta::from = 2` (Bob's subshare index), and no consistency check linked that index
 back to the transport-authenticated `from_party_uid`. The fix is split across two
 repos: tofn (the cryptographic library tofnd wraps) had to first expose the `from`
-field in its public API ([tofn #42](https://github.com/axelarnetwork/tofn/issues/42))
+field in its public API ([Issue #42](https://github.com/axelarnetwork/tofn/issues/42))
 so tofnd could then enforce `from_party_uid == MsgMeta::from` before dispatch.

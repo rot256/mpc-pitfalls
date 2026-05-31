@@ -24,4 +24,4 @@ Y: 17769701512587555869518710785354155488074482045452442045423300192472783855702
 
 A non-subgroup public key satisfies the pairing equation for crafted signatures without knowledge of the corresponding private key, giving signature forgery; the same omission also breaks the soundness of any BLS aggregation that combines such a key into the joint public key.
 
-The issue was resolved via a [Relic submodule bump](https://github.com/Chia-Network/bls-signatures/commit/a5f420c193e14d20f972c0fd5110708c696de074) that added the missing subgroup check in the upstream pairing library rather than patching `CheckValid` directly in this repo.
+The issue was resolved via a Relic submodule bump (commit [`a5f420c1`](https://github.com/Chia-Network/bls-signatures/commit/a5f420c193e14d20f972c0fd5110708c696de074)) that added the missing subgroup check in the upstream pairing library rather than patching `CheckValid` directly in this repo.

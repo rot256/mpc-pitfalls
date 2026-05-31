@@ -51,8 +51,8 @@ subgroup the security proof assumes, and the pairing equation becomes
 satisfiable for crafted signatures without knowledge of the corresponding
 private key. 
 
-The same omission appears on the verification side
-([Sherlock #76](https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/76))
+The same omission appears on the verification side, flagged in the Sherlock audit
+([Issue #76](https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/76)),
 in `SigBlsBn254.verify()`, which decodes attacker-controlled G1 and G2 points
 from calldata and feeds them straight into `BN254.safePairing(...)` without
 checking either is in its respective subgroup.

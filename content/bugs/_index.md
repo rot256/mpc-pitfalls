@@ -1,3 +1,0 @@
----
-title: "MPC Bug Tracker"
----
