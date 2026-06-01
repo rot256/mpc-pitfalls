@@ -1,7 +1,7 @@
 ---
 title: "Blind Schnorr Signatures Used Concurrently (ROS Attack)"
 class: concurrency-and-state-handling
-hidden: true
+hidden: false
 order: 3
 source: "sequential-used-concurrently.md"
 primitives: [signature]

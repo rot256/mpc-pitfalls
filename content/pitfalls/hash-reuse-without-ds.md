@@ -13,6 +13,3 @@ primitives: [hash, zkp]
 **Security implication.** A Schnorr challenge hashed for one sub-protocol can satisfy the verification equation for another: a proof generated honestly under sub-protocol $A$'s statement is accepted as a proof under sub-protocol $B$'s statement. In threshold-signature implementations this lets the same proof bytes, produced for one context, be replayed as a proof for another.
 
 **How to avoid.** Prepend a constant-length domain-separation tag, distinct per context, to every hash invocation. The tag should encode the protocol name, the specific proof or purpose inside the protocol, a session identifier, and typically a version number. 
-<!--
-Separately, encode the remaining hash inputs unambiguously, preferably with the protocol's specified serialization format. Injective encoding prevents distinct input tuples from colliding within a single context, blocking [$\alpha$-shuffle attacks](https://verichains.io/tsshock/).
--->

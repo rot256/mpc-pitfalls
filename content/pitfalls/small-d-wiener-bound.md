@@ -1,14 +1,13 @@
 ---
 title: "Private Exponent $d$ Not Validated Against the Wiener Bound"
 class: cryptographic-primitives
-hidden: false
-order: 6
+hidden: true
+order: 10
 source: "rsa-moduli.md"
 primitives: [rsa]
 ---
 
-
-<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>
+<!--In the context of MPC as they are used today, one must be able to observe paramaters that directly link to d. I don't really know if observing a share or several would make this relevant. I think this should be removed. -->
 
 **What can go wrong.** If an RSA-style scheme uses a private exponent $d$ with
 $d < N^{1/4}$, Wiener's continued-fractions attack recovers $d$ from the public $(N,

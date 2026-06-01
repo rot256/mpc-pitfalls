@@ -1,14 +1,13 @@
 ---
 title: "Witness Domain Has Insufficient Entropy"
 class: cryptographic-primitives
-hidden: false
-order: 10
+hidden: true
+order: 7
 source: "fiat-shamir.md"
 primitives: [zkp, randomness]
 ---
 
-
-<div class="pitfall-flags"><span class="flag flag-tbd">TBD example</span></div>
+<!--Being able to guess the witness, shares, implies that the representation rely on small representations which is not often the case right? Example, to secret share a bit using SSS you will work on a bigger field => no need to guess. So does it really make sense? -->
 
 **What can go wrong.** A Fiat-Shamir proof of knowledge is only meaningful if the witness
 the prover claims to know is drawn from a domain the adversary cannot brute-force
