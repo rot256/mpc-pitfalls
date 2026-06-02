@@ -7,8 +7,6 @@ source: "rsa-moduli.md"
 primitives: [rsa]
 ---
 
-<!--In the context of MPC as they are used today, one must be able to observe paramaters that directly link to d. I don't really know if observing a share or several would make this relevant. I think this should be removed. -->
-
 **What can go wrong.** If an RSA-style scheme uses a private exponent $d$ with
 $d < N^{1/4}$, Wiener's continued-fractions attack recovers $d$ from the public $(N,
 e)$ in polynomial time. [Boneh and Durfee](https://link.springer.com/chapter/10.1007/3-540-48910-X_1)

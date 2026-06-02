@@ -1,5 +1,5 @@
 ---
-title: "Blind Schnorr Signatures Used Concurrently (ROS Attack)"
+title: "Concurrent Signing Sessions (ROS Attack)"
 class: concurrency-and-state-handling
 hidden: false
 order: 3
@@ -7,42 +7,72 @@ source: "sequential-used-concurrently.md"
 primitives: [signature]
 ---
 
+<!--Blind Schnorr Signatures Used Concurrently (ROS Attack)-->
 
-**What can go wrong.** The blind Schnorr signature scheme is the blind-signature
-variant of Schnorr's scheme, in which a requester obtains a signature on a message
-of its choice without revealing the message to the signer. This scheme is provably *one-more
-unforgeable* in a *single* session
-([Pointcheval–Stern, 2000](https://link.springer.com/article/10.1007/s001450010003)):
-an adversary that completes $\ell$ signing sessions one at a time cannot output more
-than $\ell$ valid signatures. Under *concurrent* signing the property fails:
-[Schnorr (2001)](https://link.springer.com/chapter/10.1007/3-540-45600-7_1) gave a
-conditional security argument, but it reduces to a hardness conjecture (the *ROS*
-problem, introduced below) that turns out not to hold at deployment-relevant
-parameters. A signer that
-participates in $\ell$ concurrent sessions exposes all nonce commitments $R_i$ to the
-requester before it ever commits to the challenges $c_i$. If the requester can choose
-all $\ell$ challenges *after* seeing all $R_i$, it can set them to satisfy a linear
-relation called the **ROS relation** (*Random inhomogeneities in an Overdetermined
-Solvable system of linear equations*) that lets it combine the $\ell$ partial
-responses into an $(\ell + 1)$-th, unrequested signature. ROS asks whether an
-attacker given $\ell$ random nonce commitments can choose $\ell$ challenges so that
-they satisfy an attacker-chosen target linear constraint. Its conjectured hardness
-was the security assumption underlying blind Schnorr's original proofs. The same
-structural gap applies to naive threshold-Schnorr designs in which each party
-contributes a partial nonce and the partial signatures are aggregated without session
-binding.
+**What can go wrong.** Many signature schemes rely on linear structures, and when run
+sequentially they are proven secure: blind Schnorr, for instance, is one-more unforgeable
+in the sequential setting ([Pointcheval–Stern, 2000](https://link.springer.com/article/10.1007/s001450010003)),
+and the GJKR threshold Schnorr scheme is proven secure in a stand-alone sequential setting
+([GJKR07](https://link.springer.com/article/10.1007/s00145-006-0347-3)). The reason is that
+each session finishes before the next one starts, so partial signatures from different
+sessions can never be combined. Under concurrent execution, though, their security comes to
+rest on the hardness of the **ROS problem** (_Random inhomogeneities in an Overdetermined
+Solvable system of linear equations_): [Schnorr (2001)](https://link.springer.com/chapter/10.1007/3-540-45600-7_1)
+could establish blind Schnorr's concurrent security only by reducing it to ROS hardness.
+And ROS, it turns out, is not hard. [Benhamouda et al.](https://eprint.iacr.org/2020/945)
+gave an efficient algorithm that solves it, letting an attacker forge signatures in exactly
+these settings.
 
-**Security implication.** [Benhamouda et al.](https://link.springer.com/article/10.1007/s00145-021-09417-3)
-gave a polynomial-time algorithm for ROS that solves the problem over 256-bit
-elliptic-curve groups using approximately $\ell = 192$ concurrent sessions in a matter
-of seconds. After collecting responses from those sessions the adversary produces one
-extra signature, breaking one-more unforgeability. In threshold-signing deployments,
-the same structural gap translates to unauthorized signatures on attacker-chosen
-messages after the adversary has collected enough concurrent signing responses.
+The shared structure is this. Across $\ell$ concurrent sessions a forger collects nonce
+commitments $R_i$ and responses $s_i = k_i + c_i x$, then combines them with coefficients
+$\rho_i$:
+
+$$
+R^* = \sum_{i=1}^{\ell} \rho_i R_i, \qquad
+s^* = \sum_{i=1}^{\ell} \rho_i s_i = \Big(\sum_i \rho_i k_i\Big) + \Big(\sum_i \rho_i c_i\Big) x.
+$$
+
+The pair $(R^*, s^*)$ is a valid signature on a fresh message $m^*$ exactly when the
+challenges satisfy the **ROS relation**
+$$\sum_{i=1}^{\ell} \rho_i c_i = c^* = H(R^*, m^*).$$
+Sequentially the forger never holds all the $R_i$ at once, so it cannot pick challenges to
+satisfy this; concurrency is what exposes every $R_i$ before the challenges are fixed and
+hands it the free variables. The three schemes differ only in who steers the $c_i$:
+
+- **Blind Schnorr.** The signer returns $s_i = k_i + c_i x$ to whatever challenge it is
+  handed, and the requester _sends_ the $c_i$, so it sets them directly to solve the ROS
+  relation.
+- **GJKR threshold Schnorr.** The challenge is $c_i = H(R_i, m_i)$ over a jointly generated
+  nonce $R_i = \sum_j R_{i,j}$, and each honest party returns a partial
+  $s_{i,j} = k_{i,j} + c_i \lambda_j x_j$ (with Lagrange coefficient $\lambda_j$ and share
+  $x_j$). A _rushing_ corrupt party chooses its own share $R_{i,n}$ after seeing the honest
+  ones, so it controls every $R_i$, hence every $c_i$, across the concurrent sessions.
+  GJKR's security proof reached only the non-concurrent setting, or up to a logarithmic
+  number of concurrent sessions, so this high-concurrency path lies outside what it ever
+  guaranteed.
+- **Original FROST.** Structurally the same, with a single un-bound nonce $D_{i,j}$ per
+  party and partial $z_{i,j} = d_{i,j} + c_i \lambda_j x_j$. The July 2020 revision closes
+  it by adding a second nonce $E_{i,j}$ and a per-participant binding factor
+  $b_j = H(j, m, B)$ over the whole commitment list $B$, so the group nonce becomes
+  $R_i = \sum_j (D_{i,j} + b_j E_{i,j})$. Every challenge now depends on $B$ through the
+  $b_j$, the $c_i$ can no longer be lined up across sessions, and the ROS relation cannot be
+  set up.
+
+**Security implication.** Concretely, that algorithm solves ROS over a 256-bit
+elliptic-curve group with about $\ell = 256$ concurrent sessions in seconds
+([Benhamouda et al.](https://eprint.iacr.org/2020/945)): the adversary combines the
+responses it has collected and outputs one signature more than it was granted, breaking
+one-more unforgeability. The significance varies by primitive. For multi-signatures that
+claimed concurrent security (the 2018 MuSig, CoSi) it breaks those claims outright; for
+threshold signatures like GJKR, whose proofs covered only the non-concurrent or
+bounded-concurrency setting, it contradicts no theorem but rules the scheme out wherever
+signing happens under load. In a threshold deployment that gap is concrete: unauthorized
+signatures on attacker-chosen messages, once enough sessions have run concurrently. No
+public exploit against a deployed implementation has surfaced, but it is worth keeping in mind whenever signing protocols are chosen or composed.
 
 **How to avoid.** Two complementary approaches.
 
-*Structural.* Bind each challenge to the session's specific nonce commitment and
+_Structural._ Bind each challenge to the session's specific nonce commitment and
 message so the adversary cannot freely choose challenges after observing the nonces.
 FROST achieves this with a per-participant binding factor, standardized in
 [RFC 9591](https://datatracker.ietf.org/doc/html/rfc9591) (June 2024). MuSig2
@@ -50,12 +80,13 @@ FROST achieves this with a per-participant binding factor, standardized in
 nonces per session whose specific linear combination is provably secure under
 concurrent execution.
 
-*Application-layer serialization.* If the protocol itself cannot be changed, the signer
-must complete or abort one session before starting another, preventing the
-$\ell \approx 192$ sessions required to solve ROS from being open simultaneously.
+_Application-layer serialization._ These schemes are proven secure sequentially, so if the
+protocol itself cannot be changed, simply run it that way: have the signer complete or abort
+one session before starting the next. Full serialization is the safe rule, since the
+polynomial attack needs about $\ell = 256$ open sessions while the sub-exponential variant
+succeeds with fewer, so capping concurrency at a small bound is not enough.
 
-
-
+<!-- 
 <div class="pitfall-flags"><span class="flag flag-tbd">Schematic only: no public real-world incident found against a deployed implementation</span></div>
 
 **Example: ROS-style concurrent attack on Schnorr signing.** In the blind-signature
@@ -128,4 +159,4 @@ class FROSTSigner:
 
         s = self.hiding_nonce + rho * self.binding_nonce + lambda_i * c * self.sk
         return s
-```
+``` -->

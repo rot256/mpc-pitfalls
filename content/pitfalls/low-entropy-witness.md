@@ -7,8 +7,6 @@ source: "fiat-shamir.md"
 primitives: [zkp, randomness]
 ---
 
-<!--Being able to guess the witness, shares, implies that the representation rely on small representations which is not often the case right? Example, to secret share a bit using SSS you will work on a bigger field => no need to guess. So does it really make sense? -->
-
 **What can go wrong.** A Fiat-Shamir proof of knowledge is only meaningful if the witness
 the prover claims to know is drawn from a domain the adversary cannot brute-force
 offline. If the witness space has fewer than ~128 bits of entropy — a short PIN, a

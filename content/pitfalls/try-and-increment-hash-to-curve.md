@@ -6,10 +6,6 @@ order: 9
 source: "elliptic-curve-groups.md"
 primitives: [hash, elliptic-curve]
 ---
-<!--I think this pitfall is not relevant to our current taxonomy, as it happens in a very special case of MPC protocols that require a non-conventional threat model, which assumes server/cloud aid that an adversary can rely on. The servers would not be part of the protocol, but rather extra computational resources for the party. The adversary can exploit that to extract side-channel information. This differs significantly from the typical case, where the parties only run the protocol between themselves. Anyway, these kinds of timing side-channel attacks would require a different, specific threat model, which is not very common. So I am not sure this pitfall is really relevant in the context of MPC as they are used today.
-
-A related reference is: *Time is money, friend! Timing Side-channel Attack against Garbled Circuit Constructions*, Cryptology ePrint Archive, Paper 2023/001, 2023. [https://eprint.iacr.org/2023/001](https://eprint.iacr.org/2023/001)
--->
 
 **What can go wrong.** MPC protocols like threshold OPRF/PAKE (password), blind signing (blinded message), and some threshold VRFs (private state) hash secret inputs to a curve point. The naïve "try-and-increment" construction hashes the input to an $x$-coordinate candidate, then increments a counter until $y^2 = x^3 + ax + b$ has a square-root solution. The iteration count depends on whether each candidate $x$ is a quadratic residue, a property of the input observable as a timing side-channel.
 

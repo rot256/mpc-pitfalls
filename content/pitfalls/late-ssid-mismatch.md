@@ -1,7 +1,7 @@
 ---
 title: "Session-ID Disagreement or Non-Uniqueness Not Detected Early"
 class: lack-of-context-binding
-hidden: false
+hidden: true
 order: 5
 source: "uc-protocols.md"
 primitives: [oblivious-transfer]
