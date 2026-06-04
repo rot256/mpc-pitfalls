@@ -7,8 +7,6 @@ source: "sequential-used-concurrently.md"
 primitives: [signature]
 ---
 
-<!--Blind Schnorr Signatures Used Concurrently (ROS Attack)-->
-
 **What can go wrong.** Many signature schemes rely on linear structures, and when run
 sequentially they are proven secure: blind Schnorr, for instance, is one-more unforgeable
 in the sequential setting ([Pointcheval–Stern, 2000](https://link.springer.com/article/10.1007/s001450010003)),
@@ -75,7 +73,7 @@ public exploit against a deployed implementation has surfaced, but it is worth k
 _Structural._ Bind each challenge to the session's specific nonce commitment and
 message so the adversary cannot freely choose challenges after observing the nonces.
 FROST achieves this with a per-participant binding factor, standardized in
-[RFC 9591](https://datatracker.ietf.org/doc/html/rfc9591) (June 2024). MuSig2
+[RFC 9591](https://datatracker.ietf.org/doc/html/rfc9591). MuSig2
 ([Nick et al., CRYPTO 2021](https://eprint.iacr.org/2020/1261)) uses two aggregated
 nonces per session whose specific linear combination is provably secure under
 concurrent execution.
@@ -85,78 +83,3 @@ protocol itself cannot be changed, simply run it that way: have the signer compl
 one session before starting the next. Full serialization is the safe rule, since the
 polynomial attack needs about $\ell = 256$ open sessions while the sub-exponential variant
 succeeds with fewer, so capping concurrency at a small bound is not enough.
-
-<!-- 
-<div class="pitfall-flags"><span class="flag flag-tbd">Schematic only: no public real-world incident found against a deployed implementation</span></div>
-
-**Example: ROS-style concurrent attack on Schnorr signing.** In the blind-signature
-setting where [Schnorr (2001)](https://link.springer.com/chapter/10.1007/3-540-45600-7_1)
-introduced both the parallel one-more forgery template and the ROS problem at its
-core, the vulnerable two-round Schnorr signer accepts challenges from the requester
-without any session binding:
-
-```python
-# Vulnerable blind Schnorr signer — no binding between nonce and challenge
-class BlindSchnorrSigner:
-    def round1(self) -> Point:
-        self.k = random_scalar()          # fresh nonce per session
-        self.R = self.k * G               # nonce commitment
-        return self.R                     # sent to requester
-
-    def round2(self, c: Scalar) -> Scalar:
-        # c arrives from the requester with no proof it was derived from
-        # this specific R or from any particular message.
-        # A malicious requester can choose c freely — including as a
-        # linear combination of challenges from other concurrent sessions.
-        s = self.k + c * self.sk          # partial response
-        return s
-```
-
-The requester accumulates $\ell$ sessions. In each session $i$ it receives $R_i$ from the
-signer, then chooses all $\ell$ challenges *jointly* so they satisfy the ROS relation
-$\sum_{i=1}^{\ell} \rho_i \cdot c_i = c^* \pmod{q}$ for a target challenge $c^*$ and
-known coefficients $\rho_i$. After collecting $\ell$ responses $s_i = k_i + c_i \cdot
-\mathsf{sk}$, the adversary combines the scalar responses and nonce commitments:
-$$k^* = \sum_{i=1}^{\ell} \rho_i k_i,\qquad R^* = k^* G = \sum_{i=1}^{\ell} \rho_i R_i$$
-$$s^* = \sum_{i=1}^{\ell} \rho_i s_i = k^* + c^* \cdot \mathsf{sk}$$
-yielding a valid signature $(R^*, s^*)$ on a message the signer never individually
-signed.
-
-[Drijvers et al.](https://eprint.iacr.org/2018/417.pdf) used the same ROS / $k$-SUM
-structure to mount attacks on four two-round Schnorr-based multi-signature schemes:
-CoSi, the original 2018 MuSig proposal, BCJ, and MWLD. The shared structural gap is that
-the attacker can choose challenges after seeing nonce commitments. That gap appears in
-blind Schnorr and in naive threshold-Schnorr designs that aggregate partial signatures
-without per-session binding, even though Drijvers et al. analyzed the multi-signature
-setting specifically. FROST ([Komlo–Goldberg, 2020](https://eprint.iacr.org/2020/852)) — short for
-*Flexible Round-Optimized Schnorr Threshold signatures*, a two-round threshold-Schnorr
-signing protocol — uses a per-participant binding-factor design that is the canonical
-mitigation against this class of attacks; MuSig2 provides the analogous fix for
-multi-signatures. The same session-binding pattern carries back to blind Schnorr: bind
-each response to a per-session value derived from the message and nonce commitment, so a
-response cannot be linearly combined with one from another session. Schematic
-FROST-style mitigation:
-
-```python
-# Schematic: FROST-style binding factor prevents cross-session combination
-class FROSTSigner:
-    def round1(self) -> Point:
-        self.hiding_nonce = random_scalar()
-        self.binding_nonce = random_scalar()
-        self.hiding_commitment = self.hiding_nonce * G
-        self.binding_commitment = self.binding_nonce * G
-        return (self.hiding_commitment, self.binding_commitment)
-
-    def round2(self, msg: bytes, commitments_list: list[Point],
-               participant_index: int) -> Scalar:
-        # Binding factor ties this response to the exact (msg, commitment_list, index)
-        # tuple. A response from a different session has a different rho and cannot
-        # be linearly combined with this one.
-        rho = H(msg, commitments_list, participant_index)   # binding factor
-        R_agg = compute_group_commitment(commitments_list, msg)
-        c = H(R_agg, msg)                                  # Fiat-Shamir challenge
-        lambda_i = derive_interpolating_value(commitments_list, participant_index)
-
-        s = self.hiding_nonce + rho * self.binding_nonce + lambda_i * c * self.sk
-        return s
-``` -->
