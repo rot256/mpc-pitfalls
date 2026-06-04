@@ -34,7 +34,7 @@ or route two non-interactive signing requests to different honest subsets using 
 same presignature. Honest parties signing non-interactively have no way to notice
 that the same nonce is being consumed twice. The Aumasson–Shlomovits
 [*Attacking Threshold Wallets*](https://eprint.iacr.org/2020/1052.pdf) paper
-catalogues presignature reuse as a first-class threshold-wallet threat.
+catalogs presignature reuse as a first-class threshold-wallet threat.
 
 **How to avoid.** Atomically (across parallel sessions) consume the presignature
 before starting the signing, and consume it whether or not the signing protocol
