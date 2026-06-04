@@ -1,7 +1,6 @@
 {{- $allPages := where .Site.RegularPages "Section" "pitfalls" -}}
 {{- $intros := sort (where $allPages "Params.intro" true) ".Params.order" -}}
 {{- $pitfalls := sort (where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true) ".Params.order" -}}
-{{- $allBugs := where (where .Site.RegularPages "Section" "bugs") "Params.hidden" "ne" true -}}
 # Common Multi-Party Computation Pitfalls
 
 A collection of common mistakes when implementing MPC protocols, to help developers implement MPC securely.
@@ -11,8 +10,8 @@ A collection of common mistakes when implementing MPC protocols, to help develop
 {{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
 {{ range (where $pitfalls "Params.class" .Params.class) }}
 {{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
-{{ $pitfallTitle := .Title }}
-{{ range (sort (where $allBugs "Params.subcategory" $pitfallTitle) "Params.order") }}
+{{ range .Params.display }}
+{{ $bug := site.GetPage (printf "/bugs/%s" .) }}{{ with $bug }}
 {{ $repo := .Params.repository }}
 {{ $refs := slice }}
 {{ with .Params.source }}{{ range . }}{{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}{{ end }}{{ end }}
@@ -22,6 +21,6 @@ A collection of common mistakes when implementing MPC protocols, to help develop
 {{ if .Params.commit }}{{ $short := substr .Params.commit 0 7 }}{{ $refs = $refs | append (printf "commit [`%s`](%s/commit/%s)" $short $repo .Params.commit) }}{{ end }}
 {{ $parenthetical := "" }}{{ if gt (len $refs) 0 }}{{ $parenthetical = printf " (%s)" (delimit $refs ", ") }}{{ end }}
 **Example: {{ .Title }}{{ $parenthetical }}.** {{ .RawContent | strings.TrimSpace }}
-{{ end -}}
+{{ end }}{{ end -}}
 {{ end -}}
 {{- end }}

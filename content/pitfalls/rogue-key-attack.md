@@ -5,6 +5,8 @@ hidden: false
 order: 1
 source: "feldman-vss.md"
 primitives: [secret-sharing, zkp, signature, commitment]
+bugs: [drand-dkg-threshold]
+display: [drand-dkg-threshold]
 ---
 
 

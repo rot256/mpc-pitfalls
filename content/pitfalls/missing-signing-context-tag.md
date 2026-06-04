@@ -5,8 +5,9 @@ hidden: false
 order: 3
 source: "signatures.md"
 primitives: [signature]
+bugs: [near-mpc-domain-purpose]
+display: [near-mpc-domain-purpose]
 ---
-
 
 **What can go wrong.** When the same signing key is used in multiple protocol roles, signing round-1 commitments vs round-2 packages in a DKG, authenticating API requests vs producing blockchain transactions, or tagging message types in a single protocol, each role must bind its messages to a unique domain-separation tag. If the tag is missing or identical across roles, a signature produced for one role is valid for the other: the same bytes verify against the same key in both contexts. The tag can live at the signing primitive itself (a context string mixed into the hash, such as [RFC 8032](https://datatracker.ietf.org/doc/html/rfc8032)'s `Ed25519ctx`) or at the protocol layer (a per-method or per-key purpose marker that gates which API entry-point a key can serve).
 

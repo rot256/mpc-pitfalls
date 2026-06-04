@@ -1,7 +1,5 @@
 ---
 title: "Lindell17 two-party ECDSA"
-category: failure-recovery-and-abort-handling
-subcategory: "Selective-Abort Attacks during OT Extension"
 date: 2023-08-09
 primitives: [signature, paillier, homomorphic-encryption]
 source:
@@ -10,7 +8,6 @@ source:
 cve:
   name: CVE-2023-33242
   url: https://nvd.nist.gov/vuln/detail/CVE-2023-33242
-hidden: false
 ---
 
 Lindell's two-party ECDSA ([Lindell, 2017](https://eprint.iacr.org/2017/552)) splits the

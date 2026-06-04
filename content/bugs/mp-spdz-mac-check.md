@@ -1,11 +1,8 @@
 ---
 title: "MP-SPDZ `POpen` and `Commit_And_Open_` race conditions"
-category: concurrency-and-state-handling
-subcategory: "SPDZ Multi-Threaded MAC Check"
 date: 2023-07-21
 primitives: [mac, commitment]
 repository: https://github.com/data61/MP-SPDZ
-hidden: false
 ---
 
 Two bugs were found and patched in MP-SPDZ.

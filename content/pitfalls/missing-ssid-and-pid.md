@@ -5,6 +5,8 @@ hidden: false
 order: 1
 source: "zk-proofs-not-bound.md"
 primitives: [zkp]
+bugs: [tss-lib-schnorr-pok]
+display: [tss-lib-schnorr-pok]
 ---
 
 

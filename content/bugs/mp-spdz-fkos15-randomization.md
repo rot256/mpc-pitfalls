@@ -1,12 +1,9 @@
 ---
 title: "MP-SPDZ FKOS15 `randomize_blocks`"
-category: cryptographic-primitives
-subcategory: "Randomness Has Insufficient Entropy"
 date: 2020-10-13
 primitives: [randomness, secret-sharing]
 repository: https://github.com/data61/MP-SPDZ
 commit: 99c5efc115ab1dfe8acfffad1997a2735ed766ac
-hidden: false
 ---
 
 FKOS15 is the MPC-with-preprocessing protocol underlying MASCOT and SPDZ2k. Party inputs are masked with preprocessed correlated randomness; the security argument requires that mask to carry the full claimed statistical-security parameter of entropy. 

@@ -1,8 +1,5 @@
 ---
 title: "Symbiotic Relay `KeyBlsBn254` accepts non-subgroup points"
-category: input-validation
-subcategory: "Curve Points Not Validated"
-order: 1
 date: 2025-07-01
 primitives: [elliptic-curve, signature]
 repository: https://github.com/sherlock-audit/2025-06-symbiotic-relay
@@ -11,7 +8,6 @@ source:
     url: https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/98
   - name: "Sherlock #76"
     url: https://github.com/sherlock-audit/2025-06-symbiotic-relay-judging/issues/76
-hidden: true
 ---
 
 In Symbiotic Relay's middleware SDK, `KeyBlsBn254.wrap()` validates an incoming

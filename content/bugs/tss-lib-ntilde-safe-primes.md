@@ -1,15 +1,11 @@
 ---
 title: "tss-lib `NTilde` from RSA primes (KS-BTL-F-03)"
-category: cryptographic-primitives
-subcategory: "Non-Safe-Prime Modulus"
-order: 1
 date: 2019-10-21
 primitives: [rsa, group, paillier, homomorphic-encryption]
 repository: https://github.com/bnb-chain/tss-lib
 issue: 67
 pr: 68
 commit: 769ccf744fc844feaa8570589d004def070ddfcd
-hidden: false
 ---
 
 Kudelski Security flagged that pre-fix `bnb-chain/tss-lib` keygen generated the RSA modulus $\tilde N$ in `ecdsa/keygen/round_1.go` via Go's `rsa.GenerateMultiPrimeKey`, which returns ordinary RSA primes, not safe primes. However, the helper that later derives the DLN bases (`common.GetRandomGeneratorOfTheQuadraticResidue`) required $\tilde N$ to be a product of safe primes for its output to land in the prime-order QR subgroup ([source](https://github.com/bnb-chain/tss-lib/blob/a2c27b4/ecdsa/keygen/round_1.go#L64-L74)):

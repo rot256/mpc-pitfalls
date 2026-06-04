@@ -8,38 +8,12 @@
 #   "GG18 resharing split-view attack"
 title: "Fresco `HashBasedCommitment`"
 
-# category: One of the seven class slugs in content/pitfalls/classes/.
-# Required. Allowed values:
-#   input-validation
-#   lack-of-context-binding
-#   concurrency-and-state-handling
-#   cryptographic-primitives
-#   failure-recovery-and-abort-handling
-#   insecure-subprotocol-instantiation
-#   adaptive-inputs
-category: lack-of-context-binding
-
-# subcategory: Title of the mini-pitfall this bug is linked to within the
-# current set. Optional — omit if the submitter is unsure where it belongs,
-# or if the bug fits a new mini-pitfall that doesn't exist yet.
-# Current mini-pitfalls:
-#   "Rushing Adversary Copies an Honest Commitment"
-#   "SPDZ Multi-Threaded MAC Check"
-#   "Missing Domain Separator Across Signing Contexts"
-#   "Multicast Masquerading as Broadcast"
-#   "Parties' Shares Not Validated as Non-Zero and Distinct"
-#   "Challenge Hash Missing Prover's Party Identity and Session Identifier"
-#   "Threshold Presignature Reuse (Nonce Reuse)"
-#   "Rogue-Key Attacks"
-#   "Unauthenticated or Unencrypted Point-to-Point Channels"
-#   "Received Sequence Has the Wrong Length"
-#   "Challenge Transcript Missing Required Values (Weak Fiat-Shamir)"
-subcategory: "Rushing Adversary Copies an Honest Commitment"
-
-# order: Integer ordering within the parent pitfall when the pitfall has
-# multiple bugs (preserves the rendering order). Optional — omit when the
-# pitfall has only one bug.
-# order: 1
+# A bug has no category, subcategory, or hidden field. It is just an id (this
+# file's name, e.g. fresco-hash-based-commitment) plus the metadata below.
+# The link to a pitfall lives on the pitfall side: a pitfall lists this bug's
+# id in its `bugs` array (all associated bugs) and, to show it on the homepage,
+# in its `display` array too. The bug's category in the tracker is inherited
+# from that parent pitfall's class. See PITFALL_TEMPLATE.md.
 
 # date: ISO 8601 date of the fix, disclosure, or publication (YYYY-MM-DD).
 # Required. The commit date is the safe default for GitHub-sourced bugs.
@@ -106,9 +80,6 @@ pr: 433
 # cve:
 #   name: CVE-2022-47930
 #   url: https://nvd.nist.gov/vuln/detail/CVE-2022-47930
-
-# hidden: If true, the bug is excluded from rendered output. Optional, defaults to false.
-hidden: true
 ---
 
 In the [SPDZ protocol](https://eprint.iacr.org/2011/535.pdf), parties hold

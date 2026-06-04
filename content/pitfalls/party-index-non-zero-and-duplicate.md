@@ -5,6 +5,8 @@ hidden: false
 order: 1
 source: "shamir-secret-sharing.md"
 primitives: [secret-sharing]
+bugs: [tss-lib-shamir-validation]
+display: [tss-lib-shamir-validation]
 ---
 
 

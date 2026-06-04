@@ -1,7 +1,8 @@
 ---
 # title: Short descriptive pitfall title.
-# Required. Quoted string. Rendered as the pitfall heading and used by bugs via
-# their `subcategory` field, so keep it stable once bugs point to it.
+# Required. Quoted string. Rendered as the pitfall heading and shown as the
+# bug's "Pitfall" link in the tracker, so keep it stable once bugs reference
+# this pitfall.
 # Good titles name the missing check or unsafe pattern, not one concrete project.
 # Examples:
 #   "Curve Points Not Validated"
@@ -43,6 +44,19 @@ source: "zk-proofs-not-bound.md"
 #   broadcast, rsa, secure-channel
 # Required. These help classify both pitfalls and bugs.
 primitives: [zkp]
+
+# bugs: Ids of every real-world bug associated with this pitfall, where each id
+# is a file name (without .md) under content/bugs/. Drives the bug tracker:
+# each listed bug appears there and inherits this pitfall's `class` as its
+# category. Optional — omit when no bug is linked yet.
+# Example: bugs: [tss-lib-schnorr-pok, coinbase-kryptology-gg20-dkg]
+bugs: [tss-lib-schnorr-pok]
+
+# display: The subset of `bugs` rendered as inline examples on the homepage,
+# in this order. Every id here must also appear in `bugs`. Use it to feature
+# the clearest cases while keeping the rest tracker-only. Omit to show none.
+# Example: display: [tss-lib-schnorr-pok]
+display: [tss-lib-schnorr-pok]
 ---
 
 **What can go wrong.** Describe the unsafe implementation pattern in general terms.
@@ -80,6 +94,6 @@ For example,
 
 <!--
 Real-world examples belong in separate files under content/bugs/.
-Set each bug's `subcategory` to this pitfall title and the homepage / bug tracker
-will link them automatically.
+Add each bug's id to this pitfall's `bugs` array (and to `display` to show it on
+the homepage); the homepage and bug tracker link them automatically from there.
 -->

@@ -5,6 +5,8 @@ hidden: false
 order: 2
 source: "uc-protocols.md"
 primitives: [secure-channel, paillier, homomorphic-encryption]
+bugs: [axelar-tofnd-from-field, coinbase-kryptology-gg20-dkg]
+display: [axelar-tofnd-from-field, coinbase-kryptology-gg20-dkg]
 ---
 
 

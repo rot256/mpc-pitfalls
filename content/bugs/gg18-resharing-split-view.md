@@ -1,13 +1,10 @@
 ---
 title: "GG18 resharing split-view attack"
-category: insecure-subprotocol-instantiation
-subcategory: "Multicast Masquerading as Broadcast"
 date: 2021-01-01
 primitives: [broadcast]
 source:
   - name: "Kudelski, 2021"
     url: https://kudelskisecurity.com/research/audit-of-ings-threshold-ecdsa-library---and-a-dangerous-vulnerability-in-existing-gennaro-goldfeder18-implementations
-hidden: false
 ---
 
 Kudelski's audit of ING's threshold-ECDSA library identified a communication-layer

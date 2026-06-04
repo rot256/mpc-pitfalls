@@ -5,6 +5,8 @@ hidden: false
 order: 1
 source: "rsa-moduli.md"
 primitives: [paillier, homomorphic-encryption, zkp]
+bugs: [safeheron-mpc-paillier-biprimality, apache-milagro-mpc-range-proof-beta, bitgo-tss-paillier-biprimality, tss-lib-paillier-modulus]
+display: [safeheron-mpc-paillier-biprimality]
 ---
 
 

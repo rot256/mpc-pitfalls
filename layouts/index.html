@@ -81,9 +81,9 @@
                 <section class="pitfall" id="{{ .Title | anchorize }}">
                     <h3>{{ .Title }}</h3>
                     {{ .Content }}
-                    {{ $pitfallTitle := .Title }}
-                    {{ $bugs := where (where (where $.Site.RegularPages "Section" "bugs") "Params.hidden" "ne" true) "Params.subcategory" $pitfallTitle }}
-                    {{ range (sort $bugs "Params.order") }}
+                    {{ range .Params.display }}
+                        {{ $bug := site.GetPage (printf "/bugs/%s" .) }}
+                        {{ with $bug }}
                         {{ $repo := .Params.repository }}
                         {{ $refs := slice }}
                         {{ with .Params.source }}
@@ -124,6 +124,7 @@
                             {{ (printf "**Example: %s%s.**" .Title $parenthetical) | markdownify }}
                             {{ .Content }}
                         </div>
+                        {{ end }}
                     {{ end }}
                 </section>
             {{ end }}

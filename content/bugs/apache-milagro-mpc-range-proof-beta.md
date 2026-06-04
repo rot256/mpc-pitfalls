@@ -1,7 +1,5 @@
 ---
 title: "Apache Milagro MPC: short range-proof beta + missing biprimality"
-category: cryptographic-primitives
-subcategory: "Smooth or Non-Biprime Paillier Modulus"
 date: 2023-08-09
 primitives: [paillier, homomorphic-encryption, zkp]
 repository: https://github.com/apache/incubator-milagro-MPC
@@ -11,7 +9,6 @@ source:
 cve:
   name: CVE-2023-33241
   url: https://nvd.nist.gov/vuln/detail/CVE-2023-33241
-hidden: true
 ---
 
 Apache Milagro's MPC library

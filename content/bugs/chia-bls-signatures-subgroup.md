@@ -1,8 +1,5 @@
 ---
 title: "Chia `bls-signatures` `G1Element::CheckValid` missing subgroup check"
-category: input-validation
-subcategory: "Curve Points Not Validated"
-order: 3
 date: 2021-09-08
 primitives: [elliptic-curve, signature]
 repository: https://github.com/Chia-Network/bls-signatures
@@ -12,7 +9,6 @@ source:
     url: https://github.com/Chia-Network/bls-signatures/issues/271
   - name: "Fix commit (Relic submodule bump)"
     url: https://github.com/Chia-Network/bls-signatures/commit/a5f420c193e14d20f972c0fd5110708c696de074
-hidden: true
 ---
 
 Chia's `bls-signatures` library over BLS12-381 validated incoming G1 public keys via `G1Element::CheckValid`, which confirmed the on-curve equation but performed no subgroup-membership check. BLS12-381 G1 has cofactor $h > 1$, so the curve contains small-order points outside the prime-order subgroup. A concrete G1 point that satisfies the curve equation but lies outside the subgroup was reported as a witness ([source](https://github.com/Chia-Network/bls-signatures/issues/271)):

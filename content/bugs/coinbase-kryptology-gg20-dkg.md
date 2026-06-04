@@ -1,13 +1,9 @@
 ---
 title: "`coinbase/kryptology` GG20 DKG ships secret shares unencrypted"
-category: insecure-subprotocol-instantiation
-subcategory: "Unauthenticated or Unencrypted Point-to-Point Channels"
-order: 2
 date: 2022-01-06
 primitives: [secure-channel, paillier, homomorphic-encryption]
 repository: https://github.com/coinbase/kryptology
 issue: 29
-hidden: false
 ---
 
 GG20's

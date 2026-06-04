@@ -1,13 +1,10 @@
 ---
 title: "NEAR MPC `DomainPurpose` tagging"
-category: lack-of-context-binding
-subcategory: "Missing Domain Separator Across Signing Contexts"
 date: 2026-02-19
 primitives: [signature]
 repository: https://github.com/near/mpc
 issue: 2076
 pr: 2163
-hidden: false
 ---
 
 The NEAR

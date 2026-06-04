@@ -5,6 +5,8 @@ hidden: false
 order: 3
 source: "elliptic-curve-groups.md"
 primitives: [elliptic-curve, signature]
+bugs: [tss-lib-eddsa-cofactor, chia-bls-signatures-subgroup, symbiotic-relay-bn254-subgroup]
+display: [tss-lib-eddsa-cofactor]
 ---
 
 

@@ -5,6 +5,8 @@ hidden: false
 order: 3
 source: "fiat-shamir.md"
 primitives: [zkp]
+bugs: [multichain-fastmpc-tsshock]
+display: [multichain-fastmpc-tsshock]
 ---
 
 

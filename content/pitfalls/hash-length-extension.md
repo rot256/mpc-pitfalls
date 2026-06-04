@@ -6,7 +6,6 @@ order: 8
 source: "hash-functions.md"
 primitives: [hash, mac]
 ---
-<!--Does it make sense for most of the MPC protocols, the authentication procedure is informatic-theoretic based, not hash based. This construction it doesn't make sense unless we start to rely on hash-based authentication which is not covered by most of all MPC protocols in use. -->
 
 **What can go wrong.** SHA-2 (SHA-256, SHA-512) uses the Merkle-Damgård construction:
 the internal state after processing a message $m$ is fully recoverable from $H(m)$

@@ -5,6 +5,8 @@ hidden: false
 order: 2
 source: "discrete-log-groups.md"
 primitives: [group, zkp, paillier, homomorphic-encryption, commitment]
+bugs: [tss-lib-dln-bases]
+display: [tss-lib-dln-bases]
 ---
 
 

@@ -1,8 +1,5 @@
 ---
 title: "tss-lib DLN bases without proofs or bounds"
-category: input-validation
-subcategory: "Group Elements Not Validated in Discrete-Log Groups"
-order: 1
 date: 2020-03-05
 primitives: [paillier, homomorphic-encryption, zkp, commitment, group]
 repository: https://github.com/bnb-chain/tss-lib
@@ -13,7 +10,6 @@ cve:
 source:
   - name: "Trail of Bits TOB-BIN-8 fix"
     url: https://github.com/bnb-chain/tss-lib/commit/c0a1d4e4a1
-hidden: false
 ---
 
 GG18/GG20 range proofs instantiate Pedersen commitments under auxiliary bases

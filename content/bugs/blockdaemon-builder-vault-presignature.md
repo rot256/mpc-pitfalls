@@ -1,13 +1,10 @@
 ---
 title: "Blockdaemon Builder Vault warns against 2-of-3 presignature reuse"
-category: concurrency-and-state-handling
-subcategory: "Threshold Presignature Reuse (Nonce Reuse)"
 date: 2024-01-01
 primitives: [signature]
 source:
   - name: "Builder Vault TSM docs"
     url: https://builder-vault-tsm.docs.blockdaemon.com/docs/presignatures
-hidden: false
 ---
 
 Builder Vault is Blockdaemon's production MPC threshold-signing platform (powered by

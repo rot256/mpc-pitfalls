@@ -5,6 +5,8 @@ hidden: false
 order: 6
 source: "fiat-shamir.md"
 primitives: [randomness, zkp]
+bugs: [mp-spdz-fkos15-randomization]
+display: [mp-spdz-fkos15-randomization]
 ---
 
 **What can go wrong.** MPC protocols rely on high-entropy sources for nonces, masks, and blinding factors, and their output must be fresh for each use. A low-entropy source, one that repeats or is predictable, lets an attacker recover any secret that depends on it.

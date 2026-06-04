@@ -1,8 +1,5 @@
 ---
 title: "Safeheron `multi-party-ecdsa-cpp` missing Paillier modulus validation"
-category: cryptographic-primitives
-subcategory: "Smooth or Non-Biprime Paillier Modulus"
-order: 1
 date: 2023-07-30
 primitives: [paillier, homomorphic-encryption, zkp]
 repository: https://github.com/Safeheron/multi-party-ecdsa-cpp
@@ -13,7 +10,6 @@ source:
 cve:
   name: CVE-2023-33241
   url: https://nvd.nist.gov/vuln/detail/CVE-2023-33241
-hidden: false
 ---
 
 Safeheron's [`multi-party-ecdsa-cpp`](https://github.com/Safeheron/multi-party-ecdsa-cpp) ran GG18/GG20 key generation without checking the structure of each co-signer's Paillier modulus $N$, so a non-biprime or smooth $N$ flowed through keygen and into the GG20 signing rounds unchecked. One example of vulnerable code is the Round 3 keygen verifier ([pre-fix source](https://github.com/Safeheron/multi-party-ecdsa-cpp/blob/b75d125fa336f14d5ea2246b536994871c19215f/src/multi-party-ecdsa/gg18/key_gen/round3.cpp#L72-L75)):

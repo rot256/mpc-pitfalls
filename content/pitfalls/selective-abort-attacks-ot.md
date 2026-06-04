@@ -5,6 +5,8 @@ hidden: false
 order: 1
 source: "oblivious-transfer.md"
 primitives: [oblivious-transfer]
+bugs: [lindell17-abort-handling]
+display: [lindell17-abort-handling]
 ---
 
 **What can go wrong.** OT-extension protocols ([Ishai et al., 2003](https://csaws.cs.technion.ac.il/~erez/Papers/IsKiNiPe-Crypto03.pdf)) are made secure against a malicious receiver by a *consistency check* ([Keller-Orsini-Scholl, 2015](https://eprint.iacr.org/2015/546)), in which the sender validates the receiver's queries against its own secret choices. It is no silver bullet: the check is computed from those choices, so whether it passes or fails leaks one bit of them, letting a cheating receiver force a *selective* abort to learn a bit of the secret. A single failure may not leak much, and the protocol stays secure as long as a failed check is treated as terminal and the base OT discarded. But if the implementation keeps the setup alive after a failure, for example behind an opaque error the sender simply retries, the receiver reconstructs the secret bit by bit across many calls.

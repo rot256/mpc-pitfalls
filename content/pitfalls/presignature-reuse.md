@@ -5,6 +5,8 @@ hidden: false
 order: 2
 source: "signatures.md"
 primitives: [signature]
+bugs: [blockdaemon-builder-vault-presignature]
+display: [blockdaemon-builder-vault-presignature]
 ---
 
 

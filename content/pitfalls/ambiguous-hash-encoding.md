@@ -5,6 +5,8 @@ hidden: false
 order: 5
 source: "hash-functions.md"
 primitives: [hash, zkp]
+bugs: [tss-lib-ambiguous-hash-encoding]
+display: [tss-lib-ambiguous-hash-encoding]
 ---
 
 

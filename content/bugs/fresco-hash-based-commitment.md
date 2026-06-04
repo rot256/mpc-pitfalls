@@ -1,13 +1,10 @@
 ---
 title: "Fresco `HashBasedCommitment`"
-category: lack-of-context-binding
-subcategory: "Rushing Adversary Copies an Honest Commitment"
 date: 2025-02-27
 primitives: [commitment, mac]
 repository: https://github.com/aicis/fresco
 issue: 432
 pr: 433
-hidden: false
 ---
 
 In the [SPDZ protocol](https://eprint.iacr.org/2011/535.pdf), parties hold

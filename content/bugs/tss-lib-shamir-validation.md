@@ -1,7 +1,5 @@
 ---
 title: "tss-lib Shamir validation"
-category: input-validation
-subcategory: "Parties' Shares Not Validated as Non-Zero and Distinct"
 date: 2021-12-17
 primitives: [secret-sharing]
 repository: https://github.com/bnb-chain/tss-lib
@@ -9,7 +7,6 @@ pr: 149
 source:
   - name: "Trail of Bits Shamir disclosure"
     url: https://blog.trailofbits.com/2021/12/21/disclosing-shamirs-secret-sharing-vulnerabilities-and-announcing-zkdocs/
-hidden: false
 ---
 
 Both failures appear in `bnb-chain/tss-lib`'s `crypto/vss/feldman_vss.go` and were disclosed together by Trail of Bits. They were fixed in a single [PR #149](https://github.com/bnb-chain/tss-lib/pull/149).

@@ -5,6 +5,8 @@ hidden: false
 order: 4
 source: "improper-verification.md"
 primitives: [secret-sharing, commitment]
+bugs: [wsts-threshold-raise]
+display: [wsts-threshold-raise]
 ---
 
 

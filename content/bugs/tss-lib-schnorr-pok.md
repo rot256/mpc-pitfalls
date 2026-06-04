@@ -1,7 +1,5 @@
 ---
 title: "Schnorr PoK in bnb-chain/tss-lib"
-category: lack-of-context-binding
-subcategory: "Challenge Hash Missing Prover's Party Identity and Session Identifier"
 date: 2023-08-23
 primitives: [zkp]
 repository: https://github.com/bnb-chain/tss-lib
@@ -9,7 +7,6 @@ pr: 256
 cve:
   name: CVE-2022-47930
   url: https://nvd.nist.gov/vuln/detail/CVE-2022-47930
-hidden: false
 ---
 
 The Schnorr PoK in

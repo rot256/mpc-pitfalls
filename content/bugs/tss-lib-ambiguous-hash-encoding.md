@@ -1,16 +1,16 @@
 ---
 title: "bnb-chain/tss-lib variadic `SHA512_256`"
-category: cryptographic-primitives
-subcategory: "Ambiguous Hash Encoding"
 date: 2023-03-24
 primitives: [hash, zkp]
 repository: https://github.com/bnb-chain/tss-lib
 pr: 233
-hidden: false
 ---
 
-The audit finding KS-IOF-F-02 pointed out that bnb-chain's `tss-lib` applied an ambiguous encoding by using a single `'$'`
-delimiter with no per-element length tag
+The audit finding KS-IOF-F-02 pointed out that bnb-chain's `tss-lib` applied an ambiguous encoding by using a single dollar-sign delimiter with no per-element length tag.
+
+<!--more-->
+
+The vulnerable helper represented that delimiter as `'$'`
 ([source](https://github.com/bnb-chain/tss-lib/blob/v1.3.5/common/hash.go#L22-L51)):
 
 ```go

@@ -5,6 +5,8 @@ hidden: false
 order: 4
 source: "commitments-not-bound.md"
 primitives: [commitment, mac]
+bugs: [fresco-hash-based-commitment]
+display: [fresco-hash-based-commitment]
 ---
 
 

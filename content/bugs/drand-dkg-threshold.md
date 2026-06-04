@@ -1,13 +1,10 @@
 ---
 title: "Drand DKG Threshold Constraint"
-category: adaptive-inputs
-subcategory: "Rogue-Key Attacks"
 date: 2020-01-01
 primitives: [secret-sharing]
 source:
   - name: "Sigma Prime, 2020"
     url: https://blog.sigmaprime.io/dkg-rogue-key.html
-hidden: false
 ---
 
 Drand is a distributed randomness beacon using DKG and threshold BLS, with a threshold above half the participants under its security model (see the [protocol specification](https://docs.drand.love/docs/specification)). With polynomial degree $t > n/2$, a coalition of at least $n - t + 1$ parties can mount a rogue-key attack: after seeing the honest parties' constant-term commitment ($A_{i,0} = g^{a_{i,0}}$), the colluding parties choose their own so the group public key becomes an attacker-chosen 

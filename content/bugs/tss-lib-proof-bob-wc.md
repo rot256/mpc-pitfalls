@@ -1,19 +1,18 @@
 ---
 title: "tss-lib `ProofBobWC` missing `u` in hash"
-category: lack-of-context-binding
-subcategory: "Challenge Transcript Missing Required Values (Weak Fiat-Shamir)"
 date: 2019-09-11
 primitives: [zkp]
 repository: https://github.com/bnb-chain/tss-lib
 issue: 42
 pr: 43
-hidden: false
 ---
 
 The MtA "Bob-with-check"
 range proof in `bnb-chain/tss-lib` involves a commitment $u = g^\alpha$ to the prover's
 randomness. Pre-fix, the FS hash omitted `u`
 ([source](https://github.com/bnb-chain/tss-lib/issues/42)):
+
+<!--more-->
 
 ```go
 // crypto/mta/proof.go — bnb-chain/tss-lib (pre-PR #43, vulnerable)

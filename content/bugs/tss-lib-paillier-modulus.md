@@ -1,8 +1,5 @@
 ---
 title: "`bnb-chain/tss-lib` missing Paillier modulus validation (BitForge)"
-category: cryptographic-primitives
-subcategory: "Smooth or Non-Biprime Paillier Modulus"
-order: 2
 date: 2023-08-09
 primitives: [paillier, homomorphic-encryption, zkp]
 repository: https://github.com/bnb-chain/tss-lib
@@ -16,7 +13,6 @@ source:
 cve:
   name: CVE-2023-33241
   url: https://nvd.nist.gov/vuln/detail/CVE-2023-33241
-hidden: true
 ---
 
 Pre-v2.0.0 [`bnb-chain/tss-lib`](https://github.com/bnb-chain/tss-lib)

@@ -1,7 +1,5 @@
 ---
 title: "BitGo TSS missing Paillier biprimality check"
-category: cryptographic-primitives
-subcategory: "Smooth or Non-Biprime Paillier Modulus"
 date: 2023-08-09
 primitives: [paillier, homomorphic-encryption, zkp]
 repository: https://github.com/BitGo/BitGoJS
@@ -12,7 +10,6 @@ source:
 cve:
   name: CVE-2023-33241
   url: https://nvd.nist.gov/vuln/detail/CVE-2023-33241
-hidden: true
 ---
 
 BitGo's TSS implementation in `BitGoJS` followed the GG18 key-generation

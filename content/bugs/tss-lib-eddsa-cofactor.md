@@ -1,8 +1,5 @@
 ---
 title: "tss-lib threshold EdDSA missing cofactor clearing"
-category: input-validation
-subcategory: "Curve Points Not Validated"
-order: 2
 date: 2020-11-13
 primitives: [elliptic-curve, signature]
 repository: https://github.com/bnb-chain/tss-lib
@@ -10,7 +7,6 @@ pr: 115
 source:
   - name: "Baby Sharks"
     url: https://medium.com/zengo/baby-sharks-a3b9ceb4efe0
-hidden: false
 ---
 
 Standard EdDSA defends against small-subgroup attacks via bit clamping on the single-party secret scalar. The threshold EdDSA path in tss-lib applied no equivalent defense to supplied points received from peers, so as the ZenGo's [Baby Sharks](https://medium.com/zengo/baby-sharks-a3b9ceb4efe0) analysis showed, a malicious party could inject an order-8 torsion component into the joint public key so that $1/8$ of signing ceremonies verify, while the other will reject.

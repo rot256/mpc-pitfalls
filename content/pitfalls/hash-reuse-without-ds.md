@@ -5,8 +5,9 @@ hidden: false
 order: 4
 source: "hash-functions.md"
 primitives: [hash, zkp]
+bugs: [tss-lib-sha512-shared-hash]
+display: [tss-lib-sha512-shared-hash]
 ---
-
 
 **What can go wrong.** A single hash function is often reused across distinct purposes inside the same protocol: Fiat-Shamir challenges for different proofs, commitments, key derivation, session-ID generation, even signatures. When the same hash is invoked for these unrelated contexts without anything distinguishing them, it lets an adversary fraudulently pass off a hash output produced honestly in one context as valid in a different context.
 

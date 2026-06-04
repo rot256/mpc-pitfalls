@@ -5,6 +5,8 @@ hidden: false
 order: 2
 source: "discrete-log-groups.md"
 primitives: [rsa, group]
+bugs: [tss-lib-ntilde-safe-primes]
+display: [tss-lib-ntilde-safe-primes]
 ---
 
 

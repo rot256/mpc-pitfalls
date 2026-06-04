@@ -1,12 +1,9 @@
 ---
 title: "bnb-chain/tss-lib shared `SHA512_256i`"
-category: cryptographic-primitives
-subcategory: "Missing Domain Separation When a Hash Function Is Reused"
 date: 2023-08-23
 primitives: [hash, zkp]
 repository: https://github.com/bnb-chain/tss-lib
 pr: 256
-hidden: false
 ---
 
 Before v2.0.0, `bnb-chain/tss-lib` used a single `SHA512_256i` helper for every proof challenge: Schnorr, MtA, DLN, commitments, with no tag distinguishing which protocol context a hash was produced in ([source](https://github.com/bnb-chain/tss-lib/blob/v1.3.5/common/hash.go#L53-L84)).

@@ -1,13 +1,9 @@
 ---
 title: "`axelarnetwork/tofnd` accepts spoofed `from` field on the wire"
-category: insecure-subprotocol-instantiation
-subcategory: "Unauthenticated or Unencrypted Point-to-Point Channels"
-order: 1
 date: 2021-04-29
 primitives: [secure-channel]
 repository: https://github.com/axelarnetwork/tofnd
 issue: 60
-hidden: false
 ---
 
 Axelar's

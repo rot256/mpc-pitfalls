@@ -5,6 +5,8 @@ hidden: false
 order: 2
 source: "fiat-shamir.md"
 primitives: [zkp, paillier, homomorphic-encryption]
+bugs: [tss-lib-proof-bob-wc]
+display: [tss-lib-proof-bob-wc]
 ---
 
 

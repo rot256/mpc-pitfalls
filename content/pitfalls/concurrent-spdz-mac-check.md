@@ -5,6 +5,8 @@ hidden: false
 order: 1
 source: "sequential-used-concurrently.md"
 primitives: [mac, commitment]
+bugs: [mp-spdz-mac-check]
+display: [mp-spdz-mac-check]
 ---
 
 

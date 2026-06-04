@@ -1,13 +1,10 @@
 ---
 title: "WSTS threshold-raise via oversized polynomial"
-category: input-validation
-subcategory: "Received Sequence Has the Wrong Length"
 date: 2024-10-01
 primitives: [secret-sharing, commitment]
 repository: https://github.com/Trust-Machines/wsts
 issue: 87
 pr: 88
-hidden: false
 ---
 
 WSTS (Weighted Schnorr Threshold Signatures), aka WileyProofs, is based on [FROST](https://eprint.iacr.org/2020/852.pdf) and was vulnerable to threshold-raise attacks. Before PR #88, the per-signer DKG verification in `src/v1.rs` only checked the Schnorr ID, not the commitment-vector length
