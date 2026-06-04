@@ -14,13 +14,13 @@ primitives: [randomness, zkp]
 randomness $r$ for each run. If that randomness has fewer than ~128 bits of entropy —
 or is reused across proofs, or is derived from an observable source — the secret
 witness can be extracted algebraically from one or a few proofs. This is the same class
-as the classical ECDSA nonce-reuse attack, generalised to any FS-based sigma proof.
+as the classical ECDSA nonce-reuse attack, generalized to any FS-based sigma proof.
 
 **Security implication.** A passive observer who can infer or predict the prover's
 randomness recovers the secret after observing one or a few proofs. For threshold
 signing, a single signer with a weak RNG leaks its share across signatures. For DLN or
 range proofs on Paillier parameters, weak randomness can leak the Paillier prime
-factorisation. No protocol-level misbehaviour is required; the RNG weakness alone is
+factorization. No protocol-level misbehavior is required; the RNG weakness alone is
 enough.
 
 **How to avoid.** Draw all protocol randomness from a cryptographically secure RNG that

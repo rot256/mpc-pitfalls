@@ -43,7 +43,7 @@ Severity must be exactly one of `LOW`, `MEDIUM`, or `HIGH`.
 ````markdown
 ### Title : Severity
 
-**Vulnability**
+**Vulnerability**
 
 Show the call flow into the bug and the vulnerable code itself. Use short snippets with
 file paths and line references when available. Explain why the flow is reachable and why

@@ -15,7 +15,7 @@ If a protocol accepts a received point without multiplying by $h$ to strip torsi
 without using a construction like Ristretto255 that hides the torsion quotient — a
 malicious party can inject a torsion component into a shared public key, share, or
 nonce commitment and either leak information about secret scalars or create
-non-deterministic verification behaviour.
+non-deterministic verification behavior.
 
 **Security implication.** A malicious party in threshold EdDSA sends a key share
 $X_m = x_m \cdot B + T$ where $T$ is a torsion point of order 8. The joint public key

@@ -41,7 +41,7 @@ reconstructed $z = \sum z_i \ne 0$, they abort. SPDZ also uses the same commitme
 in coin-tossing and input-sharing subprotocols.
 
 Fresco's `HashBasedCommitment` hashed only the value and the randomness, with no opener
-identity in the input, allwoing a malicious party to replay it.
+identity in the input, allowing a malicious party to replay it.
 Pre-fix `commit` method
 ([source](https://github.com/aicis/fresco/blob/2dc80dca1f9dca65a0d5590daab5fa67c02035d6/tools/commitment/src/main/java/dk/alexandra/fresco/tools/commitment/HashBasedCommitment.java#L53-L67)):
 

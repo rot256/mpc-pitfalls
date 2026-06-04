@@ -13,7 +13,7 @@ primitives: [rsa]
 **What can go wrong.** If an RSA-style scheme uses a private exponent $d$ with
 $d < N^{1/4}$, Wiener's continued-fractions attack recovers $d$ from the public $(N,
 e)$ in polynomial time. [Boneh and Durfee](https://link.springer.com/chapter/10.1007/3-540-48910-X_1)
-generalised this to $d < N^{0.292}$ using lattice reduction. In MPC threshold RSA, if
+generalized this to $d < N^{0.292}$ using lattice reduction. In MPC threshold RSA, if
 $d$ is derived from shares via a distribution that clusters it below the Wiener bound
 — for instance, a small public exponent leading to $d$ skewed small — the effective
 key length is far below the modulus size.

@@ -85,7 +85,7 @@ pub fn verify_multi_signatures<T: CryptoHash + Serialize>(
 ```
 
 `EpochState::empty()` constructs exactly such a zero-validator verifier. Any code path
-that lets a malicious or deserialised `EpochState` reach `verify_multi_signatures`
+that lets a malicious or deserialized `EpochState` reach `verify_multi_signatures`
 (e.g. a `next_epoch_state` injected through an `EpochChangeProof`) yields a verifier
 that accepts every `LedgerInfo` regardless of the BLS multisignature attached to it:
 the iterator over signers runs zero times, the `aggregated < target` quorum check

@@ -23,7 +23,7 @@ timing leak recovers bits of that secret.
 [Eprint 2022/759](https://eprint.iacr.org/2022/759.pdf) (Hashimoto et al.) gives the
 systematic analysis.
 
-**How to avoid.** Use a standardised constant-time construction. IETF
+**How to avoid.** Use a standardized constant-time construction. IETF
 [RFC 9380](https://www.rfc-editor.org/rfc/rfc9380) specifies `hash_to_curve` as
 `hash_to_field` followed by `map_to_curve` (Simplified SWU for Weierstrass curves,
 Elligator for Edwards/Montgomery) in constant time with no rejection loop.
@@ -52,4 +52,4 @@ func HashToCurveInsecure(msg []byte, p *big.Int) (*big.Int, *big.Int) {
 The fix is to replace the loop with a constant-time `hash_to_field` + SWU mapping, as
 specified by RFC 9380. No MPC-library CVE is pinned to this specific pattern on this
 page yet — but the eprint paper shows it arises naturally in implementations that predate
-the IETF standardisation.
+the IETF standardization.

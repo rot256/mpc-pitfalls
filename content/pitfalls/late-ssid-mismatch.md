@@ -80,7 +80,7 @@ final_session_id: Array.from(
 The PR description spells out the protocol-level impact: *"This weakens DKLS protocol
 transcript binding and could allow cross-session confusion when multiple retrofit
 wallets sign simultaneously on the same server."* The bug was invisible from inside the protocol (no consistency check fires for
-"my `ssid` matches my neighbour's `ssid`, but they're both the wrong constant") and
+"my `ssid` matches my neighbor's `ssid`, but they're both the wrong constant") and
 nothing in the type system prevented the placeholder zero-array from reaching
 production. Detection required reasoning about the DKLS spec rather than reading the
 code.
