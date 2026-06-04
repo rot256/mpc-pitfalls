@@ -9,9 +9,9 @@
 #   "Received Sequence Has the Wrong Length"
 title: "Missing Domain Separator Across Signing Contexts"
 
-# class: One of the category slugs in content/pitfalls/classes/.
+# class: One of the categories in content/pitfalls/classes/.
 # Required. This controls which category section renders the pitfall.
-# Allowed values:
+# Current categories values:
 #   input-validation
 #   lack-of-context-binding
 #   concurrency-and-state-handling
@@ -37,7 +37,7 @@ order: 1
 #   source: "hash-functions.md"
 source: "zk-proofs-not-bound.md"
 
-# primitives: Flow-style list of primitive tags. Reuse existing tags where possible:
+# primitives: List of cryptographicprimitive tags. Existing tags include:
 #   commitment, mac, signature, secret-sharing, hash, zkp, oblivious-transfer,
 #   randomness, paillier, homomorphic-encryption, elliptic-curve, group,
 #   broadcast, rsa, secure-channel
@@ -58,7 +58,7 @@ able to replay a proof across contexts or choose the omitted value after seeing 
 challenge.
 
 **Security implication.** Explain the attacker outcome, not just the violated rule.
-Be concrete about whether the failure causes forgery, key-share extraction,
+Be concrete about what the failure causes it can be forgery, key-share extraction,
 threshold manipulation, denial of service, biased randomness, transcript replay,
 selective abort, or loss of session isolation. If useful, include a short algebraic
 sketch:
@@ -67,12 +67,10 @@ sketch:
 - What does the honest implementation accept?
 - Which secret, guarantee, or availability property is lost?
 
-Avoid overstating the impact. If the attack needs concurrency, a threshold regime,
-malicious-majority assumptions, timing observations, or multiple sessions, say so.
+**How to avoid.** Give mitigation strategies that an auditor or developer can
+apply. Prefer crisp requirements over broad advice.
 
-**How to avoid.** Give implementation-level rules that an auditor or developer can
-check. Prefer crisp requirements over broad advice.
-
+For example,
 - Bind transcript hashes to protocol name, version, role, party identity, session
   identifier, statement, commitments, and all public verification inputs.
 - Make wire encodings injective with fixed-width tags or per-element length prefixes.

@@ -11,7 +11,7 @@ hidden: false
 Two bugs were found and patched in MP-SPDZ.
 
 *Bug 1 — Missing MAC check in multi-threaded `POpen`*
-([commit `5e714b2`](https://github.com/data61/MP-SPDZ/commit/5e714b2)). The
+(commit [`5e714b2`](https://github.com/data61/MP-SPDZ/commit/5e714b2)). The
 `SubProcessor<T>::POpen()` function opens secret values. The MAC verification call
 `check()` was only triggered by an explicit output-gate condition (`inst.get_n()`), so
 in multi-threaded programs, some opened values could be used without the MAC checks
@@ -52,7 +52,7 @@ void SubProcessor<T>::POpen(const Instruction& inst)
 ```
 
 *Bug 2 — Race condition in `Commit_And_Open_`*
-([commit `b86f29b`](https://github.com/data61/MP-SPDZ/commit/b86f29b)). Inside
+(commit [`b86f29b`](https://github.com/data61/MP-SPDZ/commit/b86f29b)). Inside
 `Tools/Subroutines.cpp`, a shared `coordinator` object lets one thread signal to the
 others that its commitment phase is complete. That signal was raised *before* the
 commitment-opening validation loop ran, so a second thread waiting on the coordinator

@@ -21,7 +21,7 @@ binary payload and send messages on behalf of any other party.
 
 The vulnerable handler discarded the transport identity and passed the raw payload
 straight to the cryptographic core
-([`src/gg20/protocol.rs#L106-L117`](https://github.com/axelarnetwork/tofnd/blob/56068f8f6090362a33d948e837f5f3442355ecae/src/gg20/protocol.rs#L106-L117)):
+([source](https://github.com/axelarnetwork/tofnd/blob/56068f8f6090362a33d948e837f5f3442355ecae/src/gg20/protocol.rs#L106-L117)):
 
 ```rust
 // FILE: src/gg20/protocol.rs — axelarnetwork/tofnd (pre-fix, lines 106–117)
