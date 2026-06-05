@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pitfall Categories</title>
-    {{ $desc := "The current Common MPC Pitfalls categories." }}
-    <meta name="description" content="{{ $desc }}">
+    <title>{{ .Title }} | Common MPC Pitfalls</title>
+    <meta name="description" content="{{ .Summary | plainify }}">
     <script>
         (() => {
             document.documentElement.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -24,28 +23,18 @@
             ]
         });"></script>
 </head>
-<body class="docs-home-page">
-    {{ $allPages := where .Site.RegularPages "Section" "pitfalls" }}
-    {{ $intros := sort (where $allPages "Params.intro" true) "Params.order" }}
-    {{ $pitfalls := sort (where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true) "Params.order" }}
-
-    {{ partial "page-controls.html" . }}
-
-    <div class="docs-layout">
-        {{ partial "docs-sidebar.html" (dict "intros" $intros) }}
-
-        <main class="docs-content">
-            <h1>Pitfall Categories</h1>
-            <p class="lede">The current categories used to organize common mistakes in MPC implementations.</p>
-
-            <ol class="docs-category-list">
-                {{ range $intros }}
-                    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-                {{ end }}
-            </ol>
-        </main>
-    </div>
-
+<body>
+    <a class="page-back-arrow" href="{{ "bugs/" | relURL }}" aria-label="Back to MPC Bug Tracker" title="Back to MPC Bug Tracker">←</a>
+    <header>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
+        <p class="eyebrow"><a href="{{ "/" | relURL }}">Common MPC Pitfalls</a></p>
+        <h1>{{ .Title }}</h1>
+    </header>
+    <main>
+        <article class="bug-detail-body">
+            {{ .Content }}
+        </article>
+    </main>
     <script defer src="{{ "scripts/theme.js" | relURL }}"></script>
     <script defer src="{{ "scripts/external-links.js" | relURL }}"></script>
 </body>

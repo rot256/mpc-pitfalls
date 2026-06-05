@@ -88,26 +88,6 @@ header p {
     color: var(--muted);
 }
 
-header p.skill-link {
-    margin-top: 1.2rem;
-    padding: 0.7rem 0.95rem;
-    font-size: 0.92rem;
-    color: var(--text);
-    background: var(--accent-soft);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 4px 4px 0;
-}
-
-header p.tracker-link {
-    margin-top: 1rem;
-    font-size: 0.94rem;
-    font-weight: 600;
-}
-
-header p.skill-link a {
-    font-weight: 600;
-}
-
 header p.eyebrow {
     margin-bottom: 0.35rem;
     font-size: 0.78rem;
@@ -120,8 +100,388 @@ header p.eyebrow a {
     text-decoration: none;
 }
 
-.theme-toggle {
+.docs-home-page {
+    --text: #24313a;
+    --bg: #f7f9fb;
+    --surface: #ffffff;
+    --surface-soft: #eef4f8;
+    --accent: #1f6288;
+    --accent-dark: #154961;
+    --accent-soft: #dcebf4;
+    --border: #d8e1e7;
+    --muted: #5f6f7b;
+    --max-width: 1120px;
+}
+
+.docs-home-page[data-theme="dark"],
+[data-theme="dark"] .docs-home-page {
+    --text: #e7edf2;
+    --bg: #111517;
+    --surface: #171d21;
+    --surface-soft: #1b252b;
+    --accent: #8db8d8;
+    --accent-dark: #cce4f5;
+    --accent-soft: #1d2a32;
+    --border: #33424d;
+    --muted: #bac4cc;
+}
+
+.docs-layout {
+    display: grid;
+    grid-template-columns: 17rem minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.docs-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 2rem 1.25rem;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+}
+
+.docs-brand {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: var(--muted);
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-decoration: none;
+}
+
+.docs-sidebar h2 {
+    margin: 0.55rem 0 0.3rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.docs-sidebar ul {
+    list-style: none;
+}
+
+.docs-sidebar nav {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.docs-sidebar nav + nav {
+    margin-top: 0.7rem;
+}
+
+.docs-sidebar li + li {
+    margin-top: 0.28rem;
+}
+
+.docs-sidebar a {
+    display: block;
+    padding: 0.22rem 0;
+    text-decoration: none;
+}
+
+.docs-sidebar a[aria-current="page"] {
+    color: var(--text);
+    font-weight: 700;
+}
+
+.sidebar-toggle {
     position: fixed;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar-menu-button,
+.sidebar-backdrop {
+    display: none;
+}
+
+.tracker-page .theme-toggle {
+    position: absolute;
+    z-index: 40;
+}
+
+.tracker-page .sidebar-menu-button {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.85rem;
+    z-index: 40;
+    display: inline-flex;
+    width: 2.25rem;
+    height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.22rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    background: var(--surface);
+    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+}
+
+.tracker-page .sidebar-menu-button span {
+    display: block;
+    width: 1.15rem;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+}
+
+.tracker-page .docs-layout {
+    grid-template-columns: 1fr;
+}
+
+.tracker-page .docs-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 35;
+    width: min(17rem, 85vw);
+    height: 100vh;
+    padding: 3.8rem 1.25rem 2rem;
+    border-right: 1px solid var(--border);
+    border-bottom: 0;
+    box-shadow: var(--shadow);
+    transform: translateX(-100%);
+    transition: transform 0.18s ease;
+}
+
+.tracker-page .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: var(--overlay-bg);
+}
+
+.tracker-page .sidebar-toggle:checked ~ .sidebar-backdrop {
+    display: block;
+}
+
+.tracker-page .sidebar-toggle:checked ~ .docs-layout .docs-sidebar {
+    transform: translateX(0);
+}
+
+.docs-content {
+    width: min(46rem, calc(100vw - 21rem));
+    margin: 0 auto;
+    padding: 3.2rem 0 4rem;
+}
+
+.docs-content .eyebrow {
+    margin-bottom: 0.35rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.docs-content h1 {
+    color: var(--accent);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.12;
+    margin-bottom: 0.8rem;
+}
+
+.docs-content .lede {
+    max-width: 40rem;
+    color: var(--muted);
+    font-size: 1.08rem;
+}
+
+.docs-content section {
+    margin-top: 2.2rem;
+    padding-top: 0;
+}
+
+.docs-content h2 {
+    color: var(--accent);
+    font-size: 1.35rem;
+    line-height: 1.25;
+    margin-bottom: 0.45rem;
+}
+
+.docs-link-list {
+    margin-top: 0.5rem;
+    list-style: disc;
+    padding-left: 1.2rem;
+}
+
+.docs-link-list li {
+    padding: 0.35rem 0;
+}
+
+.contributors-list {
+    margin-top: 0.5rem;
+    list-style: disc;
+    padding-left: 1.2rem;
+}
+
+.contributors-list li {
+    padding: 0.35rem 0;
+}
+
+.contributor-name {
+    font-weight: 600;
+}
+
+.contributor-affiliation {
+    color: var(--subtle);
+    font-size: 0.9rem;
+}
+
+
+.docs-category-list {
+    counter-reset: category;
+    margin-top: 0.7rem;
+    list-style: none;
+}
+
+.docs-category-list li {
+    counter-increment: category;
+    display: grid;
+    grid-template-columns: 1.8rem minmax(0, 1fr);
+    gap: 0.45rem;
+    break-inside: avoid;
+    margin-bottom: 0.45rem;
+}
+
+.docs-category-list li::before {
+    content: counter(category) ".";
+    color: var(--muted);
+}
+
+.category-intro {
+    margin-top: 1rem;
+}
+
+/* Clickable list of pitfalls that open in the overlay (overlay variant). */
+.pitfall-list {
+    margin-top: 0.9rem;
+    padding: 0;
+    list-style: none;
+}
+
+.pitfall-list li {
+    border-top: 1px solid var(--border);
+}
+
+.pitfall-list li:last-child {
+    border-bottom: 1px solid var(--border);
+}
+
+.pitfall-list-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 0.7rem;
+    gap: 0.55rem;
+    align-items: center;
+    width: 100%;
+    padding: 0.8rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pitfall-list-item::after {
+    content: "";
+    justify-self: end;
+    width: 0;
+    height: 0;
+    border-top: 0.28rem solid transparent;
+    border-bottom: 0.28rem solid transparent;
+    border-left: 0.42rem solid currentColor;
+}
+
+.pitfall-list-item:hover {
+    color: var(--accent-dark);
+}
+
+.pitfall-overlay-title {
+    margin: 0 0 0.9rem;
+    color: var(--accent);
+    font-size: 1.4rem;
+    line-height: 1.3;
+}
+
+/* Real-world bug examples shown beneath a pitfall's explanation. */
+.pitfall-examples {
+    margin-top: 1.5rem;
+}
+
+.pitfall-example {
+    margin-bottom: 1rem;
+    padding: 0.9rem 1.1rem;
+    background: var(--surface-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 5px 5px 0;
+}
+
+.pitfall-example:last-child {
+    margin-bottom: 0;
+}
+
+.pitfall-example-title {
+    margin: 0 0 0.6rem;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.pitfall-example-kicker {
+    display: inline-block;
+    margin-right: 0.5em;
+    padding: 1px 7px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--surface);
+    background: var(--accent);
+    border-radius: 3px;
+    vertical-align: 0.12em;
+}
+
+.pitfall-example-title a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.pitfall-example-title a:hover {
+    text-decoration: underline;
+}
+
+.pitfall-example-refs {
+    font-size: 0.82rem;
+    font-weight: normal;
+    color: var(--subtle);
+}
+
+.pitfall-example-refs a {
+    color: var(--muted);
+}
+
+.pitfall-example-body > :first-child {
+    margin-top: 0;
+}
+
+.pitfall-example-body > :last-child {
+    margin-bottom: 0;
+}
+
+.theme-toggle {
+    position: absolute;
     top: 0.85rem;
     right: 0.85rem;
     z-index: 10;
@@ -403,54 +763,6 @@ main {
     background-color: #22313a;
 }
 
-.category {
-    margin-top: 3rem;
-}
-
-.category-heading {
-    font-size: 1.5rem;
-    color: var(--accent);
-    border-bottom: 2px solid var(--accent);
-    padding-bottom: 0.4rem;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.category > .pitfall:first-of-type {
-    margin-top: 1rem;
-    padding-top: 0;
-    border-top: none;
-}
-
-nav .toc {
-    list-style: none;
-    padding-left: 0;
-}
-
-nav .toc-category {
-    margin-bottom: 1rem;
-}
-
-nav .toc-category-link {
-    display: block;
-    font-weight: 600;
-    color: var(--accent);
-    text-decoration: none;
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
-    font-size: 0.88rem;
-    letter-spacing: 0.03em;
-}
-
-nav .toc-category-link:hover {
-    text-decoration: underline;
-}
-
-nav .toc-category > ol {
-    padding-left: 1.5rem;
-}
-
 footer {
     max-width: var(--max-width);
     margin: 0 auto;
@@ -466,7 +778,9 @@ footer a {
 }
 
 .page-back-arrow,
-.pitfall-overlay-close {
+.pitfall-overlay-close,
+.pitfall-overlay-top,
+.tracker-page-top {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -493,14 +807,18 @@ footer a {
 }
 
 .page-back-arrow:hover,
-.pitfall-overlay-close:hover {
+.pitfall-overlay-close:hover,
+.pitfall-overlay-top:hover,
+.tracker-page-top:hover {
     color: var(--accent);
     background: var(--accent-soft);
     opacity: 1;
 }
 
 .page-back-arrow:focus-visible,
-.pitfall-overlay-close:focus-visible {
+.pitfall-overlay-close:focus-visible,
+.pitfall-overlay-top:focus-visible,
+.tracker-page-top:focus-visible {
     outline: 1px solid var(--accent);
     outline-offset: 2px;
     background: transparent;
@@ -523,8 +841,16 @@ strong {
     --max-width: 1120px;
 }
 
-.tracker-page main {
-    padding-top: 1.5rem;
+.tracker-page .tracker-content {
+    width: min(70rem, calc(100vw - 3rem));
+    max-width: none;
+    padding: 3.2rem 0 4rem;
+}
+
+.tracker-page .tracker-header {
+    max-width: none;
+    margin: 0 0 1.5rem;
+    padding: 0 0 1.75rem;
 }
 
 .tracker-summary {
@@ -874,15 +1200,21 @@ strong {
     font-style: italic;
 }
 
-.bug-detail-panel {
-    position: sticky;
-    top: 1rem;
-    max-height: calc(100vh - 2rem);
-    overflow-y: auto;
-    padding: 1rem;
-    border-top: 2px solid var(--accent);
-    border-bottom: 1px solid var(--border);
+.tracker-page-top {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 10;
+    color: var(--accent);
     background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    opacity: 0.95;
+    font-size: 1.15rem;
+}
+
+.tracker-page-top[hidden] {
+    display: none;
 }
 
 .detail-eyebrow {
@@ -982,7 +1314,7 @@ strong {
 .pitfall-overlay {
     position: fixed;
     inset: 0;
-    z-index: 20;
+    z-index: 60;
     display: grid;
     place-items: center;
     padding: 1.5rem;
@@ -1025,6 +1357,55 @@ strong {
     cursor: pointer;
 }
 
+/* Pitfall overlay: a sticky toolbar keeps the back and scroll-to-top buttons
+   in view while the (often long) pitfall content scrolls underneath. */
+.pitfall-overlay-panel--pitfall {
+    padding-top: 0;
+}
+
+.pitfall-overlay-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 -1.5rem 0.6rem;
+    padding: 0.7rem 0.85rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.pitfall-overlay-toolbar .pitfall-overlay-close {
+    position: static;
+}
+
+.pitfall-overlay-panel--pitfall > .detail-eyebrow {
+    margin-left: 0;
+}
+
+/* Scroll-to-top button: floats over the pitfall content, sticky to the bottom
+   of the panel (not the viewport) and centered. */
+.pitfall-overlay-top {
+    position: sticky;
+    bottom: 1rem;
+    z-index: 5;
+    display: flex;
+    margin: 0.5rem auto 0.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--accent);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    opacity: 0.95;
+    font-size: 1.15rem;
+}
+
+.pitfall-overlay-top:hover {
+    opacity: 1;
+}
+
 .category-overlay-content h2 {
     margin-left: 2.4rem;
     margin-bottom: 0.75rem;
@@ -1044,6 +1425,94 @@ strong {
 }
 
 @media (max-width: 900px) {
+    .sidebar-menu-button {
+        position: absolute;
+        top: 0.85rem;
+        left: 0.85rem;
+        z-index: 40;
+        display: inline-flex;
+        width: 2.25rem;
+        height: 2.25rem;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 0.22rem;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text);
+        background: var(--surface);
+        box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.12);
+        cursor: pointer;
+    }
+
+    .sidebar-menu-button span {
+        display: block;
+        width: 1.15rem;
+        height: 2px;
+        border-radius: 999px;
+        background: currentColor;
+    }
+
+    .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        background: var(--overlay-bg);
+    }
+
+    .sidebar-toggle:checked ~ .sidebar-backdrop {
+        display: block;
+    }
+
+    .docs-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .docs-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 35;
+        width: min(17rem, 85vw);
+        height: 100vh;
+        padding: 3.8rem 1.25rem 2rem;
+        border-right: 1px solid var(--border);
+        border-bottom: 0;
+        box-shadow: var(--shadow);
+        transform: translateX(-100%);
+        transition: transform 0.18s ease;
+    }
+
+    .sidebar-toggle:checked ~ .docs-layout .docs-sidebar {
+        transform: translateX(0);
+    }
+
+    .docs-sidebar ul {
+        display: block;
+    }
+
+    .docs-sidebar li + li {
+        margin-top: 0.28rem;
+    }
+
+    .docs-sidebar h2 {
+        margin-top: 0.55rem;
+    }
+
+    .docs-content {
+        width: auto;
+        padding: 4.25rem 1rem 3rem;
+    }
+
+    .tracker-page .tracker-content {
+        width: auto;
+        padding: 4.25rem 1rem 3rem;
+    }
+
+    .docs-category-list {
+        columns: 1;
+    }
+
     .category-chart-card,
     .tracker-controls,
     .tracker-workspace {
@@ -1052,11 +1521,6 @@ strong {
 
     .tracker-table {
         min-width: 820px;
-    }
-
-    .bug-detail-panel {
-        position: static;
-        max-height: none;
     }
 }
 

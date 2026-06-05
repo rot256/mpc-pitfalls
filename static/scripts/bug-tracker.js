@@ -9,6 +9,7 @@
     const chart = document.querySelector("#category-chart");
     const legend = document.querySelector("#category-chart-legend");
     const bugOverlay = document.querySelector("#bug-overlay");
+    const bugPanel = bugOverlay.querySelector(".pitfall-overlay-panel");
     const bugPlaceholder = document.querySelector("#bug-overlay-placeholder");
     const details = [...document.querySelectorAll(".bug-detail")];
     const bugClose = [...document.querySelectorAll("[data-bug-close]")];
@@ -26,6 +27,27 @@
 
     const chartColors = ["#1a4a6e", "#c84d2f", "#678d58", "#8a5a99", "#b98322", "#3d7f91", "#9b4b5b"];
     const svgNS = "http://www.w3.org/2000/svg";
+
+    const scrollToElementTop = (element) => {
+        if (!element) return;
+
+        element.scrollTop = 0;
+        element.scrollTo?.(0, 0);
+        requestAnimationFrame(() => { element.scrollTop = 0; });
+    };
+
+    const scrollPageTop = () => {
+        const scrollingElement = document.scrollingElement || document.documentElement;
+        scrollingElement.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        window.scrollTo?.(0, 0);
+        requestAnimationFrame(() => {
+            scrollingElement.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        });
+    };
 
     const addOptions = (select, values, formatter = (value) => value) => {
         [...values].sort().forEach((value) => {
@@ -118,6 +140,7 @@
         bugPlaceholder.hidden = true;
         bugOverlay.hidden = false;
         document.body.classList.add("has-modal");
+        scrollToElementTop(bugPanel);
         bugOverlay.querySelector(".pitfall-overlay-close").focus();
     };
 
@@ -202,6 +225,18 @@
     });
 
     document.addEventListener("click", (event) => {
+        if (event.target.closest("[data-tracker-top]")) {
+            event.preventDefault();
+            scrollPageTop();
+            return;
+        }
+
+        if (event.target.closest("[data-bug-top]")) {
+            event.preventDefault();
+            scrollToElementTop(bugPanel);
+            return;
+        }
+
         const link = event.target.closest("[data-category-id]");
         if (!link || link.closest(".category-overlay-content")) return;
 

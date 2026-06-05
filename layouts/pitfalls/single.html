@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }} | Common MPC Pitfalls</title>
+    {{ $desc := cond .Params.intro (printf "%s pitfalls mapped to the Common MPC Pitfalls category." .Title) (printf "%s in the Common MPC Pitfalls collection." .Title) }}
+    <meta name="description" content="{{ $desc }}">
+    <script>
+        (() => {
+            document.documentElement.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        })();
+    </script>
+    <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+    <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="1024x1024">
+    <link rel="stylesheet" href="{{ "style.css" | relURL }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ]
+        });"></script>
+</head>
+<body class="docs-home-page">
+    {{ $allPages := where .Site.RegularPages "Section" "pitfalls" }}
+    {{ $intros := sort (where $allPages "Params.intro" true) "Params.order" }}
+    {{ $pitfalls := sort (where (where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true) "Params.class" .Params.class) "Params.order" }}
+
+    {{ partial "page-controls.html" . }}
+
+    <div class="docs-layout">
+        {{ partial "docs-sidebar.html" (dict "intros" $intros "activeClass" .Params.class) }}
+
+        <main class="docs-content category-page-content">
+            {{ if .Params.intro }}
+                <p class="eyebrow">Pitfall Category</p>
+                <h1>{{ .Title }}</h1>
+                <div class="category-intro">{{ .Content }}</div>
+
+                <section id="mapped-pitfalls">
+                    <h2>Mapped Pitfalls</h2>
+                    {{ if gt (len $pitfalls) 0 }}
+                        <ul class="pitfall-list">
+                            {{ range $pitfalls }}
+                                <li>
+                                    <button class="pitfall-list-item" type="button" data-pitfall-open="{{ .Title | anchorize }}" aria-haspopup="dialog">
+                                        <span>{{ .Title }}</span>
+                                    </button>
+                                </li>
+                            {{ end }}
+                        </ul>
+                    {{ else }}
+                        <p>No mapped pitfalls yet.</p>
+                    {{ end }}
+                </section>
+            {{ else }}
+                <p class="eyebrow">Pitfall</p>
+                <h1>{{ .Title }}</h1>
+                <article class="pitfall">
+                    {{ .Content }}
+                    {{ partial "pitfall-examples.html" . }}
+                </article>
+            {{ end }}
+        </main>
+    </div>
+
+    {{ if and .Params.intro (gt (len $pitfalls) 0) }}
+    <section class="pitfall-overlay" id="pitfall-overlay" aria-modal="true" role="dialog" aria-label="Pitfall detail" hidden>
+        <div class="pitfall-overlay-backdrop" data-pitfall-close></div>
+        <div class="pitfall-overlay-panel pitfall-overlay-panel--pitfall" role="document">
+            <div class="pitfall-overlay-toolbar">
+                <button class="pitfall-overlay-close" type="button" data-pitfall-close aria-label="Back to category" title="Back to category">←</button>
+            </div>
+            <p class="detail-eyebrow">Pitfall</p>
+            {{ range $pitfalls }}
+                <article class="pitfall pitfall-overlay-detail" id="{{ .Title | anchorize }}" data-pitfall-id="{{ .Title | anchorize }}" hidden>
+                    <h2 class="pitfall-overlay-title">{{ .Title }}</h2>
+                    {{ .Content }}
+                    {{ partial "pitfall-examples.html" . }}
+                </article>
+            {{ end }}
+            <button class="pitfall-overlay-top" type="button" data-pitfall-top aria-label="Scroll to top of pitfall" title="Back to top">↑</button>
+        </div>
+    </section>
+    {{ end }}
+
+    <script defer src="{{ "scripts/theme.js" | relURL }}"></script>
+    <script defer src="{{ "scripts/external-links.js" | relURL }}"></script>
+    <script defer src="{{ "scripts/pitfall-overlay.js" | relURL }}"></script>
+</body>
+</html>
