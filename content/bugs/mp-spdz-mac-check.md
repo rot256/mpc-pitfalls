@@ -1,88 +1,76 @@
 ---
-title: "MP-SPDZ `POpen` and `Commit_And_Open_` race conditions"
+title: "MP-SPDZ MAC-check leakage under multithreading"
 date: 2023-07-21
 primitives: [mac, commitment]
 repository: https://github.com/data61/MP-SPDZ
+source:
+  - name: "Rushing at SPDZ, ePrint 2025/789"
+    url: https://eprint.iacr.org/2025/789.pdf
 ---
 
-Two bugs were found and patched in MP-SPDZ.
-
-*Bug 1 — Missing MAC check in multi-threaded `POpen`*
-(commit [`5e714b2`](https://github.com/data61/MP-SPDZ/commit/5e714b2)). The
-`SubProcessor<T>::POpen()` function opens secret values. The MAC verification call
-`check()` was only triggered by an explicit output-gate condition (`inst.get_n()`), so
-in multi-threaded programs, some opened values could be used without the MAC checks
-needed around the open:
+In MP-SPDZ, the concrete synchronization point is `Commit_And_Open_`, the helper
+used by the MAC check to commit to local check values and then open them. Before
+the fix, each thread ran this helper independently. There was no coordinator
+shared across concurrent MAC checks, so one stalled check did not block another
+thread using the same global MAC key
+([source](https://github.com/data61/MP-SPDZ/blob/e08a6adb63ea057338f5613645d9d498cb43f2a9/Tools/Subroutines.cpp#L153-L169)):
 
 ```cpp
-// FILE: Processor/Processor.hpp — MP-SPDZ (vulnerable, prior to fix)
-template <class T>
-void SubProcessor<T>::POpen(const Instruction& inst)
+// FILE: Tools/Subroutines.cpp — MP-SPDZ (vulnerable, before 6a42453)
+void Commit_And_Open_(vector<octetStream>& datas, const Player& P)
 {
-    if (inst.get_n())
-        check();    // ← MAC check only before the loop, only if inst.get_n() is truthy
-    // ... batched open setup ...
-    for (auto it = reg.begin(); it < reg.end(); it += 2)
-        for (int i = 0; i < size; i++)
-            C[*it + i] = MC.finalize_open();
-    // ← no MAC check after the loop, even when nthreads > 0
+  vector<octetStream> Comm_data(P.num_players());
+  vector<octetStream> Open_data(P.num_players());
+
+  Commit(Comm_data[P.my_num()], Open_data[P.my_num()], datas[P.my_num()],
+      P.my_num());
+  P.Broadcast_Receive(Comm_data);
+
+  P.Broadcast_Receive(Open_data);
+
+  for (int i = 0; i < P.num_players(); i++)
+    { if (i != P.my_num())
+        { if (!Open(datas[i], Comm_data[i], Open_data[i], i))
+             { throw invalid_commitment(); }
+        }
+    }
 }
 ```
 
-The fix widens the pre-loop gate *and* adds a new post-loop MAC check with the
-same gate, so multi-threaded opens trigger both checks:
+The [Rushing at SPDZ](https://eprint.iacr.org/2025/789.pdf) paper cites
+commits [`6a42453`](https://github.com/data61/MP-SPDZ/commit/6a424539c93f) and
+[`b86f29b`](https://github.com/data61/MP-SPDZ/commit/b86f29b69515) as the
+MP-SPDZ fix. The final version passes a shared `Coordinator` into
+`Commit_And_Open_`, waits before the opening phase, validates every opening, and
+only then calls `coordinator.finished()`
+([source](https://github.com/data61/MP-SPDZ/blob/b86f29b69515cfe0d925dfb07136b5b03e9a96d2/Tools/Subroutines.cpp#L153-L172)):
 
 ```cpp
-// FILE: Processor/Processor.hpp — MP-SPDZ (fixed, commit 5e714b2)
-template <class T>
-void SubProcessor<T>::POpen(const Instruction& inst)
+// FILE: Tools/Subroutines.cpp — MP-SPDZ (fixed, commit b86f29b)
+void Commit_And_Open_(vector<octetStream>& datas, const Player& P,
+        Coordinator& coordinator)
 {
-    if (inst.get_n() or BaseMachine::s().nthreads > 0)
-        check();    // ← gate widened to also fire under multi-threading
-    // ... batched open setup ...
-    for (auto it = reg.begin(); it < reg.end(); it += 2)
-        for (int i = 0; i < size; i++)
-            C[*it + i] = MC.finalize_open();
-    if (inst.get_n() or BaseMachine::s().nthreads > 0)
-        check();    // ← NEW: post-loop MAC check, same gate
+  vector<octetStream> Comm_data(P.num_players());
+  vector<octetStream> Open_data(P.num_players());
+
+  Commit(Comm_data[P.my_num()], Open_data[P.my_num()], datas[P.my_num()],
+      P.my_num());
+  P.Broadcast_Receive(Comm_data);
+
+  coordinator.wait(P.get_id());
+  P.Broadcast_Receive(Open_data);
+
+  for (int i = 0; i < P.num_players(); i++)
+    { if (i != P.my_num())
+        { if (!Open(datas[i], Comm_data[i], Open_data[i], i))
+             { throw invalid_commitment(); }
+        }
+    }
+
+  coordinator.finished();
 }
 ```
 
-*Bug 2 — Race condition in `Commit_And_Open_`*
-(commit [`b86f29b`](https://github.com/data61/MP-SPDZ/commit/b86f29b)). Inside
-`Tools/Subroutines.cpp`, a shared `coordinator` object lets one thread signal to the
-others that its commitment phase is complete. That signal was raised *before* the
-commitment-opening validation loop ran, so a second thread waiting on the coordinator
-could observe the "finished" state and proceed with values that had not yet been
-verified:
-
-```cpp
-// FILE: Tools/Subroutines.cpp — MP-SPDZ (vulnerable)
-
-P.Broadcast_Receive(Open_data);
-coordinator.finished();                    // ← signals completion before verifying
-
-for (int i = 0; i < P.num_players(); i++)
-    if (!Open(datas[i], Comm_data[i], Open_data[i], i))
-        throw invalid_commitment();
-```
-
-The fix moves the signal to after the validation loop:
-
-```cpp
-// FILE: Tools/Subroutines.cpp — MP-SPDZ (fixed)
-
-P.Broadcast_Receive(Open_data);
-for (int i = 0; i < P.num_players(); i++)
-    if (!Open(datas[i], Comm_data[i], Open_data[i], i))
-        throw invalid_commitment();
-
-coordinator.finished();                    // ← now after verifying
-```
-
-The attack exploits the race by having a malicious party controlling Thread B observe
-that Thread A's coordinator has finished and immediately proceed to use the opened
-values in its own MAC check instance, before A has confirmed those values are
-authenticated. By carefully timing two concurrent MAC check instances the adversary
-extracts information about $\alpha$ through the unauthenticated intermediate state,
-then uses this to forge MACs on arbitrary output values.
+Holding the coordinator until validation completes serializes the MAC-check
+opening path: a stalled or invalid MAC check prevents other threads from
+continuing under the same key.

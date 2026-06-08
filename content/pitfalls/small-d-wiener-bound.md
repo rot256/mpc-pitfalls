@@ -8,23 +8,27 @@ primitives: [rsa]
 ---
 
 **What can go wrong.** If an RSA-style scheme uses a private exponent $d$ with
-$d < N^{1/4}$, Wiener's continued-fractions attack recovers $d$ from the public $(N,
-e)$ in polynomial time. [Boneh and Durfee](https://link.springer.com/chapter/10.1007/3-540-48910-X_1)
-generalized this to $d < N^{0.292}$ using lattice reduction. In MPC threshold RSA, if
-$d$ is derived from shares via a distribution that clusters it below the Wiener bound
-— for instance, a small public exponent leading to $d$ skewed small — the effective
-key length is far below the modulus size.
+$d < \frac{1}{3}N^{1/4}$, Wiener's continued-fractions attack recovers $d$ from
+the public $(N, e)$ in polynomial time. [Boneh and Durfee](https://link.springer.com/chapter/10.1007/3-540-48910-X_1)
+generalized this to $d < N^{0.292}$ using lattice reduction. In MPC threshold RSA,
+the danger is a key-generation procedure or optimization that deliberately samples
+or derives $d$ from a distribution clustered near zero.
 
 **Security implication.** Any outsider who observes the public modulus can recover
 $d$, forge signatures, and decrypt ciphertexts. No interaction with honest parties is
 required. For threshold deployments that use $d$ directly (threshold RSA signing), the
 private key is effectively public.
 
-**How to avoid.** Validate that the derived $d$ satisfies at least $d > N^{1/4}$ (the
-Wiener bound) — and tighter, $d > N^{0.292}$ against Boneh–Durfee. For threshold key
-generation, use a protocol that guarantees $d$ is sampled close to uniform on
-$[1, \phi(N))$. Small public exponents $e$ (e.g., $e = 3$) should be avoided in
-threshold settings where the resulting $d$ tends to be small.
+**How to avoid.** Never choose a small private exponent for performance. Validate
+that the derived $d$ is outside the small-exponent attack range: at minimum above
+the Wiener region $d < \frac{1}{3}N^{1/4}$, and conservatively above the
+Boneh-Durfee region $d < N^{0.292}$.
 
-**Example.** *TBD.* The Wiener / Boneh–Durfee bounds are classical and no specific
-MPC-library CVE is pinned to this concern on this page.
+**Example: Plaid CTF RSA key with a small private exponent
+([Cryptologie, 2015](https://www.cryptologie.net/posts/small-rsa-private-key-problem/)).**
+The Plaid CTF challenge published several RSA public triples $(N, e, c)$, one of
+which had a private exponent small enough to recover from the public key using a
+Wiener/Boneh-Durfee-style attack. This is a didactic CTF example rather than a
+deployed MPC-library incident, but it cleanly illustrates the failure mode: once
+$d$ falls below the small-private-exponent bounds, the public key alone is enough
+to recover the private exponent.
