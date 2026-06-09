@@ -3,10 +3,12 @@ title: "BitGo TSS missing Paillier biprimality check"
 date: 2023-08-09
 primitives: [paillier, homomorphic-encryption, zkp]
 repository: https://github.com/BitGo/BitGoJS
-pr: 3502
+pr: [3590, 3602, 3634]
 source:
   - name: "Hexens, MPC attacks (part 1)"
     url: https://hexens.io/blog/mpc-attacks-p1
+  - name: "Goldberg-Reyzin RSA modulus certification"
+    url: https://eprint.iacr.org/2018/057
 cve:
   name: CVE-2023-33241
   url: https://nvd.nist.gov/vuln/detail/CVE-2023-33241
@@ -35,20 +37,20 @@ The same root cause was disclosed at scale as
 case study in Hexens' independent
 [analysis](https://hexens.io/blog/mpc-attacks-p1).
 
-The remediation is the [CGGMP21](https://eprint.iacr.org/2021/060) pair of
-proofs: Paillier-Blum Modulus (proves $N = pq$ with
-$p \equiv q \equiv 3 \pmod 4$) and No-Small-Factor (proves
-$p, q > 2^{256}$), verified before storing any co-signer's modulus. BitGo's
-fix landed in
-[PR #3502](https://github.com/BitGo/BitGoJS/pull/3502) and shipped a
-no-small-factor verifier in
+BitGo's remediation implements the Goldberg-Reyzin RSA-modulus certification
+proof ([eprint 2018/057](https://eprint.iacr.org/2018/057)), not the CGGMP21
+Paillier-Blum plus No-Small-Factor proof pair. The verifier landed across
+[PR #3590](https://github.com/BitGo/BitGoJS/pull/3590),
+[PR #3602](https://github.com/BitGo/BitGoJS/pull/3602), and
+[PR #3634](https://github.com/BitGo/BitGoJS/pull/3634), which made the proof
+mandatory. The implementation in
 [`modules/sdk-lib-mpc/src/tss/ecdsa/paillierproof.ts`](https://github.com/BitGo/BitGoJS/blob/master/modules/sdk-lib-mpc/src/tss/ecdsa/paillierproof.ts)
-that explicitly rejects $N$ divisible by any prime up to $\alpha = 319567$,
-then verifies the Paillier challenge-response proofs $\sigma_i^N \equiv p_i \pmod N$:
+rejects $N$ divisible by any prime up to $\alpha = 319567$, then verifies the
+Paillier challenge-response proofs $\sigma_i^N \equiv p_i \pmod N$:
 
 ```typescript
 // FILE: modules/sdk-lib-mpc/src/tss/ecdsa/paillierproof.ts
-// BitGo/BitGoJS (fix in PR #3502)
+// BitGo/BitGoJS (fix landed across PRs #3590, #3602, and #3634)
 
 // Reject N if divisible by any small prime up to alpha = 319567
 for (const prime of primesSmallerThan319567) {

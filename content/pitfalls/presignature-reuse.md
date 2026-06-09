@@ -34,9 +34,7 @@ the reuse is both easy to trigger and hard to detect: a malicious party can abor
 ceremony after the presignature is fixed and force a retry on a different message,
 or route two non-interactive signing requests to different honest subsets using the
 same presignature. Honest parties signing non-interactively have no way to notice
-that the same nonce is being consumed twice. The Aumasson–Shlomovits
-[*Attacking Threshold Wallets*](https://eprint.iacr.org/2020/1052.pdf) paper
-catalogs presignature reuse as a first-class threshold-wallet threat.
+that the same nonce is being consumed twice.
 
 **How to avoid.** Atomically (across parallel sessions) consume the presignature
 before starting the signing, and consume it whether or not the signing protocol

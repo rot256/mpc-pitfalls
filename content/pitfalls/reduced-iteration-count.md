@@ -14,4 +14,7 @@ display: [multichain-fastmpc-tsshock]
 
 **Security implication.** An adversary brute-forces candidate proofs offline until one passes within the reduced soundness margin. DLN proofs in GG18 are repeated $k$ times and the soundness error is $2^{-k}$. So to forge a proof without knowing the discrete log, an attacker needs to guess all $k$ challenge bits, with a probability of $2^{-k}$. This is the [c-guess](https://verichains.io/tsshock/) attack as documented by Verichains. In Multichain's fork, $k$ was set as low as $k = 1$, where each attempt succeeds with probability $1/2$.
 
-**How to avoid.** Keep the iteration count at the value the specification mandates: **at least 128** for CGGMP21 / GG18 / GG20 DLN proofs. If performance is the concern, switch to a compiled non-interactive proof instead of cutting rounds.
+**How to avoid.** Keep the iteration count high enough to give negligible
+soundness error. For DLN proofs in this protocol family, the TSSHOCK authors
+cite CGGMP21 as recommending at least 80 repetitions, while `tss-lib` and its
+GG18/GG20 forks use 128 as the implementation default. 
