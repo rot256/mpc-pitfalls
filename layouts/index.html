@@ -41,11 +41,16 @@
 
         <main class="docs-content">
             <h1>Common Multi-Party Computation Pitfalls</h1>
-            <p class="lede">Welcome! This is a collection of common mistakes when implementing MPC protocols, to help developers and auditors implement MPC securely.</p>
+            <p class="lede">Welcome! This is an open, collaborative collection of common mistakes when implementing MPC protocols, built to help developers and auditors implement MPC securely.</p>
 
             <section id="about-the-project">
                 <h2>About the Project</h2>
-                <p>At the RWMPC 2025 workshop, a group of practitioners agreed that the field needed a shared, living reference for the implementation mistakes that keep recurring. We present a guide to common multi-party computation pitfalls, maintained by contributors from zkSecurity, Trail of Bits, Partisia, and Zama. The guide currently covers six categories: input validation, context binding, concurrency and state, insecure subprotocols, failure recovery, and adaptive inputs. It also catalogs improper use of the cryptographic primitives that MPC protocols rely on, since even a well-designed scheme can fail when its building blocks are misused. Each entry walks through a pitfall, how it can go wrong, and how to avoid it, with examples drawn from real, deployed libraries like tss-lib, WSTS, MP-SPDZ, and Drand.</p>
+                <p>The project started at the RWMPC 2025 workshop, where practitioners from across the field agreed it needed a shared reference for the implementation mistakes that keep recurring. It is an open, collaborative initiative.</p>
+            </section>
+
+            <section id="links">
+                <h2>Links</h2>
+                <p>Audit your MPC implementation with the <a href="{{ "SKILL.md" | relURL }}">auditing skill</a>, or <a href="https://github.com/rot256/mpc-pitfalls">discuss and contribute on GitHub</a>.</p>
             </section>
 
             <section id="contributors">
@@ -59,32 +64,6 @@
                     </li>
                     {{ end }}
                 </ul>
-            </section>
-
-            <section id="main-project-page">
-                <h2>Main Project Page</h2>
-                <p>The <a href="https://github.com/rot256/mpc-pitfalls">main project page</a> contains source files, contribution details, and project metadata.</p>
-            </section>
-
-            <section id="navigation">
-                <h2>Navigation</h2>
-                <ul class="docs-link-list">
-                    <li><a href="{{ "bugs/" | relURL }}">MPC Bug Tracker</a></li>
-                </ul>
-            </section>
-
-            <section id="links">
-                <h2>Links</h2>
-                <p>Audit your MPC implementation with the <a href="{{ "SKILL.md" | relURL }}">auditing skill</a>, or <a href="https://github.com/rot256/mpc-pitfalls">discuss and contribute on GitHub</a>.</p>
-            </section>
-
-            <section id="pitfall-categories">
-                <h2>Pitfall Categories</h2>
-                <ol class="docs-category-list">
-                    {{ range $intros }}
-                        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-                    {{ end }}
-                </ol>
             </section>
         </main>
     </div>
