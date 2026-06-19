@@ -22,9 +22,9 @@ $k = (H(m_1) - H(m_2)) \cdot (s_1 - s_2)^{-1} \bmod n$, then
 $x = (s_1 \cdot k - H(m_1)) \cdot r^{-1} \bmod n$. The canonical real-world incident is the 2010 [fail0verflow PlayStation 3 ECDSA break](https://archive.org/details/console-hacking-2010),
 where Sony reused a fixed nonce across game-code signatures and the master key fell out of two signed binaries.
 
-Some threshold ECDSA protocols such as [GG18](https://eprint.iacr.org/2019/114),
-[GG20](https://eprint.iacr.org/2020/540), and
-[CGGMP21](https://eprint.iacr.org/2021/060) generate this nonce distributively as a
+Some threshold ECDSA protocols such as [GG20](https://eprint.iacr.org/2020/540) and
+[CGGMP21](https://eprint.iacr.org/2021/060) (and, via an offline preprocessing phase,
+[GG18](https://eprint.iacr.org/2019/114)) generate this nonce distributively as a
 *presignature* $(k, R = k \cdot G)$ before the message is known, consuming it once a message arrives. The set of unused presignatures is a stateful object, and implementations must ensure that no two executions consume the same presignature. If they do, two or more signatures share a nonce.
 
 **Security implication.** When two signatures over different messages share a

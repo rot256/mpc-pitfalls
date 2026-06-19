@@ -51,7 +51,7 @@ hands it the free variables. The three schemes differ only in who steers the $c_
 - **Original FROST.** Structurally the same, with a single un-bound nonce $D_{i,j}$ per
   party and partial $z_{i,j} = d_{i,j} + c_i \lambda_j x_j$. The July 2020 revision closes
   it by adding a second nonce $E_{i,j}$ and a per-participant binding factor
-  $b_j = H(j, m, B)$ over the whole commitment list $B$, so the group nonce becomes
+  $b_j = H(j, B)$ over the whole commitment list $B$, so the group nonce becomes
   $R_i = \sum_j (D_{i,j} + b_j E_{i,j})$. Every challenge now depends on $B$ through the
   $b_j$, the $c_i$ can no longer be lined up across sessions, and the ROS relation cannot be
   set up.

@@ -11,7 +11,7 @@ display: [tss-lib-proof-bob-wc]
 
 
 **What can go wrong.** 
-In the Fiat-Shamir transformation, the verifier's challenge is replaced by a hash. Soundness requires that the challenge $c$ be the hash of *every* value the verifier's equation depends on: the public statement, the prover's first-message commitment(s), and any auxiliary values that appear in the verification relation. Missing any of these lets the prover choose the omitted value *after* seeing the challenge, enabling forgery.
+In the Fiat-Shamir transformation, the verifier's challenge is replaced by a hash. Soundness requires that the challenge $c$ be the hash of *every* value the verifier's equation depends on: the public statement, the prover's first-message commitment(s), and any auxiliary values that appear in the verification relation. Missing any of these lets the prover choose the omitted value *after* seeing the challenge, enabling forgery. [Dao, Miller, Wright, and Grubbs (eprint 2023/691)](https://eprint.iacr.org/2023/691) survey these weak-Fiat-Shamir attacks across modern proof systems.
 
 **Security implication.** Depending on what is missing: (i) missing the public statement makes the proof valid for any statement with the same structural shape (a cross-statement replay); (ii) missing a commitment lets the prover pick a response first and solve for a consistent commitment backwards, producing a proof with no valid witness; (iii) missing a verification-equation input frees the prover to construct a value that satisfies the omitted constraint post hoc. In every case the verifier accepts a proof that no honest prover could have produced.
 

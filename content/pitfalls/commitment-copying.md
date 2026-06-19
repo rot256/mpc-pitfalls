@@ -17,7 +17,7 @@ then copy the opening during the reveal phase. Both parties end up revealing the
 
 **Security implication.** Consider a [Blum coinflip](https://www.zkdocs.com/docs/zkdocs/commitments/): Alice and Bob commit to random bits
 $v_A, v_B$ and open to produce $v = v_A \oplus v_B$. A corrupt Bob who copies Alice's commitment, then copies her opening, makes $v_B = v_A$, so the output is always $v_A
-\oplus v_A = 0$, the coin no longer flips. The same pattern breaks the SPDZ MAC-check sub-protocol in two-party settings: when parties commit to their $z_i$ shares and an
+\oplus v_A = 0$, the coin no longer flips. The same pattern breaks the SPDZ MAC-check sub-protocol in two-party settings over a characteristic-two field: when parties commit to their $z_i$ shares and an
 honest $P_1$'s commitment is copied, the reconstructed $z = z_1 + z_1 = 0$ and the MAC check passes for any opened value $a'$, defeating the integrity guarantee on every wire
 of the circuit.
 

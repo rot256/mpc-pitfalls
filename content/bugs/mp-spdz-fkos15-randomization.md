@@ -29,7 +29,7 @@ inline void BitVector::randomize_blocks(PRNG& G)
     }
 }
 ```
-A malicious party who observes the masked input transcript can narrow the search space for the honest party's bit-input by exploiting the mask's reduced effective entropy: the soundness of FKOS15's input authentication assumed the mask hid the input information-theoretically up to $2^{-s}$, but the under-randomized mask collapsed that guarantee to a smaller margin.
+Because masks are read back bit-by-bit but only one bit per byte was randomized, only 1 in every 8 sampled bits was actually random; the other 7 were always 0. The affected values are the party's own authenticated random inputs (including sacrifice values), so an adversary can predict 7 of every 8 of those bits, far below the intended statistical-security margin.
 
 The fix special-cases the 1-bit case to fill the byte buffer directly from the
 PRG, so bit-indexed reads see fresh randomness in every bit position

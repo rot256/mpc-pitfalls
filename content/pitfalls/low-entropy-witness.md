@@ -29,4 +29,3 @@ value being proven.
 
 **Example.** *TBD.* This is a structural entropy requirement rather than a
 specific-CVE pitfall; it is typically caught in audit rather than in a single patch.
-**Note: I think we need to find at least a good reference to justify this recommendation

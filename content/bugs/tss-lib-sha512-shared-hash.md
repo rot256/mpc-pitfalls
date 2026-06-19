@@ -4,6 +4,12 @@ date: 2023-08-23
 primitives: [hash, zkp]
 repository: https://github.com/bnb-chain/tss-lib
 pr: 256
+cve:
+  name: CVE-2022-47931
+  url: https://nvd.nist.gov/vuln/detail/CVE-2022-47931
+source:
+  - name: "Verichains TSSHOCK disclosure"
+    url: https://verichains.io/tsshock/
 ---
 
 Fiat-Shamir hashes need to say which execution context they belong to, and they

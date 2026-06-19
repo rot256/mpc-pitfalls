@@ -9,17 +9,19 @@ issue: 29
 GG20's
 joint key-generation procedure (inherited from
 [GG18](https://eprint.iacr.org/2019/114)) assumes the Round 2 P2P delivery of each
-Shamir share $x_{ij}$ runs over a confidential channel, instantiated in the GG18 paper
-with Paillier encryption keyed to the recipient.
-The Coinbase library's GG20 implementation drops the encryption step and returns the
-share as a bare struct field
+Shamir share $x_{ij}$ runs over a confidential point-to-point channel. The GG18/GG20
+papers assume this private channel abstractly and leave its instantiation to the
+deployment; Paillier encryption enters only in the signing-phase MtA, never for the
+keygen shares.
+The Coinbase library's GG20 implementation provides no confidentiality of its own and
+returns the share as a bare struct field
 ([source](https://github.com/coinbase/kryptology/blob/master/pkg/tecdsa/gg20/participant/dkg_round2.go)):
 
 ```go
 // FILE: pkg/tecdsa/gg20/participant/dkg_round2.go — coinbase/kryptology
 
 type DkgRound2P2PSend struct {
-    xij *v1.ShamirShare  // raw share — no Paillier encryption applied
+    xij *v1.ShamirShare  // raw share — no encryption applied
 }
 // ...
 p2PSend[id] = &DkgRound2P2PSend{ xij: dp.state.X[id-1] }

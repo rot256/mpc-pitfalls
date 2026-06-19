@@ -22,32 +22,36 @@ $N_A = p_1 \cdots p_{16} \cdot q$ and ride the missing validation through
 MtA into share extraction (see the parent pitfall for the full attack
 mechanic).
 
-The vulnerable site is the MtA encryption call in
-`ecdsa/signing/round_1.go`
-([source](https://github.com/bnb-chain/tss-lib/blob/master/ecdsa/signing/round_1.go)):
+The MtA call in `ecdsa/signing/round_1.go`
+([source](https://github.com/bnb-chain/tss-lib/blob/v1.3.5/ecdsa/signing/round_1.go#L66))
+proceeds with Paillier moduli that keygen never required a proof for:
 
 ```go
-// FILE: ecdsa/signing/round_1.go — bnb-chain/tss-lib <= v1.3.5 (vulnerable)
-// No validation that PaillierPKs[j].N is biprime or free of small factors.
-cA, pA, err := round.key.PaillierPKs[round.PartyID().Index].EncryptAndReturnRandomness(kA)
-// ... MtA proceeds with potentially malicious N
+// FILE: ecdsa/signing/round_1.go — bnb-chain/tss-lib v1.3.5 (vulnerable)
+// Pre-v2.0.0 keygen accepted each co-signer's Paillier modulus with no
+// biprimality or no-small-factor proof, so MtA runs with moduli that were
+// never proven well-formed.
+cA, pi, err := mta.AliceInit(round.Params().EC(), round.key.PaillierPKs[i], k,
+    round.key.NTildej[j], round.key.H1j[j], round.key.H2j[j])
 ```
 
 v2.0.0
 ([GHSA-5cjx-95fx-68q9](https://github.com/advisories/GHSA-5cjx-95fx-68q9))
-added both [CGGMP21](https://eprint.iacr.org/2021/060) proofs to the DKG
-phase:
+added both [CGGMP21](https://eprint.iacr.org/2021/060) proofs to the DKG phase:
+each party generates a no-small-factor (`facproof`) and a Paillier-Blum
+(`modproof`) proof of its own modulus, which counterparties verify in a later
+round before accepting the key
+([source](https://github.com/bnb-chain/tss-lib/blob/v2.0.0/ecdsa/keygen/round_2.go#L119-L148)):
 
 ```go
 // FILE: ecdsa/keygen/round_2.go — bnb-chain/tss-lib v2.0.0 (fixed)
-// Verify Paillier-Blum modulus (N = pq, Blum prime structure)
-if ok := paillierBlumVerify(r1msg.PaillierBlumProof, Nj); !ok {
-    return round.WrapError(fmt.Errorf("paillier blum proof failed"), Pj)
-}
-// Verify no small factors (p, q > 2^256)
-if ok := noSmallFactorVerify(r1msg.NoSmallFactorProof, Nj); !ok {
-    return round.WrapError(fmt.Errorf("no small factor proof failed"), Pj)
-}
+// Each party proves its Paillier modulus is well-formed; counterparties verify
+// these proofs in a later round before accepting the key.
+facProof, err = facproof.NewProof(ContextI, round.EC(), round.save.PaillierSK.N, round.save.NTildej[j],
+    round.save.H1j[j], round.save.H2j[j], round.save.PaillierSK.P, round.save.PaillierSK.Q)  // no-small-factor
+// ...
+modProof, err = modproof.NewProof(ContextI, round.save.PaillierSK.N,
+    round.save.PaillierSK.P, round.save.PaillierSK.Q)  // Paillier-Blum modulus
 ```
 
 `bnb-chain/tss-lib` was one of five GG18/GG20 libraries named in

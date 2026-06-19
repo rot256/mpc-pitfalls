@@ -8,7 +8,8 @@ pr: 433
 ---
 
 In the [SPDZ protocol](https://eprint.iacr.org/2011/535.pdf), parties hold
-BDOZ MACs $[\alpha \cdot a]$ on every wire under a global MAC key $\alpha$.
+additive shares of a global SPDZ MAC $[\alpha \cdot a]$ on every wire under a
+single global MAC key $\alpha$.
 To verify that a reconstructed value $a'$ is correct, each party computes
 $z_i = a' \cdot \alpha_i - (\alpha \cdot a)_i$, commits to $z_i$, and opens;
 if the reconstructed $z = \sum z_i \ne 0$, they abort. SPDZ also uses the
@@ -38,11 +39,15 @@ public byte[] commit(Drbg rand, byte[] value) {
 }
 ```
 
-Each party's commitment is $c_i = H(z_i \,\|\, r_i)$, with no opener identity in the
-hash input. In a two-party SPDZ MAC check over $\mathbb{F}_{2^k}$, a corrupt $P_2$ copies
-$P_1$'s commitment byte-for-byte, then copies the opening $(z_1, r_1)$. Because the
-field has characteristic 2, the reconstructed $z = z_1 + z_1 = 0$ and the MAC check
-passes regardless of what $a'$ was reconstructed. The fix ([PR #433](https://github.com/aicis/fresco/pull/433)) added the committer's party ID as the first input to the hash
+Each party's commitment is $c_i = H(v_i \,\|\, r_i)$, with no opener identity in the
+hash input. Fresco does not implement SPDZ over binary fields, so the
+characteristic-2 single-MAC-check copy (where a copied $z_1$ gives $z = z_1 + z_1 = 0$)
+does not apply to it directly. Fresco is instead hit through the same commitment's
+use in coin-tossing: a corrupt party copies an honest party's seed commitment
+$H(s_i \,\|\, r_i)$ byte-for-byte and later copies the opening $(s_i, r_i)$, so the
+two identical seeds cancel in the XOR $s = s_1 \oplus \cdots \oplus s_n$. This strips
+the honest party's entropy from the tossed coin, making it adversarially predictable
+and letting the corrupt party pass the batch MAC check on inconsistent values. The fix ([PR #433](https://github.com/aicis/fresco/pull/433)) added the committer's party ID as the first input to the hash
 and required the opener to supply a matching ID at open time
 ([source](https://github.com/aicis/fresco/blob/fdada93b1abf19c68a1cf744e0f294df86bb1b8f/tools/commitment/src/main/java/dk/alexandra/fresco/tools/commitment/HashBasedCommitment.java#L63-L78)):
 

@@ -27,7 +27,7 @@ for i := 0; i < num; i++ {
 
 A malicious party submits index $i = q$. The literal-zero check passes, but `evaluatePolynomial(q) ≡ evaluatePolynomial(0) = f(0) = s`, handing the attacker the shared secret as their share.
 
-**Failure 2: duplicate indices mod $q$.** The same file's `ReConstruct` performs Lagrange interpolation by inverting the index difference $x_j - x_k$ via `ModInverse` ([source](https://github.com/bnb-chain/tss-lib/blob/73560daec7f83d7355107ea9b5e59d16de8765be/crypto/vss/feldman_vss.go#L137-L166)):
+**Failure 2: duplicate indices mod $q$.** The same file's `ReConstruct` performs Lagrange interpolation by inverting the index difference $x_j - x_k$ via `ModInverse` ([source](https://github.com/bnb-chain/tss-lib/blob/73560daec7f83d7355107ea9b5e59d16de8765be/crypto/vss/feldman_vss.go#L113-L120)):
 
 ```go
 // crypto/vss/feldman_vss.go, bnb-chain/tss-lib (Lagrange step in ReConstruct)
@@ -39,7 +39,7 @@ times = modN.Mul(times, div)
 
 A malicious party submits $x_j = x_k + q$ for some honest party $k$. The raw integers differ, so any non-modular `!=` check passes; modular reduction makes $x_j \equiv x_k$, `sub` is zero, `ModInverse` returns `nil`, and the next operation panics, DoS-ing the signing ceremony.
 
-**Unified fix: `CheckIndexes`.** PR #149 added a single validation helper called at the start of `Create`. It reduces each index modulo $q$, rejects zero, and rejects duplicates in one pass ([source](https://github.com/bnb-chain/tss-lib/blob/master/crypto/vss/feldman_vss.go#L53-L67)):
+**Unified fix: `CheckIndexes`.** PR #149 added a single validation helper called at the start of `Create`. It reduces each index modulo $q$, rejects zero, and rejects duplicates in one pass ([source](https://github.com/bnb-chain/tss-lib/blob/c26beac7880cfe0f583eedab419b4641a281de95/crypto/vss/feldman_vss.go#L44-L58)):
 
 ```go
 // crypto/vss/feldman_vss.go, bnb-chain/tss-lib (fixed, PR #149)

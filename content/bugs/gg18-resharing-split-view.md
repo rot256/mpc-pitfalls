@@ -1,6 +1,6 @@
 ---
 title: "GG18 resharing split-view attack"
-date: 2021-01-01
+date: 2021-04-08
 primitives: [broadcast]
 source:
   - name: "Kudelski, 2021"
@@ -11,8 +11,10 @@ Kudelski's audit of ING's threshold-ECDSA library identified a communication-lay
 failure in the GG18 resharing protocol. The issue was a design-level mismatch: the
 resharing mitigation relies on all honest parties seeing the same final confirmation,
 but that assumption is not realized by sending separate point-to-point messages. ING
-attempted echo-broadcast as the mitigation; Kudelski noted it *"might actually make
-things worse"* without a true reliable-broadcast layer underneath. If an application
+implemented the standard "forget-and-forgive" mitigation, a final ACK confirmation
+round before parties delete their old shares; Kudelski noted that this mitigation
+*"might actually make things worse"* if a robust broadcast channel is not available,
+because the final ACK can itself be equivocated. If an application
 realizes broadcast as $N$ separate point-to-point sends, a malicious sender can
 equivocate.
 

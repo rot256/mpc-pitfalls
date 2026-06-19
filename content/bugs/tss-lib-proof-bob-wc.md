@@ -15,7 +15,7 @@ randomness. Pre-fix, the FS hash omitted `u`
 <!--more-->
 
 ```go
-// crypto/mta/proof.go — bnb-chain/tss-lib (pre-PR #43, vulnerable)
+// crypto/mta/proofs.go — bnb-chain/tss-lib (pre-PR #43, vulnerable)
 // u is computed but NOT included in the challenge hash:
 eHash = common.SHA512_256i(
     append(pk.AsInts(), X.X(), X.Y(), c1, c2, z, zPrm, t, v, w)...
@@ -23,8 +23,8 @@ eHash = common.SHA512_256i(
 )
 ```
 
-Because $u$ is absent, the challenge $e$ is independent of the prover's randomness commitment. A malicious party fixes a desired response, recomputes the challenge on values
-of its choosing, and solves for a consistent $u$ after the fact, forging a valid-looking proof without a witness.
+Because $u$ is absent, the challenge $e$ is independent of the prover's randomness commitment, so the proof is malleable: a malicious party can fix a desired response, recompute the challenge on values
+of its choosing, and in principle solve for a consistent $u$ after the fact, breaking the proof's soundness.
 
 The fix ([PR #43](https://github.com/bnb-chain/tss-lib/pull/43)) added `u.X()`, `u.Y()` to the hash input:
 

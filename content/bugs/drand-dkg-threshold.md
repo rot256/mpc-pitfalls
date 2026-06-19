@@ -1,6 +1,6 @@
 ---
 title: "Drand DKG Threshold Constraint"
-date: 2020-01-01
+date: 2020-11-26
 primitives: [secret-sharing]
 source:
   - name: "Sigma Prime, 2020"
