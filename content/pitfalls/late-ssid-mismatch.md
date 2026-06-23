@@ -2,12 +2,11 @@
 title: "Session-ID Disagreement or Non-Uniqueness Not Detected Early"
 class: lack-of-context-binding
 hidden: true
-order: 3
+order: 5
 source: "uc-protocols.md"
 primitives: [oblivious-transfer]
 ---
 
-### Session-ID Disagreement or Non-Uniqueness Not Detected Early
 
 **What can go wrong.** In the
 [Universal Composability framework of Canetti (2001)](https://eprint.iacr.org/2000/067),
@@ -84,23 +83,3 @@ wallets sign simultaneously on the same server."* The bug was invisible from ins
 nothing in the type system prevented the placeholder zero-array from reaching
 production. Detection required reasoning about the DKLS spec rather than reading the
 code.
-
-**Example: tss-lib `ssid` semantics are unspecified, leaving each integrator to invent
-their own.** The library's README instructs callers to "wrap each message with a session
-ID" but does not specify the derivation, the wire format, or which sub-protocol
-identifiers must agree. [Issue #292](https://github.com/bnb-chain/tss-lib/issues/292) is
-a representative misconfiguration question, asked with no maintainer reply on file:
-
-> *"Does that mean adding additional session id data to a message like below?
-> `{ sessionId: out-of-band-id, msg: round-message }`. Or would it be ok to just using
-> https for communication and its session id?"*
-
-The two interpretations the integrator floats (application-supplied out-of-band ID vs.
-HTTPS session ID) produce mutually unintelligible deployments: two parties built by
-different teams will derive `ssid` differently and their consistency checks will fail
-with no diagnostic distinguishing "configuration mismatch" from "cheating peer". This is
-not hypothetical: [issue #228 ("Keygen Freezing and Session ID Problem")](https://github.com/bnb-chain/tss-lib/issues/228)
-is a downstream report of exactly that: random keygen freezes traced by the integrator
-back to lacking any way to "[map] session ID to a single run of keygen round." The
-library exposes no exported method to read the round of an inbound message, so the
-ssid-to-round binding the proof assumes cannot be enforced from outside.

@@ -1,0 +1,57 @@
+---
+title: "MP-SPDZ FKOS15 `randomize_blocks`"
+date: 2020-10-13
+primitives: [randomness, secret-sharing]
+repository: https://github.com/data61/MP-SPDZ
+commit: 99c5efc115ab1dfe8acfffad1997a2735ed766ac
+---
+
+FKOS15 is a binary MPC-with-preprocessing protocol used by MP-SPDZ's Tinier
+backend. Party inputs are masked with preprocessed correlated randomness; the
+security argument requires that mask to carry the full claimed statistical-security
+parameter of entropy. 
+
+In MP-SPDZ pre-fix, `Tools/BitVector.h::randomize_blocks` produced
+under-randomized masks for single-bit input types: the loop drove
+`tmp.randomize(G)` once per `T`-sized block, and for a 1-bit `T` each copied byte
+carried only one fresh random bit ([source](https://github.com/data61/MP-SPDZ/blob/bd3366a0bb6f086bed876ec94c3288992c96bd39/Tools/BitVector.h#L305-L313)):
+
+```cpp
+// Tools/BitVector.h — data61/MP-SPDZ (vulnerable, pre-99c5efc)
+template<class T>
+inline void BitVector::randomize_blocks(PRNG& G)
+{
+    T tmp;
+    for (size_t i = 0; i < (nbytes / T::size()); i++)
+    {
+        tmp.randomize(G);                            // biased for 1-bit T
+        memcpy(bytes + i * T::size(), tmp.get_ptr(), T::size());
+    }
+}
+```
+Because masks are read back bit-by-bit but only one bit per byte was randomized, only 1 in every 8 sampled bits was actually random; the other 7 were always 0. The affected values are the party's own authenticated random inputs (including sacrifice values), so an adversary can predict 7 of every 8 of those bits, far below the intended statistical-security margin.
+
+The fix special-cases the 1-bit case to fill the byte buffer directly from the
+PRG, so bit-indexed reads see fresh randomness in every bit position
+([source](https://github.com/data61/MP-SPDZ/blob/99c5efc115ab1dfe8acfffad1997a2735ed766ac/Tools/BitVector.h#L305-L321)):
+
+```cpp
+// Tools/BitVector.h — data61/MP-SPDZ (fixed, 99c5efc)
+template<class T>
+inline void BitVector::randomize_blocks(PRNG& G)
+{
+    if (T::size_in_bits() == 1)
+    {
+        G.get_octets(bytes, nbytes);                 // raw PRG output
+    }
+    else
+    {
+        T tmp;
+        for (size_t i = 0; i < (nbytes / T::size()); i++)
+        {
+            tmp.randomize(G);
+            memcpy(bytes + i * T::size(), tmp.get_ptr(), T::size());
+        }
+    }
+}
+```

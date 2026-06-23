@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }}</title>
+    {{/* Reverse map bug id -> parent pitfall, built from the bugs list of every
+         visible pitfall. First referencing pitfall wins. Drives each bug's
+         category (parent class) and pitfall link in the tracker. */}}
+    {{ $visiblePitfalls := where (where (where .Site.RegularPages "Section" "pitfalls") "Params.intro" "ne" true) "Params.hidden" "ne" true }}
+    {{ $bugMap := dict }}
+    {{ range $pf := $visiblePitfalls }}
+        {{ range $id := $pf.Params.bugs }}
+            {{ if not (isset $bugMap $id) }}{{ $bugMap = merge $bugMap (dict $id $pf) }}{{ end }}
+        {{ end }}
+    {{ end }}
+    {{ $bugs := slice }}
+    {{ range (where .Site.RegularPages "Section" "bugs") }}
+        {{ if isset $bugMap .File.BaseFileName }}{{ $bugs = $bugs | append . }}{{ end }}
+    {{ end }}
+    {{ $bugs = sort $bugs "Date" "desc" }}
+    {{ $desc := printf "A tracker of %d real-world MPC implementation bugs mapped to common MPC pitfalls." (len $bugs) }}
+    <meta name="description" content="{{ $desc }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Common MPC Pitfalls">
+    <meta property="og:title" content="{{ .Title }}">
+    <meta property="og:description" content="{{ $desc }}">
+    <meta property="og:url" content="{{ .Permalink }}">
+    <meta property="og:image" content="{{ "og-image.png" | absURL }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ .Title }}">
+    <meta name="twitter:description" content="{{ $desc }}">
+    <meta name="twitter:image" content="{{ "og-image.png" | absURL }}">
+
+    <script>
+        (() => {
+            try {
+                const saved = localStorage.getItem("mpc-pitfalls-theme-mode");
+                const system = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                document.documentElement.dataset.theme = saved === "dark" || saved === "light" ? saved : system;
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+    <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="1024x1024">
+    <link rel="stylesheet" href="{{ "style.css" | relURL }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ]
+        });"></script>
+</head>
+<body class="tracker-page">
+    <a class="page-back-arrow" href="{{ "/" | relURL }}" aria-label="Back to Common MPC Pitfalls" title="Back to Common MPC Pitfalls">←</a>
+    <header>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
+        <p class="eyebrow"><a href="{{ "/" | relURL }}">Common MPC Pitfalls</a></p>
+        <h1>{{ .Title }}</h1>
+        <p>A searchable list of real-world MPC bugs, mapped to the pitfall taxonomy.</p>
+    </header>
+
+    <main>
+        <section class="tracker-summary" aria-label="Bug tracker summary">
+            <div>
+                <strong>{{ len $bugs }}</strong>
+                <span>documented bugs</span>
+            </div>
+            <div>
+                <strong id="tracker-visible-count">{{ len $bugs }}</strong>
+                <span>shown</span>
+            </div>
+        </section>
+
+        <section class="tracker-visuals" aria-label="Bug tracker visualizations">
+            <div class="category-chart-card">
+                <div>
+                    <h2>Category Distribution</h2>
+                </div>
+                <div class="category-chart-layout">
+                    <svg id="category-chart" class="category-chart" viewBox="0 0 180 180" role="img" aria-label="Pie chart of visible bugs by category"></svg>
+                    <ul id="category-chart-legend" class="category-chart-legend"></ul>
+                </div>
+            </div>
+        </section>
+
+        <form class="tracker-controls" id="tracker-controls">
+            <label>
+                <span>Search</span>
+                <input id="bug-search" type="search" placeholder="Title, repository, pitfall, primitive">
+            </label>
+            <label>
+                <span>Category</span>
+                <select id="bug-category">
+                    <option value="">All categories</option>
+                </select>
+            </label>
+            <label>
+                <span>Primitive</span>
+                <select id="bug-primitive">
+                    <option value="">All primitives</option>
+                </select>
+            </label>
+            <button type="reset">Reset</button>
+        </form>
+
+        <section class="tracker-workspace" aria-label="Bug tracker table and detail view">
+            <div class="tracker-table-wrap">
+                <table class="tracker-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Bug</th>
+                            <th scope="col">Pitfall</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Primitives</th>
+                            <th scope="col">References</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bug-tracker-rows">
+                    {{ range $bugs }}
+                        {{ $repo := .Params.repository }}
+                        {{ $repoName := "" }}
+                        {{ $bugID := .File.BaseFileName }}
+                        {{ $pf := index $bugMap $bugID }}
+                        {{ with $repo }}{{ $repoName = replaceRE "^https://github.com/" "" . }}{{ end }}
+                        {{ $refs := partial "bug-refs.html" . }}
+                        <tr
+                            data-bug-id="{{ $bugID }}"
+                            data-category="{{ $pf.Params.class }}"
+                            data-primitives="{{ delimit .Params.primitives " " }}"
+                            data-search="{{ printf "%s %s %s %s %s" .Title $pf.Params.class $pf.Title $repoName (delimit .Params.primitives " ") | plainify | lower }}"
+                        >
+                            <td class="bug-title-cell">
+                                <h2><button class="bug-title-button" type="button">{{ .Title }}</button></h2>
+                                {{ with $repo }}
+                                    <a class="repo-link" href="{{ . }}">{{ $repoName }}</a>
+                                {{ end }}
+                                <p class="bug-preview">{{ .Summary | plainify }}</p>
+                            </td>
+                            <td>
+                                <a class="pitfall-link" href="{{ printf "/#%s" ($pf.Title | anchorize) | relURL }}" target="_blank" rel="noopener noreferrer">{{ $pf.Title }}</a>
+                            </td>
+                            <td>
+                                <button class="category-tag category-link" type="button" data-category-id="{{ $pf.Params.class }}">{{ $pf.Params.class | humanize }}</button>
+                            </td>
+                            <td>
+                                <div class="tracker-tags">
+                                    {{ range .Params.primitives }}
+                                        <span>{{ . }}</span>
+                                    {{ end }}
+                                </div>
+                            </td>
+                            <td>
+                                {{ if gt (len $refs) 0 }}
+                                    <div class="reference-list">{{ delimit $refs ", " | safeHTML }}</div>
+                                {{ else }}
+                                    <span class="muted">None listed</span>
+                                {{ end }}
+                            </td>
+                        </tr>
+                    {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <p class="tracker-empty" id="tracker-empty" hidden>No bugs match the current filters.</p>
+    </main>
+
+    <section class="pitfall-overlay bug-overlay" id="bug-overlay" aria-modal="true" role="dialog" aria-label="Bug detail" hidden>
+        <div class="pitfall-overlay-backdrop" data-bug-close></div>
+        <div class="pitfall-overlay-panel" role="document">
+            <button class="pitfall-overlay-close" type="button" data-bug-close aria-label="Back to bug tracker" title="Back to bug tracker">←</button>
+            <p class="detail-eyebrow">Bug</p>
+            <div id="bug-overlay-placeholder" class="bug-detail-placeholder">Select a bug from the table to inspect the full report.</div>
+            {{ range $bugs }}
+                {{ $repo := .Params.repository }}
+                {{ $repoName := "" }}
+                {{ $bugID := .File.BaseFileName }}
+                {{ $pf := index $bugMap $bugID }}
+                {{ with $repo }}{{ $repoName = replaceRE "^https://github.com/" "" . }}{{ end }}
+                {{ $refs := partial "bug-refs.html" . }}
+                <article class="bug-detail" id="bug-detail-{{ $bugID }}" data-bug-id="{{ $bugID }}" hidden>
+                    <h2>{{ .Title }}</h2>
+                    <dl class="bug-detail-meta">
+                        <div>
+                            <dt>Category</dt>
+                            <dd><button class="category-inline-link" type="button" data-category-id="{{ $pf.Params.class }}">{{ $pf.Params.class | humanize }}</button></dd>
+                        </div>
+                        <div>
+                            <dt>Pitfall</dt>
+                            <dd><a class="pitfall-link" href="{{ printf "/#%s" ($pf.Title | anchorize) | relURL }}" target="_blank" rel="noopener noreferrer">{{ $pf.Title }}</a></dd>
+                        </div>
+                        {{ if gt (len $refs) 0 }}
+                        <div>
+                            <dt>References</dt>
+                            <dd><span class="reference-list">{{ delimit $refs ", " | safeHTML }}</span></dd>
+                        </div>
+                        {{ end }}
+                        {{ with $repo }}
+                        <div>
+                            <dt>Repository</dt>
+                            <dd><a href="{{ . }}">{{ $repoName }}</a></dd>
+                        </div>
+                        {{ end }}
+                    </dl>
+                    <div class="tracker-tags">
+                        {{ range .Params.primitives }}
+                            <span>{{ . }}</span>
+                        {{ end }}
+                    </div>
+                    <div class="bug-detail-body">{{ .Content }}</div>
+                </article>
+            {{ end }}
+        </div>
+    </section>
+
+    {{ $categoryPages := sort (where (where .Site.RegularPages "Section" "pitfalls") "Params.intro" true) "Params.order" }}
+    <section class="pitfall-overlay" id="category-overlay" aria-modal="true" role="dialog" aria-label="Category detail" hidden>
+        <div class="pitfall-overlay-backdrop" data-category-close></div>
+        <div class="pitfall-overlay-panel" role="document">
+            <button class="pitfall-overlay-close" type="button" data-category-close aria-label="Back to bug tracker" title="Back to bug tracker">←</button>
+            <p class="detail-eyebrow">Category</p>
+            <div id="category-overlay-placeholder" class="bug-detail-placeholder">Select a category to inspect it here.</div>
+            {{ range $categoryPages }}
+                <article class="category-overlay-content" data-category-id="{{ .Params.class }}" hidden>
+                    <h2>{{ .Title }}</h2>
+                    <div>{{ .Content }}</div>
+                    <p class="pitfall-overlay-main-link"><a href="{{ printf "/#category-%s" (.Params.class | anchorize) | relURL }}">Open on main page</a></p>
+                </article>
+            {{ end }}
+        </div>
+    </section>
+
+    <script defer src="{{ "scripts/bug-tracker.js" | relURL }}"></script>
+    <script defer src="{{ "scripts/theme.js" | relURL }}"></script>
+    <script defer src="{{ "scripts/external-links.js" | relURL }}"></script>
+</body>
+</html>

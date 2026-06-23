@@ -10,5 +10,17 @@ A collection of common mistakes when implementing MPC protocols, to help develop
 {{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
 {{ range (where $pitfalls "Params.class" .Params.class) }}
 {{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
+{{ range .Params.display }}
+{{ $bug := site.GetPage (printf "/bugs/%s" .) }}{{ with $bug }}
+{{ $repo := .Params.repository }}
+{{ $refs := slice }}
+{{ with .Params.source }}{{ range . }}{{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}{{ end }}{{ end }}
+{{ with .Params.cve }}{{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}{{ end }}
+{{ if .Params.issue }}{{ $refs = $refs | append (printf "[Issue #%d](%s/issues/%d)" .Params.issue $repo .Params.issue) }}{{ end }}
+{{ if .Params.pr }}{{ $refs = $refs | append (printf "[PR #%d](%s/pull/%d)" .Params.pr $repo .Params.pr) }}{{ end }}
+{{ if .Params.commit }}{{ $short := substr .Params.commit 0 7 }}{{ $refs = $refs | append (printf "commit [`%s`](%s/commit/%s)" $short $repo .Params.commit) }}{{ end }}
+{{ $parenthetical := "" }}{{ if gt (len $refs) 0 }}{{ $parenthetical = printf " (%s)" (delimit $refs ", ") }}{{ end }}
+**Example: {{ .Title }}{{ $parenthetical }}.** {{ .RawContent | strings.TrimSpace }}
+{{ end }}{{ end -}}
 {{ end -}}
 {{- end }}

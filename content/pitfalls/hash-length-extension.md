@@ -2,11 +2,10 @@
 title: "SHA-2 / Merkle-Damgård Length-Extension Attack"
 class: cryptographic-primitives
 hidden: true
+order: 8
 source: "hash-functions.md"
 primitives: [hash, mac]
 ---
-
-### SHA-2 / Merkle-Damgård Length-Extension Attack
 
 **What can go wrong.** SHA-2 (SHA-256, SHA-512) uses the Merkle-Damgård construction:
 the internal state after processing a message $m$ is fully recoverable from $H(m)$
@@ -25,7 +24,7 @@ directly with SHA-256 (or SHA-512), and any Fiat-Shamir transform that hashes
 `secret || transcript` rather than using a keyed construction.
 
 **How to avoid.** Use a construction that is structurally immune to length extension:
-HMAC (double-hash, specified in [RFC 2104](https://www.rfc-editor.org/rfc/rfc2104)),
+HMAC (a nested keyed construction, specified in [RFC 2104](https://www.rfc-editor.org/rfc/rfc2104)),
 SHA-3 (sponge construction), or BLAKE2/BLAKE3. Never expose `H(secret || data)`
 directly as a MAC.
 

@@ -7,7 +7,7 @@ disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
 [outputs]
 home = ["HTML", "llms"]
 page = []
-section = []
+section = ["HTML"]
 
 [outputFormats.llms]
 mediaType = "text/plain"

@@ -21,6 +21,15 @@
     <meta name="twitter:description" content="{{ $desc }}">
     <meta name="twitter:image" content="{{ "og-image.png" | absURL }}">
 
+    <script>
+        (() => {
+            try {
+                const saved = localStorage.getItem("mpc-pitfalls-theme-mode");
+                const system = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                document.documentElement.dataset.theme = saved === "dark" || saved === "light" ? saved : system;
+            } catch (_) {}
+        })();
+    </script>
     <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
     <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="1024x1024">
     <link rel="stylesheet" href="{{ "style.css" | relURL }}">
@@ -36,14 +45,16 @@
 </head>
 <body>
     <header>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
         <h1>Common Multi-Party Computation Pitfalls</h1>
         <p>A collection of common mistakes when implementing MPC protocols, to help developers implement MPC securely.</p>
+        <p class="tracker-link"><a href="{{ "bugs/" | relURL }}">Browse the MPC bug tracker</a></p>
         <p class="skill-link">Audit your MPC implementation with an AI agent using the <a href="{{ "SKILL.md" | relURL }}">auditing skill</a>.</p>
     </header>
 
     {{ $allPages := where .Site.RegularPages "Section" "pitfalls" }}
-    {{ $intros := sort (where $allPages "Params.intro" true) ".Params.order" }}
-    {{ $pitfalls := sort (where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true) ".Params.order" }}
+    {{ $intros := sort (where $allPages "Params.intro" true) "Params.order" }}
+    {{ $pitfalls := sort (where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true) "Params.order" }}
 
     <nav>
         <h2>Table of Contents</h2>
@@ -68,7 +79,53 @@
             <div class="category-intro">{{ .Content }}</div>
             {{ range (where $pitfalls "Params.class" .Params.class) }}
                 <section class="pitfall" id="{{ .Title | anchorize }}">
+                    <h3>{{ .Title }}</h3>
                     {{ .Content }}
+                    {{ range .Params.display }}
+                        {{ $bug := site.GetPage (printf "/bugs/%s" .) }}
+                        {{ with $bug }}
+                        {{ $repo := .Params.repository }}
+                        {{ $refs := slice }}
+                        {{ with .Params.source }}
+                            {{ range . }}
+                                {{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}
+                            {{ end }}
+                        {{ end }}
+                        {{ with .Params.cve }}
+                            {{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}
+                        {{ end }}
+                        {{ with .Params.issue }}
+                            {{ $issues := . }}
+                            {{ if not (reflect.IsSlice .) }}{{ $issues = slice . }}{{ end }}
+                            {{ range $issues }}
+                                {{ $refs = $refs | append (printf "[Issue #%d](%s/issues/%d)" . $repo .) }}
+                            {{ end }}
+                        {{ end }}
+                        {{ with .Params.pr }}
+                            {{ $prs := . }}
+                            {{ if not (reflect.IsSlice .) }}{{ $prs = slice . }}{{ end }}
+                            {{ range $prs }}
+                                {{ $refs = $refs | append (printf "[PR #%d](%s/pull/%d)" . $repo .) }}
+                            {{ end }}
+                        {{ end }}
+                        {{ with .Params.commit }}
+                            {{ $commits := . }}
+                            {{ if not (reflect.IsSlice .) }}{{ $commits = slice . }}{{ end }}
+                            {{ range $commits }}
+                                {{ $short := substr . 0 7 }}
+                                {{ $refs = $refs | append (printf "commit [`%s`](%s/commit/%s)" $short $repo .) }}
+                            {{ end }}
+                        {{ end }}
+                        {{ $parenthetical := "" }}
+                        {{ if gt (len $refs) 0 }}
+                            {{ $parenthetical = printf " (%s)" (delimit $refs ", ") }}
+                        {{ end }}
+                        <div class="bug">
+                            {{ (printf "**Example: %s%s.**" .Title $parenthetical) | markdownify }}
+                            {{ .Content }}
+                        </div>
+                        {{ end }}
+                    {{ end }}
                 </section>
             {{ end }}
         </section>
@@ -85,5 +142,7 @@
         {{ end }}
         <a href="https://github.com/rot256/mpc-pitfalls">Discuss &amp; Contribute on GitHub</a>
     </footer>
+    <script defer src="{{ "scripts/theme.js" | relURL }}"></script>
+    <script defer src="{{ "scripts/external-links.js" | relURL }}"></script>
 </body>
 </html>
