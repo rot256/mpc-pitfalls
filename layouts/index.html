@@ -21,11 +21,7 @@
     <meta name="twitter:description" content="{{ $desc }}">
     <meta name="twitter:image" content="{{ "og-image.png" | absURL }}">
 
-    <script>
-        (() => {
-            document.documentElement.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        })();
-    </script>
+    {{ partial "theme-head.html" . }}
     <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
     <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="1024x1024">
     <link rel="stylesheet" href="{{ "style.css" | relURL }}">
@@ -46,11 +42,11 @@
             <section id="about-the-project">
                 <h2>About the Project</h2>
                 <p>The project is built to help developers and auditors implement MPC securely. It started at the RWMPC 2025 workshop, where practitioners from across the field agreed it needed a shared reference for the implementation mistakes that keep recurring.</p>
-                <p>The <a href="{{ "bugs/" | relURL }}" target="_blank" rel="noopener">MPC Bug Tracker</a> backs the pitfalls with a searchable list of real-world bugs mapped to them.</p>
+                <p>On this site we have collected and categorized the most common mistakes in MPC implementations. Additionally, we track <a href="{{ "bugs/" | relURL }}" target="_blank" rel="noopener">bugs across the MPC ecosystem</a> and provide an <a href="{{ "SKILL.md" | relURL }}" target="_blank" rel="noopener">MPC auditing skill</a> for use with agents, both during MPC development and for known-vulnerability detection and auditing.</p>
             </section>
 
             <section id="pitfall-categories-overview">
-                <h2>Current Pitfall Categories</h2>
+                <h2>Categories</h2>
                 <ul class="pitfall-list">
                     {{ range $intros }}
                     <li>
@@ -65,11 +61,6 @@
                 </ul>
             </section>
 
-            <section id="links">
-                <h2>Links</h2>
-                <p>Audit your MPC implementation with the <a href="{{ "SKILL.md" | relURL }}">auditing skill</a>, or <a href="https://github.com/rot256/mpc-pitfalls">discuss and contribute on GitHub</a>.</p>
-            </section>
-
             <section id="contributors">
                 <h2>Contributors</h2>
                 <ul class="contributors-list">
@@ -81,6 +72,7 @@
                     </li>
                     {{ end }}
                 </ul>
+                <p><a href="https://github.com/rot256/mpc-pitfalls">Discuss and contribute on GitHub</a>.</p>
             </section>
         </main>
     </div>

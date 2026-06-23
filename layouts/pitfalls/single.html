@@ -6,11 +6,7 @@
     <title>{{ .Title }} | Common MPC Pitfalls</title>
     {{ $desc := cond .Params.intro (printf "%s pitfalls mapped to the Common MPC Pitfalls category." .Title) (printf "%s in the Common MPC Pitfalls collection." .Title) }}
     <meta name="description" content="{{ $desc }}">
-    <script>
-        (() => {
-            document.documentElement.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        })();
-    </script>
+    {{ partial "theme-head.html" . }}
     <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
     <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="1024x1024">
     <link rel="stylesheet" href="{{ "style.css" | relURL }}">

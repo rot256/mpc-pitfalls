@@ -1,0 +1,21 @@
+<script>
+    (() => {
+        var KEY = "mpc-pitfalls-theme-mode";
+        var systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var choice = null;
+        try {
+            // A manual theme choice persists while navigating between pages, but
+            // a full page refresh clears it so the theme falls back to the OS.
+            var nav = performance.getEntriesByType("navigation")[0];
+            var reloaded = nav ? nav.type === "reload"
+                : (performance.navigation && performance.navigation.type === 1);
+            if (reloaded) {
+                sessionStorage.removeItem(KEY);
+            } else {
+                choice = sessionStorage.getItem(KEY);
+            }
+        } catch (e) {}
+        document.documentElement.dataset.theme =
+            (choice === "dark" || choice === "light") ? choice : (systemDark ? "dark" : "light");
+    })();
+</script>

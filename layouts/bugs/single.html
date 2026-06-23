@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ .Title }} | Common MPC Pitfalls</title>
     <meta name="description" content="{{ .Summary | plainify }}">
-    <script>
-        (() => {
-            document.documentElement.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        })();
-    </script>
+    {{ partial "theme-head.html" . }}
     <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
     <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="1024x1024">
     <link rel="stylesheet" href="{{ "style.css" | relURL }}">
