@@ -363,6 +363,37 @@ header p.eyebrow a {
     margin-top: 1rem;
 }
 
+/* Home-page category list: each row unravels its description in place. */
+.category-details > summary {
+    list-style: none;
+}
+
+.category-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.category-details > summary::after {
+    transition: transform 0.15s ease;
+}
+
+.category-details[open] > summary::after {
+    transform: rotate(90deg);
+}
+
+.category-details-content {
+    padding: 0 0 0.9rem;
+    color: var(--text);
+    line-height: 1.55;
+}
+
+.category-details-content p {
+    margin: 0;
+}
+
+.category-details-content p + p {
+    margin-top: 0.6rem;
+}
+
 /* Clickable list of pitfalls that open in the overlay (overlay variant). */
 .pitfall-list {
     margin-top: 0.9rem;

@@ -40,8 +40,8 @@
                 <h1>{{ .Title }}</h1>
                 <div class="category-intro">{{ .Content }}</div>
 
-                <section id="mapped-pitfalls">
-                    <h2>Mapped Pitfalls</h2>
+                <section id="list-of-pitfalls">
+                    <h2>List of Pitfalls</h2>
                     {{ if gt (len $pitfalls) 0 }}
                         <ul class="pitfall-list">
                             {{ range $pitfalls }}
@@ -53,7 +53,7 @@
                             {{ end }}
                         </ul>
                     {{ else }}
-                        <p>No mapped pitfalls yet.</p>
+                        <p>No pitfalls yet.</p>
                     {{ end }}
                 </section>
             {{ else }}

@@ -41,11 +41,28 @@
 
         <main class="docs-content">
             <h1>Common Multi-Party Computation Pitfalls</h1>
-            <p class="lede">Welcome! This is an open, collaborative collection of common mistakes when implementing MPC protocols, built to help developers and auditors implement MPC securely.</p>
+            <p class="lede">Welcome! This is an open, collaborative collection of common mistakes when implementing MPC protocols.</p>
 
             <section id="about-the-project">
                 <h2>About the Project</h2>
-                <p>The project started at the RWMPC 2025 workshop, where practitioners from across the field agreed it needed a shared reference for the implementation mistakes that keep recurring. It is an open, collaborative initiative.</p>
+                <p>The project is built to help developers and auditors implement MPC securely. It started at the RWMPC 2025 workshop, where practitioners from across the field agreed it needed a shared reference for the implementation mistakes that keep recurring.</p>
+                <p>The <a href="{{ "bugs/" | relURL }}" target="_blank" rel="noopener">MPC Bug Tracker</a> backs the pitfalls with a searchable list of real-world bugs mapped to them.</p>
+            </section>
+
+            <section id="pitfall-categories-overview">
+                <h2>Current Pitfall Categories</h2>
+                <ul class="pitfall-list">
+                    {{ range $intros }}
+                    <li>
+                        <details class="category-details">
+                            <summary class="pitfall-list-item">
+                                <span>{{ .Title }}</span>
+                            </summary>
+                            <div class="category-details-content">{{ .Content }}</div>
+                        </details>
+                    </li>
+                    {{ end }}
+                </ul>
             </section>
 
             <section id="links">
