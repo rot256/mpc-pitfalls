@@ -20,7 +20,7 @@
     {{ end }}
     {{ $bugs = sort $bugs "Date" "desc" }}
     {{ $intros := sort (where (where .Site.RegularPages "Section" "pitfalls") "Params.intro" true) "Params.order" }}
-    {{ $desc := printf "A tracker of %d real-world MPC implementation bugs mapped to common MPC pitfalls." (len $bugs) }}
+    {{ $desc := printf "A searchable collection of %d real-world MPC bugs mapped to common MPC pitfalls." (len $bugs) }}
     <meta name="description" content="{{ $desc }}">
 
     <meta property="og:type" content="website">
@@ -61,7 +61,7 @@
         <header class="tracker-header">
             <p class="eyebrow"><a href="{{ "/" | relURL }}">Common MPC Pitfalls</a></p>
             <h1>{{ .Title }}</h1>
-            <p>A searchable list of real-world MPC bugs, mapped to the pitfall taxonomy.</p>
+            <p>A searchable collection of real-world MPC bugs.</p>
         </header>
 
         <section class="tracker-summary" aria-label="Bug tracker summary">
