@@ -19,6 +19,7 @@
         {{ if isset $bugMap .File.BaseFileName }}{{ $bugs = $bugs | append . }}{{ end }}
     {{ end }}
     {{ $bugs = sort $bugs "Date" "desc" }}
+    {{ $intros := sort (where (where .Site.RegularPages "Section" "pitfalls") "Params.intro" true) "Params.order" }}
     {{ $desc := printf "A tracker of %d real-world MPC implementation bugs mapped to common MPC pitfalls." (len $bugs) }}
     <meta name="description" content="{{ $desc }}">
 
@@ -36,15 +37,7 @@
     <meta name="twitter:description" content="{{ $desc }}">
     <meta name="twitter:image" content="{{ "og-image.png" | absURL }}">
 
-    <script>
-        (() => {
-            try {
-                const saved = localStorage.getItem("mpc-pitfalls-theme-mode");
-                const system = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-                document.documentElement.dataset.theme = saved === "dark" || saved === "light" ? saved : system;
-            } catch (_) {}
-        })();
-    </script>
+    {{ partial "theme-head.html" . }}
     <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
     <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="1024x1024">
     <link rel="stylesheet" href="{{ "style.css" | relURL }}">
@@ -58,16 +51,19 @@
             ]
         });"></script>
 </head>
-<body class="tracker-page">
-    <a class="page-back-arrow" href="{{ "/" | relURL }}" aria-label="Back to Common MPC Pitfalls" title="Back to Common MPC Pitfalls">←</a>
-    <header>
-        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
-        <p class="eyebrow"><a href="{{ "/" | relURL }}">Common MPC Pitfalls</a></p>
-        <h1>{{ .Title }}</h1>
-        <p>A searchable list of real-world MPC bugs, mapped to the pitfall taxonomy.</p>
-    </header>
+<body class="docs-home-page tracker-page">
+    {{ partial "page-controls.html" . }}
 
-    <main>
+    <div class="docs-layout">
+        {{ partial "docs-sidebar.html" (dict "current" "bugs" "intros" $intros) }}
+
+        <main class="docs-content tracker-content">
+        <header class="tracker-header">
+            <p class="eyebrow"><a href="{{ "/" | relURL }}">Common MPC Pitfalls</a></p>
+            <h1>{{ .Title }}</h1>
+            <p>A searchable list of real-world MPC bugs, mapped to the pitfall taxonomy.</p>
+        </header>
+
         <section class="tracker-summary" aria-label="Bug tracker summary">
             <div>
                 <strong>{{ len $bugs }}</strong>
@@ -145,7 +141,7 @@
                                 <p class="bug-preview">{{ .Summary | plainify }}</p>
                             </td>
                             <td>
-                                <a class="pitfall-link" href="{{ printf "/#%s" ($pf.Title | anchorize) | relURL }}" target="_blank" rel="noopener noreferrer">{{ $pf.Title }}</a>
+                                <a class="pitfall-link" href="{{ $pf.RelPermalink }}" target="_blank" rel="noopener noreferrer">{{ $pf.Title }}</a>
                             </td>
                             <td>
                                 <button class="category-tag category-link" type="button" data-category-id="{{ $pf.Params.class }}">{{ $pf.Params.class | humanize }}</button>
@@ -171,7 +167,9 @@
             </div>
         </section>
         <p class="tracker-empty" id="tracker-empty" hidden>No bugs match the current filters.</p>
-    </main>
+        <button class="tracker-page-top" type="button" data-tracker-top aria-label="Scroll to top of bug tracker" title="Back to top" onclick="window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0;">↑</button>
+        </main>
+    </div>
 
     <section class="pitfall-overlay bug-overlay" id="bug-overlay" aria-modal="true" role="dialog" aria-label="Bug detail" hidden>
         <div class="pitfall-overlay-backdrop" data-bug-close></div>
@@ -195,7 +193,7 @@
                         </div>
                         <div>
                             <dt>Pitfall</dt>
-                            <dd><a class="pitfall-link" href="{{ printf "/#%s" ($pf.Title | anchorize) | relURL }}" target="_blank" rel="noopener noreferrer">{{ $pf.Title }}</a></dd>
+                            <dd><a class="pitfall-link" href="{{ $pf.RelPermalink }}" target="_blank" rel="noopener noreferrer">{{ $pf.Title }}</a></dd>
                         </div>
                         {{ if gt (len $refs) 0 }}
                         <div>
@@ -218,6 +216,7 @@
                     <div class="bug-detail-body">{{ .Content }}</div>
                 </article>
             {{ end }}
+            <button class="pitfall-overlay-top" type="button" data-bug-top aria-label="Scroll to top of bug report" title="Back to top" onclick="const panel = this.closest('.pitfall-overlay-panel'); if (panel) { panel.scrollTop = 0; if (panel.scrollTo) panel.scrollTo(0, 0); }">↑</button>
         </div>
     </section>
 
@@ -232,7 +231,7 @@
                 <article class="category-overlay-content" data-category-id="{{ .Params.class }}" hidden>
                     <h2>{{ .Title }}</h2>
                     <div>{{ .Content }}</div>
-                    <p class="pitfall-overlay-main-link"><a href="{{ printf "/#category-%s" (.Params.class | anchorize) | relURL }}">Open on main page</a></p>
+                    <p class="pitfall-overlay-main-link"><a href="{{ .RelPermalink }}" target="_blank" rel="noopener noreferrer">Open category page</a></p>
                 </article>
             {{ end }}
         </div>

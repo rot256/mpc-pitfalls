@@ -21,127 +21,62 @@
     <meta name="twitter:description" content="{{ $desc }}">
     <meta name="twitter:image" content="{{ "og-image.png" | absURL }}">
 
-    <script>
-        (() => {
-            try {
-                const saved = localStorage.getItem("mpc-pitfalls-theme-mode");
-                const system = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-                document.documentElement.dataset.theme = saved === "dark" || saved === "light" ? saved : system;
-            } catch (_) {}
-        })();
-    </script>
+    {{ partial "theme-head.html" . }}
     <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
     <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="1024x1024">
     <link rel="stylesheet" href="{{ "style.css" | relURL }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js"
-        onload="renderMathInElement(document.body, {
-            delimiters: [
-                {left: '$$', right: '$$', display: true},
-                {left: '$', right: '$', display: false}
-            ]
-        });"></script>
 </head>
-<body>
-    <header>
-        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
-        <h1>Common Multi-Party Computation Pitfalls</h1>
-        <p>A collection of common mistakes when implementing MPC protocols, to help developers implement MPC securely.</p>
-        <p class="tracker-link"><a href="{{ "bugs/" | relURL }}">Browse the MPC bug tracker</a></p>
-        <p class="skill-link">Audit your MPC implementation with an AI agent using the <a href="{{ "SKILL.md" | relURL }}">auditing skill</a>.</p>
-    </header>
-
+<body class="docs-home-page">
     {{ $allPages := where .Site.RegularPages "Section" "pitfalls" }}
     {{ $intros := sort (where $allPages "Params.intro" true) "Params.order" }}
-    {{ $pitfalls := sort (where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true) "Params.order" }}
 
-    <nav>
-        <h2>Table of Contents</h2>
-        <ul class="toc">
-        {{ range $intros }}
-            <li class="toc-category">
-                <a class="toc-category-link" href="#category-{{ .Params.class | anchorize }}">{{ .Title }}</a>
-                <ol>
-                {{ range (where $pitfalls "Params.class" .Params.class) }}
-                    <li><a {{ printf "href=\"#%s\"" (.Title | anchorize) | safeHTMLAttr }}>{{ .Title }}</a></li>
-                {{ end }}
-                </ol>
-            </li>
-        {{ end }}
-        </ul>
-    </nav>
+    {{ partial "page-controls.html" . }}
 
-    <main>
-    {{ range $intros }}
-        <section class="category" id="category-{{ .Params.class | anchorize }}">
-            <h2 class="category-heading">{{ .Title }}</h2>
-            <div class="category-intro">{{ .Content }}</div>
-            {{ range (where $pitfalls "Params.class" .Params.class) }}
-                <section class="pitfall" id="{{ .Title | anchorize }}">
-                    <h3>{{ .Title }}</h3>
-                    {{ .Content }}
-                    {{ range .Params.display }}
-                        {{ $bug := site.GetPage (printf "/bugs/%s" .) }}
-                        {{ with $bug }}
-                        {{ $repo := .Params.repository }}
-                        {{ $refs := slice }}
-                        {{ with .Params.source }}
-                            {{ range . }}
-                                {{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}
-                            {{ end }}
-                        {{ end }}
-                        {{ with .Params.cve }}
-                            {{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}
-                        {{ end }}
-                        {{ with .Params.issue }}
-                            {{ $issues := . }}
-                            {{ if not (reflect.IsSlice .) }}{{ $issues = slice . }}{{ end }}
-                            {{ range $issues }}
-                                {{ $refs = $refs | append (printf "[Issue #%d](%s/issues/%d)" . $repo .) }}
-                            {{ end }}
-                        {{ end }}
-                        {{ with .Params.pr }}
-                            {{ $prs := . }}
-                            {{ if not (reflect.IsSlice .) }}{{ $prs = slice . }}{{ end }}
-                            {{ range $prs }}
-                                {{ $refs = $refs | append (printf "[PR #%d](%s/pull/%d)" . $repo .) }}
-                            {{ end }}
-                        {{ end }}
-                        {{ with .Params.commit }}
-                            {{ $commits := . }}
-                            {{ if not (reflect.IsSlice .) }}{{ $commits = slice . }}{{ end }}
-                            {{ range $commits }}
-                                {{ $short := substr . 0 7 }}
-                                {{ $refs = $refs | append (printf "commit [`%s`](%s/commit/%s)" $short $repo .) }}
-                            {{ end }}
-                        {{ end }}
-                        {{ $parenthetical := "" }}
-                        {{ if gt (len $refs) 0 }}
-                            {{ $parenthetical = printf " (%s)" (delimit $refs ", ") }}
-                        {{ end }}
-                        <div class="bug">
-                            {{ (printf "**Example: %s%s.**" .Title $parenthetical) | markdownify }}
-                            {{ .Content }}
-                        </div>
-                        {{ end }}
+    <div class="docs-layout">
+        {{ partial "docs-sidebar.html" (dict "current" "home" "intros" $intros) }}
+
+        <main class="docs-content">
+            <h1>Common Multi-Party Computation Pitfalls</h1>
+            <p class="lede">Welcome! This is an open, collaborative collection of common mistakes when implementing MPC protocols.</p>
+
+            <section id="about-the-project">
+                <h2>About the Project</h2>
+                <p>The project is built to help developers and auditors implement MPC securely. It started at the RWMPC 2025 workshop, where practitioners from across the field agreed it needed a shared reference for the implementation mistakes that keep recurring.</p>
+                <p>On this site we have collected and categorized the most common mistakes in MPC implementations. Additionally, we track <a href="{{ "bugs/" | relURL }}" target="_blank" rel="noopener">bugs across the MPC ecosystem</a> and provide an <a href="{{ "SKILL.md" | relURL }}" target="_blank" rel="noopener">MPC auditing skill</a> for use with agents, both during MPC development and for known-vulnerability detection and auditing.</p>
+            </section>
+
+            <section id="pitfall-categories-overview">
+                <h2>Categories</h2>
+                <ul class="pitfall-list">
+                    {{ range $intros }}
+                    <li>
+                        <details class="category-details">
+                            <summary class="pitfall-list-item">
+                                <span>{{ .Title }}</span>
+                            </summary>
+                            <div class="category-details-content">{{ .Content }}</div>
+                        </details>
+                    </li>
                     {{ end }}
-                </section>
-            {{ end }}
-        </section>
-    {{ end }}
-    </main>
+                </ul>
+            </section>
 
-    <footer>
-        {{ with .Site.Params.contributors }}
-        <div class="contributors">
-            {{ range . }}
-            <p>{{ .name }} (<a href="https://github.com/{{ .handle }}">@{{ .handle }}</a>, {{ .affiliation }})</p>
-            {{ end }}
-        </div>
-        {{ end }}
-        <a href="https://github.com/rot256/mpc-pitfalls">Discuss &amp; Contribute on GitHub</a>
-    </footer>
+            <section id="contributors">
+                <h2>Contributors</h2>
+                <ul class="contributors-list">
+                    {{ range .Site.Params.contributors }}
+                    <li>
+                        <span class="contributor-name">{{ .name }}</span>
+                        {{ with .handle }}<a class="contributor-handle" href="https://github.com/{{ . }}">@{{ . }}</a>{{ end }}
+                        {{ with .affiliation }}<span class="contributor-affiliation">{{ . }}</span>{{ end }}
+                    </li>
+                    {{ end }}
+                </ul>
+                <p><a href="https://github.com/rot256/mpc-pitfalls">Discuss and contribute on GitHub</a>.</p>
+            </section>
+        </main>
+    </div>
+
     <script defer src="{{ "scripts/theme.js" | relURL }}"></script>
     <script defer src="{{ "scripts/external-links.js" | relURL }}"></script>
 </body>

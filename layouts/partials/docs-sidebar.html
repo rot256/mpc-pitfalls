@@ -1,0 +1,21 @@
+{{ $current := default "" .current }}
+{{ $activeClass := default "" .activeClass }}
+<aside class="docs-sidebar">
+    <div class="docs-brand">Common MPC Pitfalls</div>
+
+    <nav aria-label="Site navigation">
+        <ul>
+            <li><a {{ if eq $current "home" }}aria-current="page"{{ end }} href="{{ "/" | relURL }}">Home</a></li>
+            <li><a {{ if eq $current "bugs" }}aria-current="page"{{ end }} href="{{ "bugs/" | relURL }}">MPC Bug Tracker</a></li>
+        </ul>
+    </nav>
+
+    <nav aria-label="Pitfall categories">
+        <h2>Pitfall Categories</h2>
+        <ul>
+            {{ range .intros }}
+                <li><a {{ if and $activeClass (eq .Params.class $activeClass) }}aria-current="page"{{ end }} href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+            {{ end }}
+        </ul>
+    </nav>
+</aside>

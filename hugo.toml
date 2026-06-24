@@ -1,12 +1,27 @@
 baseURL = "https://mpcsec.org/"
 title = "Common MPC Pitfalls"
 languageCode = "en-us"
-staticDir = ["static", "skill"]
-disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotstxt", "404"]
+
+[[module.mounts]]
+source = "content"
+target = "content"
+
+[[module.mounts]]
+source = "layouts"
+target = "layouts"
+
+[[module.mounts]]
+source = "static"
+target = "static"
+
+[[module.mounts]]
+source = "skill"
+target = "static"
 
 [outputs]
 home = ["HTML", "llms"]
-page = []
+page = ["HTML"]
 section = ["HTML"]
 
 [outputFormats.llms]
@@ -17,6 +32,7 @@ isPlainText = true
 [markup.highlight]
 lineNos = true
 lineNumbersInTable = false
+noClasses = false
 
 [markup.goldmark.parser]
 autoHeadingID = false

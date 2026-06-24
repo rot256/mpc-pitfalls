@@ -1,0 +1,29 @@
+{{/*
+    Renders the real-world bug examples referenced by a pitfall's `display`
+    frontmatter. For each bug id it pulls the bug page, builds its reference
+    links via bug-refs.html, and renders the bug's full content. Mirrors the
+    "Example:" blocks produced by index.llms.txt.
+    Usage: {{ partial "pitfall-examples.html" . }} where . is the pitfall page.
+*/}}
+{{ with .Params.display }}
+    <div class="pitfall-examples">
+        {{ range . }}
+            {{ $bug := site.GetPage (printf "/bugs/%s" .) }}
+            {{ with $bug }}
+                {{ $refs := partial "bug-refs.html" . }}
+                <div class="pitfall-example">
+                    <h3 class="pitfall-example-title">
+                        <span class="pitfall-example-kicker">Example</span>
+                        <a href="{{ .RelPermalink }}">{{ .Title | markdownify | chomp | replaceRE "</?p>" "" | safeHTML }}</a>
+                        {{ if gt (len $refs) 0 }}
+                            <span class="pitfall-example-refs">({{ delimit $refs ", " | safeHTML }})</span>
+                        {{ end }}
+                    </h3>
+                    <div class="pitfall-example-body">
+                        {{ .Content }}
+                    </div>
+                </div>
+            {{ end }}
+        {{ end }}
+    </div>
+{{ end }}
