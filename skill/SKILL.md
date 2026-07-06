@@ -13,28 +13,39 @@ To self-update, fetch that URL and overwrite this file with its contents.
 
 ## Audit Workflow
 
-1. Identify the protocol, its security model, and the assumptions it imports from the
-   paper: authenticated channels, confidential channels, broadcast, setup, CRS, ROM,
-   erasures, synchrony, adaptive corruption, identifiable abort, or sequential-only
-   composition.
-2. Trace adversary-controlled inputs at every boundary: network messages, coordinator
+1. Establish the protocol context before looking for bugs. Identify the claimed
+   adversary model: semi-honest, covert, malicious, static, adaptive, rushing,
+   dishonest majority, identifiable abort, fairness, or guaranteed output delivery.
+   Identify the claimed network and setup assumptions: authenticated channels,
+   confidential channels, reliable broadcast, synchrony, PKI, CRS, ROM, erasures,
+   trusted dealer, coordinator trust, or external transport guarantees.
+2. Prefer evidence from implementation docs, paper references, protocol names, module
+   comments, configs, tests, deployment code, transport code, and API contracts. Do not
+   silently import assumptions from a paper unless the implementation claims to realize
+   that exact model.
+3. If a potential issue only matters under an attacker or network model that is not
+   claimed or clearly implied, do not report it as a vulnerability. Ask the user to
+   clarify the expected model, or list it separately as an assumption-dependent note.
+   If the implementation claims a stronger model than the code realizes, report that
+   claim mismatch as the finding.
+4. Trace adversary-controlled inputs at every boundary: network messages, coordinator
    data, persisted session state, party lists, shares, commitments, public keys,
    proofs, ciphertexts, signatures, and randomness APIs.
-3. Name the session identifiers. Look for `sid`, `ssid`, sub-session IDs, protocol
+5. Name the session identifiers. Look for `sid`, `ssid`, sub-session IDs, protocol
    version, ciphersuite, threshold parameters, participant set, party ID, and receiver
    ID. The key question is whether the same bytes can be replayed in another context.
-4. Reconstruct every transcript construction. For Fiat-Shamir and hash-based checks,
+6. Reconstruct every transcript construction. For Fiat-Shamir and hash-based checks,
    enumerate the verifier equation first, then confirm the hash includes every public
    value that equation depends on with unambiguous encoding and domain separation.
-5. Draw subprotocol boundaries. OT, commitment, broadcast, VSS, MAC check, Paillier,
+7. Draw subprotocol boundaries. OT, commitment, broadcast, VSS, MAC check, Paillier,
    DLN, range proofs, and hash-to-curve often hide obligations that the caller still
    must enforce.
-6. Follow aborts. Observe that a failed check is not safe merely because it returns an
+8. Follow aborts. Observe that a failed check is not safe merely because it returns an
    error. Ask whether the error identifies the peer, destroys compromised state,
    aborts parallel instances, and prevents retry with the same correlated randomness.
-7. Report each finding with a concrete code path, the vulnerable code, severity, impact,
-   and fix. Do not report abstract pitfall matches without showing where execution reaches
-   the unsafe behavior.
+9. Report each finding with a concrete code path, the vulnerable code, severity, impact,
+   assumptions, and fix. Do not report abstract pitfall matches without showing where
+   execution reaches the unsafe behavior under the stated protocol model.
 
 ## Finding Format
 
@@ -43,11 +54,17 @@ Severity must be exactly one of `LOW`, `MEDIUM`, or `HIGH`.
 ````markdown
 ### Title : Severity
 
+**Assumptions**
+
+State the adversary model and network/setup assumptions under which this is a
+vulnerability. Cite the code, documentation, API contract, or protocol reference that
+supports those assumptions. If the model is inferred rather than explicit, say so.
+
 **Vulnerability**
 
 Show the call flow into the bug and the vulnerable code itself. Use short snippets with
 file paths and line references when available. Explain why the flow is reachable and why
-the final snippet violates the protocol obligation.
+the final snippet violates the protocol obligation under the stated assumptions.
 
 Example shape:
 
