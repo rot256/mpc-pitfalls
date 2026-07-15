@@ -2,14 +2,19 @@
 
 > Security guidance for implementing and auditing multi-party computation protocols, with common pitfalls and real-world bugs.
 
-Use the catalogs to find a topic, then follow their links to clean Markdown detail pages. Tracker-visible bugs and pitfalls follow the same visibility and association rules as the human-readable site.
+Use the pitfall catalog below to find security guidance, or search the bug tracker for a real-world vulnerability. Follow their links to clean Markdown detail pages.
 
 ## Resources
 
-- [Pitfall catalog]({{ "pitfalls/llms.txt" | absURL }}): Pitfalls grouped by category, with primitives and related bug reports.
 - [MPC bug tracker]({{ "bugs/llms.txt" | absURL }}): Searchable metadata and links for real-world MPC vulnerabilities, sorted newest first.
 - [MPC auditing skill]({{ "SKILL.md" | absURL }}): Agent instructions for auditing MPC protocols and implementations.
+
+## MPC Pitfall Catalog
+
+Pitfalls are grouped by category, with searchable primitive metadata and links to related bug reports.
+{{ partial "pitfall-catalog.md" (dict "Site" .Site "Nested" true) }}
 
 ## Optional
 
 - [Full pitfall corpus]({{ "llms-full.txt" | absURL }}): Complete pitfall guidance and selected bug examples in one file.
+- [Standalone pitfall catalog]({{ "pitfalls/llms.txt" | absURL }}): The catalog above as a dedicated Markdown file.

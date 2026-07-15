@@ -8,8 +8,6 @@
 {{- $bugs = sort $bugs "Date" "desc" -}}
 # MPC Bug Tracker
 
-> {{ len $bugs }} real-world MPC bugs mapped to common implementation pitfalls, sorted newest first.
-
 Search this file by title, repository, pitfall, category, or primitive. Follow the Markdown report link for complete metadata and report text.
 {{ range $bugs }}
 {{- $bugID := .File.BaseFileName -}}
