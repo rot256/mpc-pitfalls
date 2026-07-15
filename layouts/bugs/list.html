@@ -4,16 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ .Title }}</title>
-    {{/* Reverse map bug id -> parent pitfall, built from the bugs list of every
-         visible pitfall. First referencing pitfall wins. Drives each bug's
-         category (parent class) and pitfall link in the tracker. */}}
-    {{ $visiblePitfalls := where (where (where .Site.RegularPages "Section" "pitfalls") "Params.intro" "ne" true) "Params.hidden" "ne" true }}
-    {{ $bugMap := dict }}
-    {{ range $pf := $visiblePitfalls }}
-        {{ range $id := $pf.Params.bugs }}
-            {{ if not (isset $bugMap $id) }}{{ $bugMap = merge $bugMap (dict $id $pf) }}{{ end }}
-        {{ end }}
-    {{ end }}
+    {{ $bugMap := partial "bug-map.html" .Site }}
     {{ $bugs := slice }}
     {{ range (where .Site.RegularPages "Section" "bugs") }}
         {{ if isset $bugMap .File.BaseFileName }}{{ $bugs = $bugs | append . }}{{ end }}
