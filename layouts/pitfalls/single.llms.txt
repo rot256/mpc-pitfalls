@@ -1,0 +1,42 @@
+{{- $allPages := where .Site.RegularPages "Section" "pitfalls" -}}
+{{- $intros := sort (where $allPages "Params.intro" true) ".Params.order" -}}
+{{- $visiblePitfalls := where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true -}}
+{{- $bugMap := partial "bug-map.html" .Site -}}
+{{- if .Params.intro -}}
+{{- $pitfalls := sort (where $visiblePitfalls "Params.class" .Params.class) ".Params.order" -}}
+# {{ .Title }}
+
+{{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
+
+## Pitfalls
+{{ range $pitfalls }}
+
+- [{{ .Title }}]({{ printf "pitfalls/%s/llms.txt" .File.BaseFileName | absURL }}) — Primitives: {{ delimit .Params.primitives ", " }}
+{{- end }}
+
+- [All pitfall categories]({{ "pitfalls/llms.txt" | absURL }})
+{{- else if ne .Params.hidden true -}}
+{{- $category := index (where $intros "Params.class" .Params.class) 0 -}}
+{{- $related := slice -}}
+{{- range $id := .Params.bugs -}}
+    {{- if isset $bugMap $id -}}
+        {{- $bug := site.GetPage (printf "/bugs/%s" $id) -}}
+        {{- with $bug -}}
+            {{- $related = $related | append (printf "[%s](%s)" .Title (printf "bugs/%s/llms.txt" $id | absURL)) -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+# {{ .Title }}
+
+- Category: [{{ $category.Title }}]({{ printf "pitfalls/classes/%s/llms.txt" $category.File.BaseFileName | absURL }})
+- Primitives: {{ delimit .Params.primitives ", " }}
+- Catalog: [MPC Pitfall Catalog]({{ "pitfalls/llms.txt" | absURL }})
+
+{{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
+{{ if gt (len $related) 0 }}
+## Related Bug Reports
+
+{{ range $related }}- {{ . }}
+{{ end -}}
+{{ end -}}
+{{- end }}

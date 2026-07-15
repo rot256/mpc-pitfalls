@@ -1,0 +1,6 @@
+# MPC Pitfall Catalog
+
+> Common MPC implementation pitfalls grouped by security category, with searchable primitive metadata and related bug reports.
+
+Follow a pitfall's Markdown link for the complete guidance. Bug links open clean Markdown reports.
+{{ partial "pitfall-catalog.md" (dict "Site" .Site "Nested" false) }}

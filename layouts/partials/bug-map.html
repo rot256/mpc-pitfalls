@@ -1,0 +1,18 @@
+{{/*
+    Builds the tracker-visible reverse map from bug id to parent pitfall.
+    Only non-intro, non-hidden pitfalls participate, and the first pitfall
+    referencing a bug wins. All tracker outputs use this partial so their
+    visibility and association rules stay aligned.
+
+    Usage: {{ $bugMap := partial "bug-map.html" .Site }}
+*/}}
+{{ $visiblePitfalls := where (where (where .RegularPages "Section" "pitfalls") "Params.intro" "ne" true) "Params.hidden" "ne" true }}
+{{ $bugMap := dict }}
+{{ range $pf := $visiblePitfalls }}
+    {{ range $id := $pf.Params.bugs }}
+        {{ if not (isset $bugMap $id) }}
+            {{ $bugMap = merge $bugMap (dict $id $pf) }}
+        {{ end }}
+    {{ end }}
+{{ end }}
+{{ return $bugMap }}

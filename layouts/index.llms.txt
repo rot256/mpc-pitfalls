@@ -1,26 +1,20 @@
-{{- $allPages := where .Site.RegularPages "Section" "pitfalls" -}}
-{{- $intros := sort (where $allPages "Params.intro" true) ".Params.order" -}}
-{{- $pitfalls := sort (where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true) ".Params.order" -}}
-# Common Multi-Party Computation Pitfalls
+# Common MPC Pitfalls
 
-A collection of common mistakes when implementing MPC protocols, to help developers implement MPC securely.
-{{ range $intros }}
-## {{ .Title }}
+> Security guidance for implementing and auditing multi-party computation protocols, with common pitfalls and real-world bugs.
 
-{{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
-{{ range (where $pitfalls "Params.class" .Params.class) }}
-{{ .RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
-{{ range .Params.display }}
-{{ $bug := site.GetPage (printf "/bugs/%s" .) }}{{ with $bug }}
-{{ $repo := .Params.repository }}
-{{ $refs := slice }}
-{{ with .Params.source }}{{ range . }}{{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}{{ end }}{{ end }}
-{{ with .Params.cve }}{{ $refs = $refs | append (printf "[%s](%s)" .name .url) }}{{ end }}
-{{ if .Params.issue }}{{ $refs = $refs | append (printf "[Issue #%d](%s/issues/%d)" .Params.issue $repo .Params.issue) }}{{ end }}
-{{ if .Params.pr }}{{ $refs = $refs | append (printf "[PR #%d](%s/pull/%d)" .Params.pr $repo .Params.pr) }}{{ end }}
-{{ if .Params.commit }}{{ $short := substr .Params.commit 0 7 }}{{ $refs = $refs | append (printf "commit [`%s`](%s/commit/%s)" $short $repo .Params.commit) }}{{ end }}
-{{ $parenthetical := "" }}{{ if gt (len $refs) 0 }}{{ $parenthetical = printf " (%s)" (delimit $refs ", ") }}{{ end }}
-**Example: {{ .Title }}{{ $parenthetical }}.** {{ .RawContent | strings.TrimSpace }}
-{{ end }}{{ end -}}
-{{ end -}}
-{{- end }}
+Use the pitfall catalog below to find security guidance, or search the bug tracker for a real-world vulnerability. Follow their links to clean Markdown detail pages.
+
+## Resources
+
+- [MPC bug tracker]({{ "bugs/llms.txt" | absURL }}): Searchable metadata and links for real-world MPC vulnerabilities, sorted newest first.
+- [MPC auditing skill]({{ "SKILL.md" | absURL }}): Agent instructions for auditing MPC protocols and implementations.
+
+## MPC Pitfall Catalog
+
+Pitfalls are grouped by category, with searchable primitive metadata and links to related bug reports.
+{{ partial "pitfall-catalog.md" (dict "Site" .Site "Nested" true) }}
+
+## Optional
+
+- [Full pitfall corpus]({{ "llms-full.txt" | absURL }}): Complete pitfall guidance and selected bug examples in one file.
+- [Standalone pitfall catalog]({{ "pitfalls/llms.txt" | absURL }}): The catalog above as a dedicated Markdown file.
