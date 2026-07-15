@@ -1,0 +1,29 @@
+{{- $allPages := where .Site.RegularPages "Section" "pitfalls" -}}
+{{- $intros := sort (where $allPages "Params.intro" true) ".Params.order" -}}
+{{- $pitfalls := where (where $allPages "Params.intro" "ne" true) "Params.hidden" "ne" true -}}
+{{- $bugMap := partial "bug-map.html" .Site -}}
+# MPC Pitfall Catalog
+
+> Common MPC implementation pitfalls grouped by security category, with searchable primitive metadata and related bug reports.
+
+Follow a pitfall's Markdown link for the complete guidance. Bug links open clean Markdown reports.
+{{ range $category := $intros }}
+{{- $categoryPitfalls := sort (where $pitfalls "Params.class" $category.Params.class) ".Params.order" }}
+
+## [{{ $category.Title }}]({{ printf "pitfalls/classes/%s/llms.txt" $category.File.BaseFileName | absURL }})
+
+{{ $category.RawContent | replaceRE `(?s)<!--.*?-->` "" | strings.TrimSpace }}
+{{ range $pf := $categoryPitfalls }}
+{{- $related := slice -}}
+{{- range $id := $pf.Params.bugs -}}
+    {{- if isset $bugMap $id -}}
+        {{- $bug := site.GetPage (printf "/bugs/%s" $id) -}}
+        {{- with $bug -}}
+            {{- $related = $related | append (printf "[%s](%s)" .Title (printf "bugs/%s/llms.txt" $id | absURL)) -}}
+        {{- end -}}
+    {{- end -}}
+{{- end }}
+
+- [{{ $pf.Title }}]({{ printf "pitfalls/%s/llms.txt" $pf.File.BaseFileName | absURL }}) — Primitives: {{ delimit $pf.Params.primitives ", " }}{{ if gt (len $related) 0 }}. Related bugs: {{ delimit $related "; " }}{{ end }}
+{{- end }}
+{{- end }}

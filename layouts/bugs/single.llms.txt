@@ -1,0 +1,22 @@
+{{- $bugMap := partial "bug-map.html" .Site -}}
+{{- $bugID := .File.BaseFileName -}}
+{{- if isset $bugMap $bugID -}}
+{{- $pf := index $bugMap $bugID -}}
+{{- $repo := .Params.repository -}}
+{{- $repoName := "" -}}
+{{- with $repo }}{{ $repoName = replaceRE "^https://github.com/" "" . }}{{ end -}}
+{{- $refs := partial "bug-refs.md" . -}}
+# {{ .Title }}
+
+- Date: {{ .Date.Format "2006-01-02" }}
+- Repository: {{ with $repo }}[{{ $repoName }}]({{ . }}){{ else }}Not listed{{ end }}
+- Pitfall: [{{ $pf.Title }}]({{ printf "pitfalls/%s/llms.txt" $pf.File.BaseFileName | absURL }})
+- Category: {{ $pf.Params.class | humanize }}
+- Primitives: {{ delimit .Params.primitives ", " }}
+{{- if gt (len $refs) 0 }}
+- References: {{ delimit $refs ", " }}
+{{- end }}
+- Catalog: [MPC Bug Tracker]({{ "bugs/llms.txt" | absURL }})
+
+{{ .RawContent | strings.TrimSpace }}
+{{- end }}

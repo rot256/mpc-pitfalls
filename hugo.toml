@@ -20,13 +20,18 @@ source = "skill"
 target = "static"
 
 [outputs]
-home = ["HTML", "llms"]
-page = ["HTML"]
-section = ["HTML"]
+home = ["HTML", "llms", "llmsfull"]
+page = ["HTML", "llms"]
+section = ["HTML", "llms"]
 
 [outputFormats.llms]
 mediaType = "text/plain"
 baseName = "llms"
+isPlainText = true
+
+[outputFormats.llmsfull]
+mediaType = "text/plain"
+baseName = "llms-full"
 isPlainText = true
 
 [markup.highlight]
